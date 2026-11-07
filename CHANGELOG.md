@@ -37,7 +37,7 @@ Este projeto segue [Semantic Versioning](https://semver.org/).
 
 ## 0.20.0
 
-- **18 gravações de teclados reais incluídas**: os pacotes oficiais do Mechvibes (MIT), entre eles Cherry MX Black/Blue/Brown/Red em ABS e PBT, Holy Pandas, NK Cream, Topre e EG, aparecem direto em *Som do teclado → Switch*. Foram compactados de 21 MB para 2,5 MB, mantendo só os trechos de cada tecla em mono (`packaging/fetch_soundpacks.py`, a partir de um commit fixo). As licenças vão em `hackerterminal/soundpacks/LICENSE` e no `copyright` do `.deb`.
+- **18 gravações de teclados reais incluídas**: os pacotes oficiais do Mechvibes (MIT), entre eles Cherry MX Black/Blue/Brown/Red em ABS e PBT, Holy Pandas, NK Cream, Topre e EG, aparecem direto em *Som do teclado → Switch*. Foram compactados de 21 MB para 2,5 MB, mantendo só os trechos de cada tecla em mono (`packaging/fetch_soundpacks.py`, a partir de um commit fixo). As licenças vão em `littleshell/soundpacks/LICENSE` e no `copyright` do `.deb`.
 - Pacotes Mechvibes no **formato 2** funcionam: variações aleatórias (`GENERIC_R{0-4}.mp3`), som de subida (`soundup`) e sons por tecla na subida (`"28-up"`). Arquivos que o pacote cita mas não tem caem no som genérico em vez de invalidar o pacote.
 - O **volume das gravações é nivelado** ao carregar (ganho entre ½× e 4×): os pacotes iam de quase inaudíveis a estourados.
 - Um pacote importado com o mesmo nome de um incluído tem prioridade.
@@ -53,9 +53,9 @@ Este projeto segue [Semantic Versioning](https://semver.org/).
 
 ## 0.18.0
 
-- **Abre mais rápido e usa menos memória**: as janelas agora compartilham um processo. Com o Hacker Terminal aberto, uma nova janela é entregue ao processo existente antes de carregar o GTK e abre em ~0,4 s (antes 1,2–1,8 s); três janelas usam ~150 MB em vez de ~470 MB. Opções que mudam a aparência (`--theme`, `--profile`, `--font`…) e o novo `--separate` abrem um processo próprio. Mudanças nas Preferências valem para todas as janelas, só a primeira restaura a sessão e erros (como uma pasta inexistente) voltam para quem pediu a janela.
+- **Abre mais rápido e usa menos memória**: as janelas agora compartilham um processo. Com o Little Shell aberto, uma nova janela é entregue ao processo existente antes de carregar o GTK e abre em ~0,4 s (antes 1,2–1,8 s); três janelas usam ~150 MB em vez de ~470 MB. Opções que mudam a aparência (`--theme`, `--profile`, `--font`…) e o novo `--separate` abrem um processo próprio. Mudanças nas Preferências valem para todas as janelas, só a primeira restaura a sessão e erros (como uma pasta inexistente) voltam para quem pediu a janela.
 - O áudio (GStreamer) só é carregado quando um som toca de verdade; antes era preparado sempre, mesmo com som e animação desligados (~130 ms a menos na abertura).
-- **Imagens na saída do terminal**: `ht-open --inline IMAGEM` desenha imagens com blocos em cores reais, respeitando a transparência, em qualquer VTE. Sixel é ativado quando o VTE tem suporte (`--diagnose` informa; o do Debian/Kali não tem).
+- **Imagens na saída do terminal**: `lish-open --inline IMAGEM` desenha imagens com blocos em cores reais, respeitando a transparência, em qualquer VTE. Sixel é ativado quando o VTE tem suporte (`--diagnose` informa; o do Debian/Kali não tem).
 - **Seis temas novos**: Zero Day (hacker moderno), Neon Noir (cyberpunk), Pôr do Sol Synth (synthwave), Aurora, Grafite (minimalista) e Névoa (claro).
 - **Temas revisados**: todos os 22 temas internos foram medidos com o critério de contraste WCAG e as cores fracas foram clareadas mantendo o tom — principalmente a cor 8 (sugestões do zsh e comentários, antes quase invisível em quase todos os temas), o texto secundário da barra de status e várias cores dos temas Fósforo. Todos foram conferidos no tamanho mínimo da janela.
 - **Imagem de fundo** atrás do texto, com opacidade (5–90%) e encaixe (preencher, ajustar ou lado a lado), em *Preferências → Aparência*. Com o painel dividido, a imagem continua sem emendas pela aba. "Opacidade do fundo" passou a se chamar "Opacidade da janela", que é o que ela controla.
@@ -67,7 +67,7 @@ Este projeto segue [Semantic Versioning](https://semver.org/).
 ## 0.17.0
 
 - **Acesso por chave** (botão novo no gerenciador SSH): cria sua chave SSH, se ainda não existir, e a instala no servidor com `ssh-copy-id`. Você digita a senha do servidor uma última vez; depois o login é automático e nenhuma senha fica guardada. Opções como `-J bastiao` são convertidas para o formato que o `ssh-copy-id` entende.
-- **Senha no chaveiro do sistema**: o editor da conexão ganhou um campo de senha. Ela fica criptografada no chaveiro (gnome-keyring/KWallet, aberto pelo seu login), nunca nos arquivos do terminal, e o `ssh` a recebe por um programa auxiliar (`ht-askpass`): não é digitada na tela nem vai para o histórico. A senha salva é enviada uma única vez por conexão; se o servidor recusar, a senha é pedida no terminal (sem eco), evitando bloqueios por tentativas repetidas. Outras perguntas do `ssh`, como confirmar a impressão digital do servidor, continuam aparecendo no terminal. Conexões com senha salva aparecem com 🔑; remover a conexão apaga a senha dela. Requer o pacote `gir1.2-secret-1` (recomendado pelo `.deb`).
+- **Senha no chaveiro do sistema**: o editor da conexão ganhou um campo de senha. Ela fica criptografada no chaveiro (gnome-keyring/KWallet, aberto pelo seu login), nunca nos arquivos do terminal, e o `ssh` a recebe por um programa auxiliar (`lish-askpass`): não é digitada na tela nem vai para o histórico. A senha salva é enviada uma única vez por conexão; se o servidor recusar, a senha é pedida no terminal (sem eco), evitando bloqueios por tentativas repetidas. Outras perguntas do `ssh`, como confirmar a impressão digital do servidor, continuam aparecendo no terminal. Conexões com senha salva aparecem com 🔑; remover a conexão apaga a senha dela. Requer o pacote `gir1.2-secret-1` (recomendado pelo `.deb`).
 - Testes de ponta a ponta com um chaveiro isolado, um `ssh` real e um servidor SSH temporário, sem tocar no chaveiro nem no `~/.ssh` do usuário.
 - O teste de instalação não depende mais de temas personalizados do usuário.
 
@@ -81,7 +81,7 @@ Este projeto segue [Semantic Versioning](https://semver.org/).
 - **Digitar em todos os painéis da aba** (`Ctrl+Shift+I` ou botão direito): o que você digita vai para todos os painéis; a moldura fica vermelha enquanto transmite.
 - **Gerenciador de conexões SSH** (`Ctrl+Shift+S`, botão na barra ou paleta): conexões salvas e hosts do `~/.ssh/config`, cada uma com tema próprio (novo tema **Alerta Vermelho** para produção) e confirmação opcional antes de conectar. Senhas nunca são guardadas; destinos e opções são validados contra injeção de opções.
 - **Comandos com campos** nas ações rápidas: `nmap -sV {alvo}` ou `ping -c {vezes=4} {host}` pedem os valores num formulário com prévia antes de rodar. Os valores são protegidos com aspas e nunca executam como código.
-- **Terminal suspenso estilo Quake**: `hacker-terminal --dropdown` abre e esconde um terminal no topo da tela. Em *Preferências → Geral* um status mostra se o atalho está ativo (✓), ainda não ativo (○) ou se a tecla já é usada por outro programa (⚠), com botões **Ativar atalho**, **Desativar** e **Testar agora**; no XFCE o F12 é sugerido e teclas de outros programas nunca são substituídas. Ele se reposiciona quando a resolução ou os monitores mudam e aplica uma nova altura na hora. Também há a ação “Terminal suspenso” no menu de aplicativos.
+- **Terminal suspenso estilo Quake**: `lish --dropdown` abre e esconde um terminal no topo da tela. Em *Preferências → Geral* um status mostra se o atalho está ativo (✓), ainda não ativo (○) ou se a tecla já é usada por outro programa (⚠), com botões **Ativar atalho**, **Desativar** e **Testar agora**; no XFCE o F12 é sugerido e teclas de outros programas nunca são substituídas. Ele se reposiciona quando a resolução ou os monitores mudam e aplica uma nova altura na hora. Também há a ação “Terminal suspenso” no menu de aplicativos.
 - **Tamanho das divisões e nomes dos painéis** são lembrados na sessão. `Ctrl+Shift+R` (ou botão direito) dá um nome a um painel, mostrado numa faixa no topo dele, na aba e nos avisos.
 - Novos temas **Papel (claro)** e **Alto Contraste**, com contraste verificado (WCAG AA e AAA). Menus e diálogos seguem o tema claro ou escuro.
 - A integração informa a pasta atual ao terminal (OSC 7), e novas abas e divisões abrem na pasta onde você está. Antes, a pasta enviada pelo shell era descartada quando vinha com o nome da máquina; uma pasta de outra máquina (sessão SSH) continua sendo ignorada.
@@ -110,12 +110,12 @@ Este projeto segue [Semantic Versioning](https://semver.org/).
 
 ## 0.13.0
 
-- Visualizador de imagens e planilhas em abas, ao lado do terminal de origem: `ht-open ARQUIVO`, `Ctrl+clique` em nomes de arquivo na saída (por exemplo, de um `ls`), menu do botão direito ou a paleta de comandos.
+- Visualizador de imagens e planilhas em abas, ao lado do terminal de origem: `lish-open ARQUIVO`, `Ctrl+clique` em nomes de arquivo na saída (por exemplo, de um `ls`), menu do botão direito ou a paleta de comandos.
 - Imagens: PNG, JPEG, GIF animado, WebP, SVG, AVIF, TIFF, BMP e outros formatos do GdkPixbuf, com ajuste à janela, zoom (`+`, `-`, `0`, `F`, `Ctrl` + roda) e orientação EXIF.
 - Planilhas: CSV/TSV (delimitador e codificação detectados), XLSX e ODS, com várias planilhas, colunas no estilo A, B, C, datas e horas formatadas, fórmulas e cópia das linhas selecionadas como texto tabulado.
 - Leve por construção: o visualizador só é carregado no primeiro uso; leitura em segundo plano e tabela preenchida em blocos; até 5.000 linhas × 200 colunas exibidas, com total exato, estimado (≈) ou mínimo (mais de) para arquivos maiores. Um CSV de 300 mil linhas abre em ~0,1 s.
-- Seguro: o `ht-open` fala com o terminal por um socket UNIX privado (0600, em diretório 0700 verificado) e só pode pedir visualização; arquivos zip corrompidos ou grandes demais são recusados com uma mensagem clara.
-- `install.sh` e o pacote `.deb` instalam o comando `ht-open` (sem sobrescrever um comando de mesmo nome do usuário).
+- Seguro: o `lish-open` fala com o terminal por um socket UNIX privado (0600, em diretório 0700 verificado) e só pode pedir visualização; arquivos zip corrompidos ou grandes demais são recusados com uma mensagem clara.
+- `install.sh` e o pacote `.deb` instalam o comando `lish-open` (sem sobrescrever um comando de mesmo nome do usuário).
 - O terminal agora encerra de forma limpa com SIGTERM/SIGINT, salvando a sessão e liberando socket e áudio.
 - Corrige um teste intermitente do som (~7% das execuções): o `fakesink` de teste podia ficar preso entre PAUSED e PLAYING após a pausa por inatividade. O `pulsesink` real não tem esse problema (180 de 180 retomadas com som em ~5 ms).
 
@@ -157,7 +157,7 @@ Este projeto segue [Semantic Versioning](https://semver.org/).
 - Cada perfil guarda tema, fonte, tamanho, shell, cursor, opacidade, efeitos, painel e diretório inicial.
 - Perfis podem ter ações rápidas próprias, iniciadas como cópia da lista em uso e trocadas automaticamente junto com o perfil.
 - Editar, atualizar com as configurações atuais e remover perfis personalizados; os perfis internos continuam protegidos.
-- Perfis ficam em `~/.config/hacker-terminal/profiles/`; arquivos inválidos ou que tentem substituir um perfil interno são ignorados com aviso.
+- Perfis ficam em `~/.config/lish/profiles/`; arquivos inválidos ou que tentem substituir um perfil interno são ignorados com aviso.
 - Diretório inicial inexistente em um perfil volta para a pasta pessoal em vez de impedir a abertura.
 - Nomes com acentos geram identificadores legíveis (`Laboratório` → `laboratorio`), também para temas.
 - `--list-profiles` indica a origem de cada perfil; `--diagnose` mostra o perfil ativo e arquivos de perfil ignorados.
@@ -181,7 +181,7 @@ Este projeto segue [Semantic Versioning](https://semver.org/).
 - Confirmação antes de colar texto com várias linhas ou caracteres de controle ocultos; a colagem respeita o modo *bracketed paste*.
 - Bell em abas de fundo marca a aba e pede atenção à janela.
 - A sessão é salva automaticamente a cada 30 s, preservando o layout mesmo após falhas ou encerramento forçado.
-- Log rotativo e privado em `~/.local/state/hacker-terminal/`, com registro de exceções não tratadas; `--debug` mostra detalhes no terminal.
+- Log rotativo e privado em `~/.local/state/lish/`, com registro de exceções não tratadas; `--debug` mostra detalhes no terminal.
 - `--list-shortcuts` lista os atalhos em uso; `--diagnose` informa atalhos inválidos ou em conflito e o caminho do log.
 - Cancelamentos de inicialização ao fechar abas não são mais tratados como erro.
 

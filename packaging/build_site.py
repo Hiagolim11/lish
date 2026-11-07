@@ -19,10 +19,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from hackerterminal.actions import DEFAULT_ACTIONS, fields  # noqa: E402
-from hackerterminal.constants import DEFAULT_THEME, VERSION  # noqa: E402
-from hackerterminal.profiles import PROFILES  # noqa: E402
-from hackerterminal.themes import ThemeManager  # noqa: E402
+from littleshell.actions import DEFAULT_ACTIONS, fields  # noqa: E402
+from littleshell.constants import DEFAULT_THEME, VERSION  # noqa: E402
+from littleshell.profiles import PROFILES  # noqa: E402
+from littleshell.themes import ThemeManager  # noqa: E402
 
 FAVOURITES = ("zero-day", "phosphor-amber", "neon-noir", "aurora", "graphite", "paper-light")
 SITE = ROOT / "packaging" / "site"
@@ -77,7 +77,7 @@ def copy_soundpacks() -> list[dict]:
     shutil.rmtree(target_root, ignore_errors=True)
     packs = []
     for identifier in DEMO_SOUNDPACKS:
-        source = ROOT / "hackerterminal" / "soundpacks" / identifier
+        source = ROOT / "littleshell" / "soundpacks" / identifier
         config = json.loads((source / "config.json").read_text(encoding="utf-8"))
         # Like the app, a sound the pack names but does not ship falls back to the generic one.
         def present(name: str | None) -> str | None:

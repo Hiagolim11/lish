@@ -9,4 +9,4 @@ if ! python3 -c 'import gi' >/dev/null 2>&1; then
 fi
 
 cd -- "$project_dir"
-exec python3 hacker_terminal.py "$@"
+exec python3 little_shell.py "$@"

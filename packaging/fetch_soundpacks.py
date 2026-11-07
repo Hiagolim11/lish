@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch the Mechvibes sound packs and compact them into hackerterminal/soundpacks.
+"""Fetch the Mechvibes sound packs and compact them into littleshell/soundpacks.
 
 Run by hand when updating the bundled packs (needs git and ffmpeg with
 libvorbis); the result is committed, so builds never touch the network.
@@ -32,7 +32,7 @@ QUALITY = "5"  # libvorbis -q:a; clicks stay crisp, ~80 kbit/s mono
 NAMES = {"holy-pandas": "Holy Pandas"}
 
 PROJECT = Path(__file__).resolve().parent.parent
-DESTINATION = PROJECT / "hackerterminal" / "soundpacks"
+DESTINATION = PROJECT / "littleshell" / "soundpacks"
 
 LICENSE_HEADER = f"""Sound packs from Mechvibes
 https://github.com/hainguyents13/mechvibes (commit {COMMIT[:12]}, src/audio)

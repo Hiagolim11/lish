@@ -2,7 +2,7 @@
 
 Run under dbus-run-session: a throwaway gnome-keyring (own HOME and
 XDG_RUNTIME_DIR, so the user's keyring is never touched), a real ssh
-talking to a temporary sshd on 127.0.0.1, and ht-copy-key with fake
+talking to a temporary sshd on 127.0.0.1, and lish-copy-key with fake
 ssh-keygen/ssh-copy-id so no real key or authorized_keys file changes.
 """
 
@@ -18,8 +18,8 @@ import time
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent.parent
-ASKPASS = PROJECT / "bin" / "ht-askpass"
-COPY_KEY = PROJECT / "bin" / "ht-copy-key"
+ASKPASS = PROJECT / "bin" / "lish-askpass"
+COPY_KEY = PROJECT / "bin" / "lish-copy-key"
 PASSWORD = "s3nh@ com espaço; $(id)"
 
 
@@ -50,13 +50,13 @@ def askpass(prompt: str, identifier: str = "umbrel") -> subprocess.CompletedProc
     # the user fails instead of being answered.
     return subprocess.run(
         [str(ASKPASS), prompt], capture_output=True, text=True, timeout=20, start_new_session=True,
-        env={**os.environ, "HACKER_TERMINAL_SSH_ID": identifier},
+        env={**os.environ, "LISH_SSH_ID": identifier},
     )
 
 
 def check_keyring_and_helper() -> None:
     sys.path.insert(0, str(PROJECT))
-    from hackerterminal import passwords
+    from littleshell import passwords
 
     assert passwords.available(), "libsecret missing"
     assert passwords.lookup("umbrel") is None
@@ -76,7 +76,7 @@ def check_keyring_and_helper() -> None:
     assert other.returncode != 0 and not other.stdout, "unknown connection answered"
 
     assert passwords.forget("umbrel") and passwords.lookup("umbrel") is None
-    print("chaveiro e ht-askpass: ok")
+    print("chaveiro e lish-askpass: ok")
 
 
 def free_port() -> int:
@@ -86,7 +86,7 @@ def free_port() -> int:
 
 
 def check_real_ssh(root: Path) -> None:
-    from hackerterminal import passwords
+    from littleshell import passwords
 
     if not (shutil.which("ssh") and Path("/usr/sbin/sshd").exists()):
         print("SKIP ssh real: ssh ou sshd ausente")
@@ -115,13 +115,13 @@ def check_real_ssh(root: Path) -> None:
         argv = ["ssh", "-p", str(port), "-o", "StrictHostKeyChecking=no", "-o", f"UserKnownHostsFile={work / 'known'}",
                 "-o", "PreferredAuthentications=password", "-o", "NumberOfPasswordPrompts=3",
                 "-o", "ConnectTimeout=5", f"{user}@127.0.0.1", "true"]
-        env = {**os.environ, "SSH_ASKPASS": str(ASKPASS), "SSH_ASKPASS_REQUIRE": "force", "HACKER_TERMINAL_SSH_ID": "umbrel"}
+        env = {**os.environ, "SSH_ASKPASS": str(ASKPASS), "SSH_ASKPASS_REQUIRE": "force", "LISH_SSH_ID": "umbrel"}
         screen = run_in_terminal(argv, env, answer="digitada-pelo-usuario")
     finally:
         server.terminate()
         server.wait(timeout=10)
     markers = [  # this test process asked the helper directly earlier; skip that one
-        marker for marker in Path(os.environ["XDG_RUNTIME_DIR"]).glob("hacker-terminal-askpass-*/*")
+        marker for marker in Path(os.environ["XDG_RUNTIME_DIR"]).glob("lish-askpass-*/*")
         if not marker.name.startswith(f"{os.getpid()}-")
     ]
     attempts = log.read_text(errors="replace").count("Failed password")
@@ -193,7 +193,7 @@ def check_copy_key(root: Path) -> None:
     failed = subprocess.run([str(COPY_KEY), "Umbrel", str(key), "umbrel@10.0.0.3"],
                             capture_output=True, text=True, env=env, stdin=subprocess.DEVNULL, timeout=20)
     assert failed.returncode == 1 and "✗" in failed.stdout, failed
-    print("ht-copy-key: ok")
+    print("lish-copy-key: ok")
 
 
 def main() -> int:

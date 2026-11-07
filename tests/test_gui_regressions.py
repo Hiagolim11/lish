@@ -10,9 +10,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from hackerterminal.config import AppConfig, ConfigStore, Preferences
-from hackerterminal.session import SessionStore
-from hackerterminal.runtime import Gtk
+from littleshell.config import AppConfig, ConfigStore, Preferences
+from littleshell.session import SessionStore
+from littleshell.runtime import Gtk
 
 
 def wait_for(condition, seconds=5):
@@ -29,7 +29,7 @@ def wait_for(condition, seconds=5):
 @unittest.skipUnless(os.environ.get("HT_GUI_REGRESSIONS") == "1", "run with tests/run_isolated.py --gui")
 class GuiRegressionTests(unittest.TestCase):
     def test_reload_coalesces_work_and_destroy_drops_pending_reload(self):
-        from hackerterminal.viewer import FileViewer, GdkPixbuf
+        from littleshell.viewer import FileViewer, GdkPixbuf
         for destroy in (False, True):
             with self.subTest(destroy=destroy), tempfile.TemporaryDirectory() as directory:
                 path = Path(directory) / "image.png"
@@ -68,10 +68,10 @@ class GuiRegressionTests(unittest.TestCase):
                         wait_for(lambda: False, 0.1)
 
     def test_real_windows_share_session_without_command_or_empty_window_deleting_it(self):
-        from hackerterminal.actions import ActionStore
-        from hackerterminal.app import HackerTerminalApp
-        from hackerterminal.profiles import ProfileManager
-        from hackerterminal.themes import ThemeManager
+        from littleshell.actions import ActionStore
+        from littleshell.app import LittleShellApp
+        from littleshell.profiles import ProfileManager
+        from littleshell.themes import ThemeManager
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             first_dir, second_dir = root / "one", root / "two"
@@ -82,7 +82,7 @@ class GuiRegressionTests(unittest.TestCase):
             themes = ThemeManager(root / "themes")
             provider = Gtk.CssProvider()
             provider.load_from_data(themes.get(preferences.theme).css())
-            app = HackerTerminalApp(AppConfig(preferences, (), first_dir), ConfigStore(root / "config.ini"),
+            app = LittleShellApp(AppConfig(preferences, (), first_dir), ConfigStore(root / "config.ini"),
                                     ActionStore(root / "actions.ini"), store, themes,
                                     ProfileManager(root / "profiles"), provider, separate=True)
             app.register(None)

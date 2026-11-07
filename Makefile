@@ -12,7 +12,7 @@ check:
 	./tests/smoke.sh
 
 check-gui:
-	HACKER_TERMINAL_GUI_TEST=1 ./tests/smoke.sh
+	LISH_GUI_TEST=1 ./tests/smoke.sh
 
 deb:
 	./packaging/build-deb.sh "$(DEB_OUTPUT_DIR)"

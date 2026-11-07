@@ -28,7 +28,7 @@ def main() -> int:
             path = root / kind.lower()
             path.mkdir(mode=0o700)
             env[f"XDG_{kind}_HOME" if kind != "RUNTIME" else "XDG_RUNTIME_DIR"] = str(path)
-        env.update(HT_PRIVATE_BUS="1", HACKER_TERMINAL_AUDIO_SINK="fakesink", NO_AT_BRIDGE="1",
+        env.update(HT_PRIVATE_BUS="1", LISH_AUDIO_SINK="fakesink", NO_AT_BRIDGE="1",
                    GDK_BACKEND="x11", GIO_USE_VFS="local", GTK_USE_PORTAL="0", SHELL="/bin/sh",
                    HT_GUI_REGRESSIONS="1", G_DEBUG="fatal-warnings")
         command = ["dbus-run-session", "--"]

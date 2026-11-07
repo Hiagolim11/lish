@@ -1,0 +1,835 @@
+"""Low-latency mechanical keyboard sounds.
+
+Two sources feed the same engine:
+
+* a modal synthesizer that models the physical events of Cherry-style
+  switches (click jacket, tactile bump, bottom-out, top-out, stabilizers);
+* recorded sound packs, either Mechvibes packs (``config.json``) or a plain
+  folder of ``press*.wav`` / ``release*.wav`` files.
+
+Everything is decoded to 48 kHz mono PCM up front. Playback is a single
+continuous stream fed in 5 ms blocks; a key press only queues its samples,
+and they are mixed into the next block, so nothing starts or seeks a pipeline.
+"""
+
+from __future__ import annotations
+
+import array
+import atexit
+import hashlib
+import json
+import logging
+import math
+import os
+import random
+import re
+import threading
+import time
+import weakref
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Callable
+
+from .runtime import Gdk, GLib, load_gst
+
+LOGGER = logging.getLogger(__name__)
+RATE = 48_000
+IDLE_PAUSE_SECONDS = 15
+SYNTH_VERSION = 4
+VARIANTS = 8
+SIZES = ("normal", "large", "enter", "space")
+KINDS = ("press", "release")
+SYNTH_SWITCHES = {
+    "red": "Linear (estilo Red)",
+    "brown": "Tátil (estilo Brown)",
+    "blue": "Clicky (estilo Blue)",
+}
+DEFAULT_SWITCH = "brown"
+
+Samples = array.array
+
+
+# --------------------------------------------------------------------------
+# Synthesis
+
+
+@dataclass(frozen=True)
+class Mode:
+    """A decaying resonance excited by an impact."""
+
+    frequency: float
+    decay_ms: float
+    gain: float
+
+
+@dataclass(frozen=True)
+class Impact:
+    """One physical collision inside the switch."""
+
+    at_ms: float
+    amplitude: float
+    modes: tuple[Mode, ...]
+    noise_ms: float = 1.2
+    brightness: float = 0.5  # share of the excitation that is noise
+
+
+BOTTOM_OUT = (
+    Mode(310, 24, 0.50),   # case / plate body
+    Mode(560, 16, 0.48),
+    Mode(1300, 8.5, 0.50),  # keycap "clack"
+    Mode(2900, 4.5, 0.46),
+    Mode(4700, 2.2, 0.26),  # stem on housing
+)
+TOP_OUT = (
+    Mode(760, 8, 0.30),
+    Mode(1900, 5.5, 0.46),
+    Mode(3500, 3.0, 0.36),
+    Mode(5600, 1.4, 0.16),
+)
+CLICK = (
+    Mode(3900, 2.4, 1.0),
+    Mode(6300, 1.5, 0.75),
+    Mode(9100, 0.9, 0.35),
+)
+TACTILE_TICK = (
+    Mode(2350, 1.4, 0.8),
+    Mode(5200, 0.9, 0.5),
+)
+STABILIZER = (
+    Mode(2150, 5.0, 0.6),
+    Mode(3150, 3.5, 0.45),
+    Mode(4700, 2.0, 0.2),
+)
+
+
+def switch_events(switch: str, kind: str) -> list[Impact]:
+    """The collisions a switch produces on press or release, in order."""
+    if kind == "press":
+        if switch == "blue":
+            # The click jacket snaps right at actuation, then bottoms out.
+            return [
+                Impact(0.0, 0.95, CLICK, noise_ms=0.6, brightness=0.7),
+                Impact(1.3, 0.45, CLICK, noise_ms=0.4, brightness=0.7),
+                Impact(9.0, 0.70, BOTTOM_OUT),
+            ]
+        if switch == "brown":
+            # A faint tick from the tactile leaf, then a regular bottom-out.
+            return [
+                Impact(0.0, 0.16, TACTILE_TICK, noise_ms=0.5, brightness=0.6),
+                Impact(6.5, 0.92, BOTTOM_OUT),
+            ]
+        return [Impact(0.0, 0.95, BOTTOM_OUT)]
+    if switch == "blue":
+        # The jacket clicks again on the way up before the stem tops out.
+        return [
+            Impact(0.0, 0.55, CLICK, noise_ms=0.5, brightness=0.7),
+            Impact(4.0, 0.40, TOP_OUT),
+        ]
+    return [Impact(0.0, 0.50, TOP_OUT)]
+
+
+SIZE_SHAPES = {
+    # frequency scale, decay scale, loudness, stabilizer rattles
+    "normal": (1.0, 1.0, 1.0, 0),
+    "large": (0.86, 1.25, 1.05, 1),
+    "enter": (0.80, 1.35, 1.10, 1),
+    "space": (0.62, 1.70, 1.20, 2),
+}
+
+
+def _render_impact(out: list[float], impact: Impact, rng: random.Random,
+                   frequency_scale: float, decay_scale: float) -> None:
+    start = int(max(0.0, impact.at_ms + rng.uniform(-0.4, 0.4)) * RATE / 1000)
+    noise_length = max(1, int(impact.noise_ms * RATE / 1000))
+    pulse_length = max(2, int(0.00035 * RATE))
+    excitation = []
+    for index in range(max(noise_length, pulse_length)):
+        pulse = math.sin(math.pi * index / pulse_length) if index < pulse_length else 0.0
+        noise = rng.uniform(-1.0, 1.0) * math.exp(-index / max(1.0, noise_length / 3))
+        excitation.append((1 - impact.brightness) * pulse + impact.brightness * noise)
+    amplitude = impact.amplitude * rng.uniform(0.88, 1.12)
+    for mode in impact.modes:
+        frequency = mode.frequency * frequency_scale * rng.uniform(0.96, 1.04)
+        if frequency >= RATE / 2.2:
+            continue
+        decay = mode.decay_ms * decay_scale * rng.uniform(0.9, 1.1) / 1000
+        radius = math.exp(-1.0 / (decay * RATE))
+        a1 = 2 * radius * math.cos(2 * math.pi * frequency / RATE)
+        a2 = radius * radius
+        y1 = y2 = 0.0
+        length = min(len(out) - start, int(decay * RATE * 7) + len(excitation))
+        response = []
+        for index in range(length):
+            x = excitation[index] if index < len(excitation) else 0.0
+            y = x + a1 * y1 - a2 * y2
+            y2, y1 = y1, y
+            response.append(y)
+        # Normalize each mode to its own peak so the declared gains are the
+        # real levels; otherwise long low modes swamp the click.
+        peak = max((abs(value) for value in response), default=0.0)
+        if peak <= 0:
+            continue
+        gain = mode.gain * amplitude / peak
+        for index, value in enumerate(response):
+            out[start + index] += gain * value
+
+
+def synthesize(switch: str, kind: str, size: str, seed: int) -> Samples:
+    """Render one keystroke sound as 16-bit mono PCM."""
+    rng = random.Random(seed)
+    frequency_scale, decay_scale, loudness, rattles = SIZE_SHAPES[size]
+    frequency_scale *= rng.uniform(0.97, 1.03)
+    events = switch_events(switch, kind)
+    if rattles and kind == "press":
+        last = events[-1].at_ms
+        events = events + [
+            Impact(last + rng.uniform(2.5, 4.5) + 4 * index, 0.18 / (index + 1), STABILIZER, 0.5, 0.6)
+            for index in range(rattles)
+        ]
+    elif rattles:
+        events = events + [Impact(rng.uniform(1.5, 3.0), 0.12, STABILIZER, 0.5, 0.6)]
+    length = int(RATE * (0.075 if size == "normal" else 0.11))
+    out = [0.0] * length
+    for impact in events:
+        _render_impact(out, impact, rng, frequency_scale, decay_scale)
+    # Gentle fade so the tail never ends in a step.
+    fade = int(0.006 * RATE)
+    for index in range(fade):
+        out[length - fade + index] *= 1 - index / fade
+    peak = max(1e-9, max(abs(value) for value in out))
+    scale = loudness * 0.8 / peak
+    samples = array.array("h")
+    for value in out:
+        # Soft clip keeps transients punchy without hard distortion.
+        samples.append(int(32_000 * math.tanh(value * scale)))
+    return samples
+
+
+# --------------------------------------------------------------------------
+# Banks
+
+
+@dataclass
+class SoundBank:
+    """Pre-decoded sounds grouped by (kind, size) plus optional per-key sounds."""
+
+    name: str
+    sounds: dict[tuple[str, str], list[Samples]] = field(default_factory=dict)
+    per_key: dict[int, Samples] = field(default_factory=dict)
+    release_per_key: dict[int, Samples] = field(default_factory=dict)
+
+    def pick(self, kind: str, size: str, keycode: int) -> Samples | None:
+        table = self.per_key if kind == "press" else self.release_per_key
+        if keycode in table:
+            return table[keycode]
+        options = self.sounds.get((kind, size)) or self.sounds.get((kind, "normal"))
+        if not options:
+            return None
+        # Each key keeps a stable sound with a little live variation.
+        index = (keycode * 7 + random.randrange(2)) % len(options)
+        return options[index]
+
+
+def _cache_dir() -> Path:
+    configured = os.environ.get("XDG_CACHE_HOME")
+    base = Path(configured).expanduser() if configured else Path.home() / ".cache"
+    return base / "lish" / "keysounds"
+
+
+def synth_bank(switch: str) -> SoundBank:
+    """Build (or load from cache) the synthesized bank for a switch."""
+    switch = switch if switch in SYNTH_SWITCHES else DEFAULT_SWITCH
+    bank = SoundBank(SYNTH_SWITCHES[switch])
+    cache = _cache_dir() / f"{switch}-v{SYNTH_VERSION}.pcm"
+    count = len(KINDS) * len(SIZES) * VARIANTS
+    try:
+        raw = cache.read_bytes()
+        index_size = 4 * count
+        lengths = array.array("I")
+        lengths.frombytes(raw[:index_size])
+        offset = index_size
+        for kind in KINDS:
+            for size in SIZES:
+                variants = []
+                for _ in range(VARIANTS):
+                    length = lengths[len(bank.sounds) * VARIANTS + len(variants)]
+                    samples = array.array("h")
+                    samples.frombytes(raw[offset:offset + length * 2])
+                    offset += length * 2
+                    variants.append(samples)
+                bank.sounds[(kind, size)] = variants
+        if offset == len(raw):
+            return bank
+    except (OSError, ValueError, IndexError):
+        pass
+    bank.sounds.clear()
+    for kind in KINDS:
+        for size in SIZES:
+            base = int(hashlib.sha256(f"{switch}/{kind}/{size}".encode()).hexdigest()[:8], 16)
+            bank.sounds[(kind, size)] = [synthesize(switch, kind, size, base + variant) for variant in range(VARIANTS)]
+    try:
+        cache.parent.mkdir(parents=True, exist_ok=True)
+        lengths = array.array("I", [len(item) for kind in KINDS for size in SIZES for item in bank.sounds[(kind, size)]])
+        body = b"".join(item.tobytes() for kind in KINDS for size in SIZES for item in bank.sounds[(kind, size)])
+        temporary = cache.with_suffix(".tmp")
+        temporary.write_bytes(lengths.tobytes() + body)
+        temporary.replace(cache)
+    except OSError as error:
+        LOGGER.debug("cache de sons indisponível: %s", error)
+    return bank
+
+
+# --------------------------------------------------------------------------
+# Sound packs
+
+AUDIO_SUFFIXES = (".wav", ".ogg", ".oga", ".mp3", ".flac", ".opus")
+# libuiohook (Mechvibes) codes for keys whose Linux evdev code differs.
+EVDEV_TO_UIOHOOK = {
+    96: 3612, 97: 3613, 98: 3637, 99: 3639, 100: 3640, 102: 60999, 103: 61000,
+    104: 61001, 105: 61003, 106: 61005, 107: 61007, 108: 61008, 109: 61009,
+    110: 61010, 111: 61011, 125: 3675, 126: 3676, 127: 3677,
+}
+
+
+class PackError(ValueError):
+    """Raised when a sound pack cannot be read."""
+
+
+@dataclass(frozen=True)
+class SoundPack:
+    identifier: str
+    name: str
+    path: Path
+    bundled: bool = False
+
+
+# Recorded packs shipped with the app (from Mechvibes, see soundpacks/LICENSE).
+BUNDLED_PACKS = Path(__file__).resolve().with_name("soundpacks")
+
+
+def decode_audio(path: Path) -> Samples:
+    """Decode any GStreamer-supported file to 48 kHz mono 16-bit PCM."""
+    Gst = load_gst()
+    if Gst is None:
+        raise PackError("GStreamer não está disponível")
+    Gst.init(None)
+    pipeline = Gst.Pipeline.new(None)
+    source = Gst.ElementFactory.make("filesrc", None)
+    decoder = Gst.ElementFactory.make("decodebin", None)
+    convert = Gst.ElementFactory.make("audioconvert", None)
+    resample = Gst.ElementFactory.make("audioresample", None)
+    sink = Gst.ElementFactory.make("appsink", None)
+    if None in (source, decoder, convert, resample, sink):
+        raise PackError("plugins do GStreamer ausentes para decodificar áudio")
+    source.set_property("location", str(path))
+    sink.set_property("caps", Gst.Caps.from_string(f"audio/x-raw,format=S16LE,rate={RATE},channels=1,layout=interleaved"))
+    sink.set_property("sync", False)
+    for element in (source, decoder, convert, resample, sink):
+        pipeline.add(element)
+    source.link(decoder)
+    convert.link(resample)
+    resample.link(sink)
+    decoder.connect("pad-added", lambda _element, pad: pad.link(convert.get_static_pad("sink")))
+    pipeline.set_state(Gst.State.PLAYING)
+    data = bytearray()
+    try:
+        while True:
+            sample = sink.emit("try-pull-sample", 5 * Gst.SECOND)
+            if sample is None:
+                break
+            buffer = sample.get_buffer()
+            ok, info = buffer.map(Gst.MapFlags.READ)
+            if ok:
+                data.extend(info.data)
+                buffer.unmap(info)
+        message = pipeline.get_bus().pop_filtered(Gst.MessageType.ERROR)
+        if message is not None:
+            raise PackError(f"{path.name}: {message.parse_error()[0].message}")
+    finally:
+        pipeline.set_state(Gst.State.NULL)
+    if not data:
+        raise PackError(f"{path.name}: nenhum áudio decodificado")
+    samples = array.array("h")
+    samples.frombytes(bytes(data[: len(data) // 2 * 2]))
+    return samples
+
+
+def _trim(samples: Samples, limit_seconds: float = 1.5) -> Samples:
+    return samples[: int(RATE * limit_seconds)]
+
+
+def pack_name(path: Path) -> str:
+    config = path / "config.json"
+    if config.is_file():
+        try:
+            name = json.loads(config.read_text(encoding="utf-8")).get("name")
+            if isinstance(name, str) and name.strip():
+                return " ".join(name.split())
+        except (OSError, ValueError):
+            pass
+    return path.name
+
+
+PACK_LEVEL = 18_000  # typical key peak after levelling, near the synthesized switches
+
+
+def _level(bank: SoundBank) -> SoundBank:
+    """Bring a recording to a common loudness: packs range from whispers to clipping."""
+    tables = [bank.per_key, bank.release_per_key] + [dict(enumerate(v)) for v in bank.sounds.values()]
+    press = bank.sounds.get(("press", "normal")) or list(bank.per_key.values())  # what most keys play
+    peaks = sorted(max(map(abs, samples), default=0) for samples in press)
+    if not peaks or not peaks[len(peaks) // 2]:
+        return bank
+    gain = max(0.5, min(4.0, PACK_LEVEL / peaks[len(peaks) // 2]))
+    if abs(gain - 1) < 0.05:
+        return bank
+    done: dict[int, Samples] = {}  # one sound can sit in several tables
+
+    def scaled(samples: Samples) -> Samples:
+        if id(samples) not in done:
+            done[id(samples)] = array.array("h", (max(-32768, min(32767, int(x * gain))) for x in samples))
+        return done[id(samples)]
+
+    bank.per_key = {key: scaled(samples) for key, samples in tables[0].items()}
+    bank.release_per_key = {key: scaled(samples) for key, samples in tables[1].items()}
+    bank.sounds = {group: [scaled(samples) for samples in options] for group, options in bank.sounds.items()}
+    return bank
+
+
+def load_pack(path: Path) -> SoundBank:
+    """Load a Mechvibes pack or a folder of press/release recordings."""
+    if not path.is_dir():
+        raise PackError(f"pasta não encontrada: {path}")
+    config = path / "config.json"
+    if config.is_file():
+        return _level(_load_mechvibes(path, config))
+    return _level(_load_folder(path))
+
+
+RANGE = re.compile(r"\{(\d+)-(\d+)\}")
+
+
+def _expand(name: str) -> list[str]:
+    """Mechvibes v2 variants: "press/GENERIC_R{0-4}.mp3" -> R0 … R4."""
+    match = RANGE.search(name)
+    if match is None:
+        return [name]
+    first, last = int(match.group(1)), int(match.group(2))
+    return [name[:match.start()] + str(i) + name[match.end():] for i in range(first, min(last, first + 31) + 1)]
+
+
+def _load_mechvibes(path: Path, config_path: Path) -> SoundBank:
+    try:
+        config = json.loads(config_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        raise PackError(f"config.json inválido: {error}") from error
+    bank = SoundBank(pack_name(path))
+    defines = config.get("defines") or {}
+    if not isinstance(defines, dict):
+        raise PackError("config.json sem 'defines'")
+    kind = config.get("key_define_type", "single")
+    decoded: dict[str, Samples] = {}
+
+    def file_samples(name: str) -> Samples | None:
+        """A file of the pack, or None when the pack names one it lacks."""
+        candidate = (path / name).resolve()
+        if path.resolve() not in candidate.parents:
+            raise PackError(f"arquivo fora do pacote: {name}")
+        if not candidate.is_file():
+            LOGGER.debug("pacote %s: arquivo ausente %s", path.name, name)
+            return None
+        if name not in decoded:
+            decoded[name] = decode_audio(candidate)
+        return decoded[name]
+
+    def files(field: str) -> list[Samples]:
+        name = config.get(field)
+        if not isinstance(name, str) or not name:
+            return []
+        return [_trim(samples) for item in _expand(name) if (samples := file_samples(item)) is not None]
+
+    # Mechvibes key codes, with "-up" for the sound of the key coming back.
+    by_code: dict[str, dict[int, Samples]] = {"press": {}, "release": {}}
+    sprite: Samples | None = None
+    if kind != "multi":
+        sound = config.get("sound")
+        if not isinstance(sound, str):
+            raise PackError("config.json sem o arquivo 'sound'")
+        sprite = file_samples(sound)
+        if sprite is None:
+            raise PackError(f"arquivo ausente: {sound}")
+    for code, value in defines.items():
+        code = str(code)
+        moment = "release" if code.endswith("-up") else "press"
+        code = code.removesuffix("-up")
+        if not code.isdigit():
+            continue
+        if kind == "multi":
+            samples = file_samples(value) if isinstance(value, str) and value else None
+        elif isinstance(value, list) and len(value) == 2:
+            start = int(float(value[0]) * RATE / 1000)
+            length = int(float(value[1]) * RATE / 1000)
+            samples = sprite[start:start + length] if length > 0 and start < len(sprite) else None
+        else:
+            samples = None
+        if samples:
+            by_code[moment][int(code)] = _trim(samples)
+    generic_press = files("sound") if kind == "multi" else []
+    generic_release = files("soundup")
+    if not by_code["press"] and not generic_press:
+        raise PackError("o pacote não define nenhum som de tecla")
+    for evdev in range(1, 256):
+        code = EVDEV_TO_UIOHOOK.get(evdev, evdev)
+        if code in by_code["press"]:
+            bank.per_key[evdev + 8] = by_code["press"][code]  # X keycode = evdev + 8
+        if code in by_code["release"]:
+            bank.release_per_key[evdev + 8] = by_code["release"][code]
+    # Keys the pack does not name: its generic sounds, or a spread of its key sounds.
+    bank.sounds[("press", "normal")] = generic_press or list(by_code["press"].values())[: VARIANTS * 4]
+    if generic_release:
+        bank.sounds[("release", "normal")] = generic_release
+    return bank
+
+
+def _load_folder(path: Path) -> SoundBank:
+    bank = SoundBank(pack_name(path))
+    files = sorted(item for item in path.iterdir() if item.suffix.lower() in AUDIO_SUFFIXES)
+    pattern = re.compile(r"^(?:(normal|large|enter|space)[-_])?(press|release|down|up)[-_ ]?\d*$")
+    for item in files:
+        match = pattern.fullmatch(item.stem.lower())
+        if match is None:
+            continue
+        size = match.group(1) or "normal"
+        kind = "press" if match.group(2) in ("press", "down") else "release"
+        bank.sounds.setdefault((kind, size), []).append(_trim(decode_audio(item)))
+    if ("press", "normal") not in bank.sounds:
+        raise PackError("a pasta precisa ter ao menos um arquivo press.wav (ou press1.ogg, down.wav…)")
+    return bank
+
+
+def packs_directory() -> Path:
+    configured = os.environ.get("XDG_DATA_HOME")
+    base = Path(configured).expanduser() if configured else Path.home() / ".local" / "share"
+    return base / "lish" / "soundpacks"
+
+
+def _packs_in(directory: Path, bundled: bool) -> list[SoundPack]:
+    if not directory.is_dir():
+        return []
+    packs = []
+    for item in sorted(directory.iterdir()):
+        if item.is_dir() and ((item / "config.json").is_file() or any(
+            child.suffix.lower() in AUDIO_SUFFIXES for child in item.iterdir()
+        )):
+            packs.append(SoundPack(item.name, pack_name(item), item, bundled))
+    return packs
+
+
+def list_packs(directory: Path | None = None, bundled: Path | None = BUNDLED_PACKS) -> list[SoundPack]:
+    """The user's imported packs, then the bundled ones; an imported pack wins a name clash."""
+    own = _packs_in(directory or packs_directory(), False)
+    taken = {pack.identifier for pack in own}
+    shipped = _packs_in(bundled, True) if bundled is not None else []
+    return own + sorted((pack for pack in shipped if pack.identifier not in taken), key=lambda pack: pack.name.casefold())
+
+
+def pack_path(identifier: str) -> Path:
+    """Where the pack named in a ``pack:<identifier>`` setting lives."""
+    name = Path(identifier).name
+    own = packs_directory() / name
+    return own if own.is_dir() or not (BUNDLED_PACKS / name).is_dir() else BUNDLED_PACKS / name
+
+
+# --------------------------------------------------------------------------
+# Playback
+
+
+def key_size(keyval: int) -> str:
+    if keyval == Gdk.KEY_space:
+        return "space"
+    if keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter, Gdk.KEY_ISO_Enter):
+        return "enter"
+    if keyval in (
+        Gdk.KEY_BackSpace, Gdk.KEY_Shift_L, Gdk.KEY_Shift_R, Gdk.KEY_Tab,
+        Gdk.KEY_ISO_Left_Tab, Gdk.KEY_Caps_Lock,
+    ):
+        return "large"
+    return "normal"
+
+
+def _make_sink() -> object | None:
+    Gst = load_gst()
+    preferred = os.environ.get("LISH_AUDIO_SINK")
+    for name in ([preferred] if preferred else []) + ["pulsesink", "pipewiresink", "autoaudiosink"]:
+        sink = Gst.ElementFactory.make(name, None)
+        if sink is None:
+            continue
+        properties = {prop.name for prop in sink.list_properties()}
+        if "buffer-time" in properties:
+            # ~15 ms of device buffering in 5 ms periods: low latency without
+            # underruns on a typical laptop PipeWire setup.
+            sink.set_property("buffer-time", 15_000)
+            sink.set_property("latency-time", 5_000)
+        if name == "fakesink":
+            # Real-time pacing like a device, but no async preroll: a synced
+            # fakesink could sit in PAUSED->PLAYING after an idle pause, which
+            # pulsesink never does (verified over 180 resume cycles).
+            sink.set_property("sync", True)
+            sink.set_property("async", False)
+        return sink
+    return None
+
+
+CHUNK = RATE // 200  # 5 ms per block
+SILENCE = bytes(CHUNK * 2)
+MAX_ACTIVE = 24
+_LIVE_MIXERS: "weakref.WeakSet[_Mixer]" = weakref.WeakSet()
+
+
+def _stop_live_mixers() -> None:
+    # Stop streaming threads before the interpreter finalizes; a need-data
+    # callback into a half-torn-down Python can crash the process on exit.
+    for mixer in list(_LIVE_MIXERS):
+        mixer.stop()
+
+
+atexit.register(_stop_live_mixers)
+
+
+class _Mixer:
+    """One continuous output stream; key sounds are mixed into it.
+
+    A PulseAudio/PipeWire stream that is fed sparse buffers stops playing
+    after its first underrun, so the stream is kept fed with 5 ms blocks of
+    silence and every new key sound is mixed into the next block.
+    """
+
+    def __init__(self) -> None:
+        Gst = load_gst()
+        self.pipeline = Gst.Pipeline.new(None)
+        self.source = Gst.ElementFactory.make("appsrc", None)
+        convert = Gst.ElementFactory.make("audioconvert", None)
+        self.volume = Gst.ElementFactory.make("volume", None)
+        self.sink = _make_sink()
+        if None in (self.source, convert, self.volume, self.sink):
+            raise RuntimeError("elementos de áudio indisponíveis")
+        self.source.set_property(
+            "caps",
+            Gst.Caps.from_string(f"audio/x-raw,format=S16LE,rate={RATE},channels=1,layout=interleaved"),
+        )
+        self.source.set_property("format", Gst.Format.TIME)
+        self.source.set_property("is-live", True)
+        self.source.set_property("max-bytes", CHUNK * 2)
+        self.source.set_property("emit-signals", True)
+        self.source.connect("need-data", self.on_need_data)
+        for element in (self.source, convert, self.volume, self.sink):
+            self.pipeline.add(element)
+        self.source.link(convert)
+        convert.link(self.volume)
+        self.volume.link(self.sink)
+        self.lock = threading.Lock()
+        self.active: list[list] = []  # [samples, position]
+        self.position = 0
+        self.blocks = 0
+        self.stopped = False
+        _LIVE_MIXERS.add(self)
+        self.pipeline.set_state(Gst.State.PLAYING)
+
+    def set_volume(self, value: float) -> None:
+        self.volume.set_property("volume", value)
+
+    def add(self, samples: Samples) -> None:
+        with self.lock:
+            if len(self.active) >= MAX_ACTIVE:
+                self.active.pop(0)
+            self.active.append([samples, 0])
+
+    def busy(self) -> bool:
+        with self.lock:
+            return bool(self.active)
+
+    def next_block(self) -> bytes:
+        with self.lock:
+            if not self.active:
+                return SILENCE
+            if len(self.active) == 1:
+                samples, position = self.active[0]
+                block = samples[position:position + CHUNK]
+                self.active[0][1] = position + CHUNK
+                if self.active[0][1] >= len(samples):
+                    self.active.clear()
+                if len(block) < CHUNK:
+                    block = block + array.array("h", bytes((CHUNK - len(block)) * 2))
+                return block.tobytes()
+            mixed = [0] * CHUNK
+            remaining = []
+            for item in self.active:
+                samples, position = item
+                for index, value in enumerate(samples[position:position + CHUNK]):
+                    mixed[index] += value
+                item[1] = position + CHUNK
+                if item[1] < len(samples):
+                    remaining.append(item)
+            self.active = remaining
+        return array.array("h", (32_767 if v > 32_767 else -32_768 if v < -32_768 else v for v in mixed)).tobytes()
+
+    def on_need_data(self, source, _length) -> None:
+        Gst = load_gst()
+        if self.stopped:
+            return
+        data = self.next_block()
+        # Copy into GStreamer-owned memory: a buffer wrapping Python bytes
+        # could be released by GStreamer after the interpreter is gone.
+        buffer = Gst.Buffer.new_allocate(None, len(data), None)
+        buffer.fill(0, data)
+        buffer.pts = self.blocks * Gst.SECOND // 200
+        buffer.duration = Gst.SECOND // 200
+        self.blocks += 1
+        source.emit("push-buffer", buffer)
+
+    def set_playing(self, playing: bool) -> None:
+        Gst = load_gst()
+        # PAUSED corks the stream so PipeWire can suspend the audio device.
+        self.pipeline.set_state(Gst.State.PLAYING if playing else Gst.State.PAUSED)
+
+    def stop(self) -> None:
+        Gst = load_gst()
+        if self.stopped:
+            return
+        self.stopped = True
+        self.pipeline.set_state(Gst.State.NULL)
+        _LIVE_MIXERS.discard(self)
+
+
+class KeySoundEngine:
+    """Shared, process-wide keyboard sound player."""
+
+    _instance: "KeySoundEngine | None" = None
+
+    @classmethod
+    def shared(cls) -> "KeySoundEngine":
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+
+    def __init__(self) -> None:
+        self.mixer: _Mixer | None = None
+        self.bank: SoundBank | None = None
+        self.source_key: str | None = None
+        self.volume = 0.7
+        self.release_enabled = True
+        self.pressed: set[int] = set()
+        self.failed = False
+        self.loading_key: str | None = None
+        self.last_error: str | None = None
+        self.on_loaded: list[Callable[[], None]] = []
+        self.paused = False
+        self.last_activity = 0.0
+        self.idle_source = 0
+
+    def available(self) -> bool:
+        Gst = load_gst()
+        return Gst is not None and not self.failed
+
+    def _ensure_output(self) -> bool:
+        Gst = load_gst()
+        if self.mixer is not None or self.failed:
+            return self.mixer is not None
+        if Gst is None:
+            self.failed = True
+            return False
+        Gst.init(None)
+        try:
+            self.mixer = _Mixer()
+            self.mixer.set_volume(self.volume)
+        except RuntimeError as error:
+            LOGGER.warning("som do teclado desativado: %s", error)
+            self.failed = True
+        return self.mixer is not None
+
+    def configure(self, source: str, volume: int, release: bool) -> None:
+        """Select ``red``/``brown``/``blue`` or ``pack:<name>``; loads in the background."""
+        self.volume = max(0.0, min(1.0, volume / 100))
+        self.release_enabled = release
+        if self.mixer is not None:
+            self.mixer.set_volume(self.volume)
+        if source == self.source_key or source == self.loading_key:
+            return
+        self.loading_key = source
+
+        def work() -> None:
+            try:
+                if source.startswith("pack:"):
+                    bank = load_pack(pack_path(source[5:]))
+                else:
+                    bank = synth_bank(source)
+                error = None
+            except (PackError, OSError) as failure:
+                bank, error = None, str(failure)
+            GLib.idle_add(self._loaded, source, bank, error)
+
+        threading.Thread(target=work, name="keysound-loader", daemon=True).start()
+
+    def _loaded(self, source: str, bank: SoundBank | None, error: str | None) -> bool:
+        if source != self.loading_key:
+            return False
+        self.loading_key = None
+        self.last_error = error
+        if bank is None:
+            LOGGER.warning("pacote de sons não carregado (%s): %s", source, error)
+            if not source.startswith("pack:"):
+                return False
+            bank = synth_bank(DEFAULT_SWITCH)
+        self.bank = bank
+        self.source_key = source
+        self._ensure_output()  # warm up now so the first key is not delayed
+        self._arm_idle_timer()
+        for callback in list(self.on_loaded):
+            callback()
+        return False
+
+    def _play(self, samples: Samples | None) -> None:
+        if samples is None or not self._ensure_output():
+            return
+        self.last_activity = time.monotonic()
+        if self.paused:
+            self.mixer.set_playing(True)
+            self.paused = False
+        self.mixer.add(samples)
+        self._arm_idle_timer()
+
+    def _arm_idle_timer(self) -> None:
+        if not self.idle_source and self.mixer is not None and not self.paused:
+            self.last_activity = self.last_activity or time.monotonic()
+            self.idle_source = GLib.timeout_add_seconds(5, self._check_idle)
+
+    def _check_idle(self) -> bool:
+        if time.monotonic() - self.last_activity < IDLE_PAUSE_SECONDS or self.mixer.busy():
+            return True
+        self.mixer.set_playing(False)
+        self.paused = True
+        self.idle_source = 0
+        return False
+
+    def press(self, keycode: int, keyval: int) -> None:
+        if keycode in self.pressed:
+            return  # auto-repeat: real switches are silent while held
+        self.pressed.add(keycode)
+        if self.bank is not None:
+            self._play(self.bank.pick("press", key_size(keyval), keycode))
+
+    def release(self, keycode: int, keyval: int) -> None:
+        self.pressed.discard(keycode)
+        if self.bank is not None and self.release_enabled:
+            self._play(self.bank.pick("release", key_size(keyval), keycode))
+
+    def reset_keys(self) -> None:
+        self.pressed.clear()
+
+    def shutdown(self) -> None:
+        if self.idle_source:
+            GLib.source_remove(self.idle_source)
+            self.idle_source = 0
+        if self.mixer is not None:
+            self.mixer.stop()
+            self.mixer = None

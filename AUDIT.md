@@ -15,11 +15,11 @@ Esta revisão cobre o aplicativo GTK/VTE, scripts, metadados e empacotamento. Os
 - **Instalação em caminhos com espaços:** a linha `Exec` do desktop entry agora é escapada e citada corretamente.
 - **Segunda janela não abria:** a aplicação GTK era registrada como instância única. Agora cada execução cria uma sessão independente.
 - **Compatibilidade limitada como terminal:** foram adicionados `-e/--execute` e `--working-directory`; sessões de comando fecham junto com o processo e ocultam ações exclusivas do shell.
-- **Comandos relativos com `-e` falhavam:** o spawn agora pesquisa executáveis no `PATH`, permitindo usos como `hacker-terminal -e htop`.
+- **Comandos relativos com `-e` falhavam:** o spawn agora pesquisa executáveis no `PATH`, permitindo usos como `lish -e htop`.
 - **Permissão incorreta no pacote:** o changelog compactado agora é normalizado para modo `0644`.
 - **Ícone incompleto:** o ícone agora é vetorial, possui identidade hacker e é usado pela janela, menu, instalação local e pacote Debian.
 - **Distribuição sem metadados:** foram adicionados AppStream, dependências Debian, scripts de atualização dos caches e validação do conteúdo do pacote.
-- **Identidade inconsistente no desktop:** GTK, AppStream e o arquivo `.desktop` agora usam `org.hackerterminal.HackerTerminal`, evitando agrupamento incorreto ou ícone duplicado no dock.
+- **Identidade inconsistente no desktop:** GTK, AppStream e o arquivo `.desktop` agora usam `org.littleshell.LittleShell`, evitando agrupamento incorreto ou ícone duplicado no dock.
 - **Aplicativo monolítico:** a interface, configuração, áudio, efeitos, fontes e terminal foram separados em módulos com responsabilidades claras e testes próprios.
 - **Apenas uma sessão por janela:** foram adicionadas abas reordenáveis, títulos dinâmicos, navegação por teclado e confirmação antes de encerrar processos ativos.
 - **Histórico difícil de consultar:** cada aba agora possui pesquisa literal com navegação entre resultados e fechamento por `Esc`.
@@ -58,7 +58,7 @@ Esta revisão cobre o aplicativo GTK/VTE, scripts, metadados e empacotamento. Os
 
 - **Visualizador sem custo quando não usado:** o módulo de interface do visualizador só é importado no primeiro arquivo aberto, e cliques comuns no terminal não fazem busca de links ou arquivos.
 - **Leitura de planilhas limitada:** a primeira versão lia o CSV inteiro em memória (8,7 s e 358 MB de pico para 300 mil linhas, segurando o GIL). Agora é em fluxo (~0,1 s e 9 MB); XLSX usa a dimensão declarada e há um orçamento de linhas percorridas para XLSX sem dimensão e ODS.
-- **PATH redefinido pelo shell de login:** o `/etc/profile` do Kali reescreve o `PATH`, então o `ht-open` é instalado em um diretório padrão em vez de depender do ambiente herdado.
+- **PATH redefinido pelo shell de login:** o `/etc/profile` do Kali reescreve o `PATH`, então o `lish-open` é instalado em um diretório padrão em vez de depender do ambiente herdado.
 - **Socket UNIX:** caminho limitado a 108 bytes com alternativa automática, diretórios inseguros ignorados e sockets de processos encerrados removidos.
 
 - **Padding do terminal ignorado:** o VTE registra seu próprio CSS (padding de 1 px) com prioridade de aplicação, empatando com o do app e vencendo; o recuo do tema nunca tinha efeito. O CSS do app usa agora prioridade 601. Com a curvatura dos temas CRT isso cortava a primeira letra; o raio do canto é limitado a 3× o recuo, o que mantém o texto sempre visível (há teste para isso).

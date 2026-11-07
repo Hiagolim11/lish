@@ -40,9 +40,9 @@ jobs:
 
       - name: Check the version, changelog and site
         run: |
-          version="$(sed -n 's/^VERSION = "\(.*\)"$/\1/p' hackerterminal/constants.py)"
+          version="$(sed -n 's/^VERSION = "\(.*\)"$/\1/p' littleshell/constants.py)"
           if [ "v$version" != "$TAG" ]; then
-            echo "::error::A tag $TAG não bate com a versão $version em hackerterminal/constants.py"
+            echo "::error::A tag $TAG não bate com a versão $version em littleshell/constants.py"
             exit 1
           fi
           if ! grep -qx "## $version" CHANGELOG.md; then
@@ -58,27 +58,27 @@ jobs:
 
       - name: Validate packaging metadata
         run: |
-          desktop-file-validate assets/org.hackerterminal.HackerTerminal.desktop
-          appstreamcli validate --no-net packaging/org.hackerterminal.HackerTerminal.metainfo.xml
+          desktop-file-validate assets/org.littleshell.LittleShell.desktop
+          appstreamcli validate --no-net packaging/org.littleshell.LittleShell.metainfo.xml
 
       - name: Run checks
-        run: PATH=/usr/bin:/bin HACKER_TERMINAL_GUI_TEST=1 make check
+        run: PATH=/usr/bin:/bin LISH_GUI_TEST=1 make check
 
       - name: Build the package
         run: |
           make deb
-          test -s "dist/hacker-terminal_${VERSION}_all.deb"
-          dpkg-deb --info "dist/hacker-terminal_${VERSION}_all.deb" | grep -F "Version: ${VERSION}"
+          test -s "dist/lish_${VERSION}_all.deb"
+          dpkg-deb --info "dist/lish_${VERSION}_all.deb" | grep -F "Version: ${VERSION}"
 
       - name: Write the release notes
         run: |
           git fetch --force origin "refs/tags/$TAG:refs/tags/$TAG"
           title="$(git tag -l --format='%(contents:subject)' "$TAG")"
-          case "$title" in "" | "$TAG") title="Hacker Terminal $VERSION" ;; esac
+          case "$title" in "" | "$TAG") title="Little Shell $VERSION" ;; esac
           echo "TITLE=$title" >> "$GITHUB_ENV"
           {
-            printf '![Hacker Terminal](https://raw.githubusercontent.com/%s/%s/docs/screenshots/hero.png)\n\n' "$GITHUB_REPOSITORY" "$TAG"
-            printf '## Instalação\n\n```bash\nsudo apt install ./hacker-terminal_%s_all.deb\n```\n\n## Novidades\n' "$VERSION"
+            printf '![Little Shell](https://raw.githubusercontent.com/%s/%s/docs/screenshots/hero.png)\n\n' "$GITHUB_REPOSITORY" "$TAG"
+            printf '## Instalação\n\n```bash\nsudo apt install ./lish_%s_all.deb\n```\n\n## Novidades\n' "$VERSION"
             awk -v head="## $VERSION" '$0 == head { found = 1; next } /^## / { found = 0 } found' CHANGELOG.md
           } > release-notes.md
           echo "Título: $title"
@@ -87,8 +87,8 @@ jobs:
       - name: Keep the package as a build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: hacker-terminal-${{ env.VERSION }}
-          path: dist/hacker-terminal_${{ env.VERSION }}_all.deb
+          name: lish-${{ env.VERSION }}
+          path: dist/lish_${{ env.VERSION }}_all.deb
 
       - name: Publish the release
         # Never publish code other than the tag's own.
@@ -96,7 +96,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          deb="dist/hacker-terminal_${VERSION}_all.deb"
+          deb="dist/lish_${VERSION}_all.deb"
           if gh release view "$TAG" >/dev/null 2>&1; then
             # Re-running for a published tag refreshes its package and notes.
             gh release upload "$TAG" "$deb" --clobber

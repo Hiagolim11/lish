@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Hacker Terminal</title>
+<title>Little Shell</title>
 <meta name="description" content="Terminal nativo para Linux que abre em menos de um segundo: 23 temas CRT e neon, som de 18 teclados mecânicos reais, monitor de recursos e um laboratório CTF para testar no navegador. Grátis e de código aberto.">
-<meta property="og:title" content="Hacker Terminal">
+<meta property="og:title" content="Little Shell">
 <meta property="og:description" content="Terminal nativo para Linux: 23 temas, som de teclado mecânico, monitor de recursos e um CTF para experimentar no navegador.">
-<meta property="og:image" content="https://hiagolim11.github.io/hacker-terminal/screenshots/hero.png">
+<meta property="og:image" content="https://hiagolim11.github.io/lish/screenshots/hero.png">
 <meta name="theme-color" content="#0a0d0b">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2339ff88'/%3E%3Cpath d='M9 11l6 5-6 5' fill='none' stroke='%23071109' stroke-width='3'/%3E%3Cpath d='M17 22h7' stroke='%23071109' stroke-width='3'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://api.fontshare.com">
@@ -337,15 +337,15 @@ kbd { box-shadow: 0 0 10px rgba(57,255,136,0.12); }
   <div class="container nav-inner">
     <a class="brand" href="#top">
       <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7l5 5-5 5"/><path d="M13 17h6"/></svg></span>
-      Hacker Terminal
+      Little Shell
     </a>
     <nav class="nav-links" aria-label="Principal">
       <a href="#experimente">Experimente</a>
       <a href="#recursos">Recursos</a>
       <a href="#temas">Temas</a>
       <a href="#instalar">Instalar</a>
-      <a href="https://github.com/Hiagolim11/hacker-terminal">GitHub</a>
-      <a class="btn" href="https://github.com/Hiagolim11/hacker-terminal/releases/latest">Baixar</a>
+      <a href="https://github.com/Hiagolim11/lish">GitHub</a>
+      <a class="btn" href="https://github.com/Hiagolim11/lish/releases/latest">Baixar</a>
     </nav>
   </div>
 </header>
@@ -356,8 +356,8 @@ kbd { box-shadow: 0 0 10px rgba(57,255,136,0.12); }
       <h1 id="hero-title"><span class="ln"><span>Um terminal com</span></span><span class="ln"><span>cara própria.</span></span></h1>
       <p class="lead hero-lead reveal">Nativo para Linux, abre em menos de um segundo. 23 temas CRT e neon, som de 18 teclados mecânicos reais e um monitor de recursos. Sem Electron, sem navegador, sem telemetria: teste agora mesmo, aqui embaixo.</p>
       <div class="hero-actions reveal">
-        <a class="btn" href="https://github.com/Hiagolim11/hacker-terminal/releases/latest">Baixar a versão __VERSION__</a>
-        <a class="btn secondary" href="https://github.com/Hiagolim11/hacker-terminal">Ver o código</a>
+        <a class="btn" href="https://github.com/Hiagolim11/lish/releases/latest">Baixar a versão __VERSION__</a>
+        <a class="btn secondary" href="https://github.com/Hiagolim11/lish">Ver o código</a>
       </div>
       <p class="hero-meta reveal">Licença <b>MIT</b> &nbsp;·&nbsp; <b>GTK 3</b> + VTE &nbsp;·&nbsp; em português &nbsp;·&nbsp; <b>~2,5 MB</b></p>
     </div>
@@ -371,7 +371,7 @@ kbd { box-shadow: 0 0 10px rgba(57,255,136,0.12); }
       </div>
       <div class="stage reveal">
         <div class="ht-demo" id="demo" data-ui data-version="__VERSION__">
-          <noscript><img src="screenshots/hero.png" width="1280" height="760" alt="Janela do Hacker Terminal no tema Zero Day"></noscript>
+          <noscript><img src="screenshots/hero.png" width="1280" height="760" alt="Janela do Little Shell no tema Zero Day"></noscript>
         </div>
       </div>
       <div class="demo-try reveal" id="demo-try" aria-label="Comandos para experimentar">
@@ -383,7 +383,7 @@ kbd { box-shadow: 0 0 10px rgba(57,255,136,0.12); }
         <button type="button" data-run="perfil retro">perfil retro</button>
         <button type="button" data-run="cores">cores</button>
         <button type="button" data-run="neofetch">neofetch</button>
-        <button type="button" data-run="ht-open --inline loot/captura.png">ht-open --inline</button>
+        <button type="button" data-run="lish-open --inline loot/captura.png">lish-open --inline</button>
       </div>
       <p class="demo-note reveal">Shell de demonstração com os temas, perfis, sons e preferências do app de verdade, montado como um CTF sem dicas. Tudo é simulado no navegador e os alvos são fictícios: nenhum pacote sai da sua máquina.</p>
 
@@ -502,9 +502,9 @@ kbd { box-shadow: 0 0 10px rgba(57,255,136,0.12); }
         <article class="cell wide reveal flip">
           <div class="txt">
             <h3>Imagens e planilhas sem sair dele</h3>
-            <p><code>ht-open foto.png</code> abre numa aba ao lado; <code>ht-open --inline</code> desenha a imagem na própria saída. CSV, XLSX e ODS também.</p>
+            <p><code>lish-open foto.png</code> abre numa aba ao lado; <code>lish-open --inline</code> desenha a imagem na própria saída. CSV, XLSX e ODS também.</p>
           </div>
-          <div class="frag" data-ui><img src="screenshots/viewer-sheet.png" width="1280" height="760" loading="lazy" alt="Planilha XLSX aberta numa aba do visualizador do Hacker Terminal"></div>
+          <div class="frag" data-ui><img src="screenshots/viewer-sheet.png" width="1280" height="760" loading="lazy" alt="Planilha XLSX aberta numa aba do visualizador do Little Shell"></div>
         </article>
       </div>
     </div>
@@ -522,7 +522,7 @@ kbd { box-shadow: 0 0 10px rgba(57,255,136,0.12); }
           <img src="screenshots/modern-themes.png" width="1400" height="1018" loading="lazy" alt="Seis temas lado a lado: Zero Day, Neon Noir, Pôr do Sol Synth, Aurora, Grafite e Névoa">
         </div>
         <div class="theme-shot reveal"><img src="screenshots/phosphor.png" width="1600" height="500" loading="lazy" alt="Oito variações de fósforo de tubo CRT, do verde ao âmbar"></div>
-        <div class="theme-shot reveal"><img src="screenshots/palette.png" width="1280" height="760" loading="lazy" alt="Paleta de comandos do Hacker Terminal com prévia de tema ao vivo"></div>
+        <div class="theme-shot reveal"><img src="screenshots/palette.png" width="1280" height="760" loading="lazy" alt="Paleta de comandos do Little Shell com prévia de tema ao vivo"></div>
       </div>
       <p class="theme-list reveal" aria-label="Todos os temas">__THEME_LIST__</p>
     </div>
@@ -562,10 +562,10 @@ kbd { box-shadow: 0 0 10px rgba(57,255,136,0.12); }
       </div>
       <div class="reveal">
         <div class="steps">
-          <div class="st"><span class="n">1</span><p>Baixe o <code>hacker-terminal___VERSION___all.deb</code> na <a href="https://github.com/Hiagolim11/hacker-terminal/releases/latest">página de versões</a>.</p></div>
+          <div class="st"><span class="n">1</span><p>Baixe o <code>lish___VERSION___all.deb</code> na <a href="https://github.com/Hiagolim11/lish/releases/latest">página de versões</a>.</p></div>
           <div class="st"><span class="n">2</span><p>Instale com o apt:</p></div>
         </div>
-        <div class="code" style="margin-top:16px"><pre><code id="cmd">sudo apt install ./hacker-terminal___VERSION___all.deb</code></pre><button type="button" id="copy">Copiar</button></div>
+        <div class="code" style="margin-top:16px"><pre><code id="cmd">sudo apt install ./lish___VERSION___all.deb</code></pre><button type="button" id="copy">Copiar</button></div>
         <p class="alt">Prefere sem pacote? Clone o repositório e rode <code>./install.sh</code>, que instala só para a sua conta.</p>
       </div>
     </div>
@@ -577,11 +577,11 @@ kbd { box-shadow: 0 0 10px rgba(57,255,136,0.12); }
         <h2 id="faq-title">Perguntas frequentes</h2>
       </div>
       <div class="faq-list reveal">
-        <details name="faq"><summary>É grátis?<span class="pm" aria-hidden="true"></span></summary><p>Sim. O Hacker Terminal é de código aberto, sob a licença MIT. O código está no GitHub.</p></details>
+        <details name="faq"><summary>É grátis?<span class="pm" aria-hidden="true"></span></summary><p>Sim. O Little Shell é de código aberto, sob a licença MIT. O código está no GitHub.</p></details>
         <details name="faq"><summary>Funciona com o meu shell?<span class="pm" aria-hidden="true"></span></summary><p>Sim, ele abre o seu shell de sempre. A integração (marcas de comando, histórico, saltos) funciona com zsh e bash e é ligada sozinha; o resto vale para qualquer shell.</p></details>
         <details name="faq"><summary>De onde vêm os sons de teclado?<span class="pm" aria-hidden="true"></span></summary><p>São os pacotes oficiais do <a href="https://github.com/hainguyents13/mechvibes">Mechvibes</a>, gravados de teclados reais e distribuídos sob a licença MIT. Vêm compactados (2,5 MB no total) e você ainda pode importar outros pacotes.</p></details>
         <details name="faq"><summary>Ele guarda minhas senhas?<span class="pm" aria-hidden="true"></span></summary><p>Só se você pedir, e no chaveiro do sistema, nunca nos arquivos do terminal.</p></details>
-        <details name="faq"><summary>Onde ficam as minhas configurações?<span class="pm" aria-hidden="true"></span></summary><p>Em <code>~/.config/hacker-terminal/</code>: preferências, temas, perfis, ações e conexões. O histórico de comandos fica em <code>~/.local/state/hacker-terminal/</code>, só no seu computador.</p></details>
+        <details name="faq"><summary>Onde ficam as minhas configurações?<span class="pm" aria-hidden="true"></span></summary><p>Em <code>~/.config/lish/</code>: preferências, temas, perfis, ações e conexões. O histórico de comandos fica em <code>~/.local/state/lish/</code>, só no seu computador.</p></details>
         <details name="faq"><summary>Como atualizo?<span class="pm" aria-hidden="true"></span></summary><p>Baixe o novo <code>.deb</code> e instale com o mesmo comando do apt. Suas configurações continuam onde estão.</p></details>
       </div>
     </div>
@@ -592,15 +592,15 @@ kbd { box-shadow: 0 0 10px rgba(57,255,136,0.12); }
   <div class="container">
     <div class="foot-cta reveal">
       <h2>Pronto para testar?</h2>
-      <a class="btn" href="https://github.com/Hiagolim11/hacker-terminal/releases/latest">Baixar a versão __VERSION__</a>
+      <a class="btn" href="https://github.com/Hiagolim11/lish/releases/latest">Baixar a versão __VERSION__</a>
     </div>
-    <div class="wordmark reveal" aria-hidden="true">Hacker Terminal</div>
+    <div class="wordmark reveal" aria-hidden="true">Little Shell</div>
     <div class="foot-meta">
       <span>Licença MIT · Imagens capturadas do próprio app · Sons de teclado do Mechvibes (MIT)</span>
       <nav aria-label="Rodapé">
-        <a href="https://github.com/Hiagolim11/hacker-terminal">GitHub</a>
-        <a href="https://github.com/Hiagolim11/hacker-terminal/blob/main/CHANGELOG.md">Novidades</a>
-        <a href="https://github.com/Hiagolim11/hacker-terminal/issues">Relatar um problema</a>
+        <a href="https://github.com/Hiagolim11/lish">GitHub</a>
+        <a href="https://github.com/Hiagolim11/lish/blob/main/CHANGELOG.md">Novidades</a>
+        <a href="https://github.com/Hiagolim11/lish/issues">Relatar um problema</a>
       </nav>
     </div>
   </div>
@@ -662,7 +662,7 @@ kbd { box-shadow: 0 0 10px rgba(57,255,136,0.12); }
     if (reduce || played) { el.remove(); return; }
     try { sessionStorage.setItem("ht-booted", "1"); } catch (e) {}
     const log = document.getElementById("boot-log");
-    const lines = ["hacker-terminal :: boot", "[ ok ] nucleo GTK/VTE carregado", "[ ok ] 23 temas  .  18 teclados reais", "[ ok ] monitor de recursos", "[ ok ] laboratorio CTF pronto", "> iniciando sessao..."];
+    const lines = ["lish :: boot", "[ ok ] nucleo GTK/VTE carregado", "[ ok ] 23 temas  .  18 teclados reais", "[ ok ] monitor de recursos", "[ ok ] laboratorio CTF pronto", "> iniciando sessao..."];
     let li = 0, ci = 0, timer = 0;
     const finish = () => { el.classList.add("done"); setTimeout(() => el.remove(), 650); removeEventListener("keydown", skip); removeEventListener("pointerdown", skip); };
     const step = () => {

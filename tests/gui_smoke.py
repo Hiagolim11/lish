@@ -14,26 +14,26 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from hackerterminal.keysound import KeySoundEngine
-from hackerterminal.actions import DEFAULT_ACTIONS, ActionStore, QuickAction
-from hackerterminal.config import AppConfig, ConfigStore, Preferences
-from hackerterminal.profiles import ProfileManager
-from hackerterminal.runtime import Gdk, GLib, Gtk, Vte
-from hackerterminal.session import SessionState, SessionStore, SessionTab
-from hackerterminal.themes import ThemeManager
-from hackerterminal.app import HackerTerminalApp
-from hackerterminal.dialogs.actions import ActionEditorDialog, FieldsDialog
-from hackerterminal.dialogs.editors import ProfileEditorDialog, ThemeEditorDialog
-from hackerterminal.dialogs.palette import CommandPaletteDialog
-from hackerterminal.dialogs.preferences import PreferencesDialog
-from hackerterminal.dialogs.result import ResultWindow
-from hackerterminal.window.main import HackerTerminal
+from littleshell.keysound import KeySoundEngine
+from littleshell.actions import DEFAULT_ACTIONS, ActionStore, QuickAction
+from littleshell.config import AppConfig, ConfigStore, Preferences
+from littleshell.profiles import ProfileManager
+from littleshell.runtime import Gdk, GLib, Gtk, Vte
+from littleshell.session import SessionState, SessionStore, SessionTab
+from littleshell.themes import ThemeManager
+from littleshell.app import LittleShellApp
+from littleshell.dialogs.actions import ActionEditorDialog, FieldsDialog
+from littleshell.dialogs.editors import ProfileEditorDialog, ThemeEditorDialog
+from littleshell.dialogs.palette import CommandPaletteDialog
+from littleshell.dialogs.preferences import PreferencesDialog
+from littleshell.dialogs.result import ResultWindow
+from littleshell.window.main import LittleShell
 
 
 def main() -> int:
     # The real keyring has its own end-to-end suite (ssh_access.py). Never
     # block this GUI suite on a desktop password prompt or user keyring.
-    from hackerterminal import passwords
+    from littleshell import passwords
     with patch.multiple(passwords, available=lambda: False, has_password=lambda _id: False,
                         lookup=lambda _id: None, forget=lambda _id: True):
         return check_gui()
@@ -67,11 +67,11 @@ def check_gui() -> int:
     provider = Gtk.CssProvider()
     provider.load_from_data(themes.get(preferences.theme).css())
     # Separate: never negotiate the single instance on the user's session bus.
-    application = HackerTerminalApp(
+    application = LittleShellApp(
         config, store, action_store, session_store, themes, profiles, provider, separate=True
     )
     application.register(None)
-    window = HackerTerminal(
+    window = LittleShell(
         application, config, store, action_store, session_store, themes, profiles, provider
     )
     result = {"ok": False}
@@ -247,8 +247,8 @@ def check_gui() -> int:
                 raise AssertionError("closing viewers did not return to the terminal")
             if window.notebook.get_n_pages() != pages_before:
                 raise AssertionError("viewer tabs were left behind")
-            if not window.open_socket or origin.extra_env.get("HACKER_TERMINAL_SOCKET") != str(window.open_socket):
-                raise AssertionError("terminal panes do not receive the ht-open socket")
+            if not window.open_socket or origin.extra_env.get("LISH_SOCKET") != str(window.open_socket):
+                raise AssertionError("terminal panes do not receive the lish-open socket")
 
             # Nested splits: a 2x2 grid, collapse, limit and session round trip.
             window.new_tab()
@@ -366,9 +366,9 @@ def check_gui() -> int:
 
             # SSH manager: creating connections through "Nova…" (the editor's
             # modal run() is simulated; everything else is the real path).
-            import hackerterminal.dialogs.ssh as ssh_ui
+            import littleshell.dialogs.ssh as ssh_ui
             from unittest.mock import patch as ssh_patch
-            from hackerterminal.connections import ConnectionStore
+            from littleshell.connections import ConnectionStore
 
             ssh_store = ConnectionStore(root / "ssh-test.ini", root / "no-ssh-config")
 
@@ -422,7 +422,7 @@ def check_gui() -> int:
                     row = pane.terminal.get_cursor_position()[1]
                     return pane.terminal.get_text_range_format(Vte.Format.TEXT, 0, 0, row + 1, 400)[0]
 
-                for pane, expected in ((pane_with_password, "ht-askpass"), (key_pane, "ht-copy-key")):
+                for pane, expected in ((pane_with_password, "lish-askpass"), (key_pane, "lish-copy-key")):
                     if not wait_for(lambda: expected in screen_of(pane), 15):
                         raise AssertionError(f"{expected} was not typed: {screen_of(pane)[-300:]!r}")
                     if "s3nh@" in screen_of(pane):
@@ -436,7 +436,7 @@ def check_gui() -> int:
             manager.destroy()
 
             # SSH: a failing connection stays visible in its own themed tab.
-            from hackerterminal.connections import Connection
+            from littleshell.connections import Connection
 
             pages_before_ssh = window.notebook.get_n_pages()
             red = themes.get("red-alert")
@@ -466,9 +466,9 @@ def check_gui() -> int:
 
             # Command history: recorded from the shell marks, searchable,
             # and "Usar" types the command back without running it.
-            from hackerterminal.history import HistoryStore
-            from hackerterminal.terminal import PromptMark
-            import hackerterminal.dialogs.history as history_ui
+            from littleshell.history import HistoryStore
+            from littleshell.terminal import PromptMark
+            import littleshell.dialogs.history as history_ui
 
             window.history_store = HistoryStore(root / "history.jsonl")
             window.new_tab(working_directory=root)  # its own tab: the line is left typed
@@ -552,20 +552,20 @@ def check_gui() -> int:
             preferences.background_image = ""
             window.preferences_changed()
 
-            # A second window of the same process: fresh tabs, shared ht-open
+            # A second window of the same process: fresh tabs, shared lish-open
             # socket routed to the pane's own window, preferences applied to both.
             second_window = application.open_window(AppConfig(preferences, (), root), restore=False)
             if second_window.saved_session is not None or second_window.notebook.get_n_pages() != 1:
                 raise AssertionError("a later window restored the session instead of opening one fresh tab")
             if second_window.open_socket != window.open_socket:
-                raise AssertionError("windows of one process should share the ht-open socket")
+                raise AssertionError("windows of one process should share the lish-open socket")
             routed = []
             with mock_patch.object(type(second_window), "open_file_from_pane", lambda w, path, pane_id: routed.append((w, pane_id))):
                 second_pane = second_window.get_active_terminal()
                 application.route_open(Path("/tmp/x.png"), second_pane.pane_id)
                 application.route_open(Path("/tmp/x.png"), window.get_active_terminal().pane_id)
             if routed != [(second_window, second_pane.pane_id), (window, window.get_active_terminal().pane_id)]:
-                raise AssertionError(f"ht-open went to the wrong window: {routed}")
+                raise AssertionError(f"lish-open went to the wrong window: {routed}")
             previous_theme = preferences.theme
             preferences.theme = "paper-light"
             window.preferences_changed()
@@ -579,7 +579,7 @@ def check_gui() -> int:
             second_window.destroy()
 
             # Drop-down window: undecorated, top of the work area, toggles.
-            dropdown = HackerTerminal(
+            dropdown = LittleShell(
                 application, config, store, action_store, SessionStore(root / "session-dropdown.json"),
                 themes, profiles, provider, dropdown=True,
             )
@@ -636,7 +636,7 @@ def check_gui() -> int:
                 raise AssertionError("saving the scrollback as HTML failed")
 
             # Long command notifications: drive poll_command with fake /proc data.
-            import hackerterminal.terminal as terminal_module
+            import littleshell.terminal as terminal_module
 
             sent = []
             application.send_notification = lambda key, note: sent.append((key, note))
@@ -661,7 +661,7 @@ def check_gui() -> int:
                     raise AssertionError("finished command did not mark the tab")
                 if not window.is_active() and (len(sent) != 1 or not sent[0][0].endswith(watched.pane_id)):
                     raise AssertionError("finished command did not send a notification")
-                from hackerterminal.terminal import PromptMark
+                from littleshell.terminal import PromptMark
 
                 failed = PromptMark(5, 2, 1, "make test", 2, 42.0, True)
                 sent.clear()
@@ -733,8 +733,8 @@ def check_gui() -> int:
             if window.action_store is not action_store or len(window.action_panel.action_buttons) != base_actions:
                 raise AssertionError("switching profile did not restore the shared actions")
             # Drop-down shortcut section, against a fake xfconf (never the real one).
-            import hackerterminal.dialogs.preferences as ui_module
-            import hackerterminal.dropdown as dropdown_module
+            import littleshell.dialogs.preferences as ui_module
+            import littleshell.dropdown as dropdown_module
             from unittest.mock import patch as mock_patch
 
             fake_xfconf = {"Print": "xfce4-screenshooter"}
@@ -756,7 +756,7 @@ def check_gui() -> int:
             with mock_patch.multiple(
                 ui_module, xfce_available=lambda: True, xfce_binding=fake_binding,
                 xfce_dropdown_key=fake_active, bind_xfce=fake_bind, unbind_xfce=fake_unbind,
-            ), mock_patch.object(dropdown_module, "launch_command", lambda: "hacker-terminal --dropdown"):
+            ), mock_patch.object(dropdown_module, "launch_command", lambda: "lish --dropdown"):
                 shortcut_dialog = PreferencesDialog(window, preferences, themes, profiles)
                 status = shortcut_dialog.dropdown_status
                 if not status.get_text().startswith("○") or not shortcut_dialog.dropdown_bind.get_sensitive():
@@ -890,7 +890,7 @@ def check_gui() -> int:
 
             # Resource monitor: off by default; on, it fills the status bar and the panel section,
             # and it only samples while the window can be seen.
-            from hackerterminal.window.monitor import MonitorService
+            from littleshell.window.monitor import MonitorService
             service = MonitorService.shared()
             if window.monitor_status.get_visible() or service.running:
                 raise AssertionError("the resource monitor runs although it is off")
@@ -1152,7 +1152,7 @@ def check_gui() -> int:
                 raise AssertionError("touchpad scroll did not reactivate the terminal")
             if terminal.effects.draw_handler:
                 raise AssertionError("effects hook the terminal's drawing while disabled")
-            from hackerterminal import effects as effects_module
+            from littleshell import effects as effects_module
 
             effects_module.HAS_CAIRO = False
             terminal.effects.set_enabled(True)

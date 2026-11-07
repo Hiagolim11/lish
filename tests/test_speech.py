@@ -1,7 +1,7 @@
 import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock
-from hackerterminal.speech import transcribe
+from littleshell.speech import transcribe
 
 
 class SpeechTests(unittest.TestCase):

@@ -1,6 +1,6 @@
 # Contribuindo
 
-Obrigado por melhorar o Hacker Terminal.
+Obrigado por melhorar o Little Shell.
 
 ## Ambiente local
 

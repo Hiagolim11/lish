@@ -12,11 +12,11 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-from hackerterminal.config import Preferences
-from hackerterminal.history import HistoryStore, MAX_ENTRIES
-from hackerterminal.session import SessionState, SessionStore, SessionTab
-from hackerterminal.terminal import TerminalPane
-from hackerterminal.window.main import HackerTerminal
+from littleshell.config import Preferences
+from littleshell.history import HistoryStore, MAX_ENTRIES
+from littleshell.session import SessionState, SessionStore, SessionTab
+from littleshell.terminal import TerminalPane
+from littleshell.window.main import LittleShell
 
 
 class OutputSafetyTests(unittest.TestCase):
@@ -101,11 +101,11 @@ class SessionOwnershipTests(unittest.TestCase):
             self.assertTrue(store.save(state))
             window = SimpleNamespace(config=SimpleNamespace(command=("printf", "ok")),
                                      preferences=Preferences(), session_store=store)
-            HackerTerminal.save_session(window)
+            LittleShell.save_session(window)
             self.assertEqual(store.load(), state)
 
     def test_all_windows_keep_layouts_and_empty_window_does_not_clear_others(self):
-        from hackerterminal.session import SessionCoordinator
+        from littleshell.session import SessionCoordinator
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             store = SessionStore(root / "session.json")
@@ -127,7 +127,7 @@ class SessionOwnershipTests(unittest.TestCase):
                 coordinator.close()
 
     def test_other_process_cannot_overwrite_owned_session(self):
-        from hackerterminal.session import SessionCoordinator
+        from littleshell.session import SessionCoordinator
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             store = SessionStore(root / "session.json")
@@ -139,7 +139,7 @@ class SessionOwnershipTests(unittest.TestCase):
                 code = """
 import sys
 from pathlib import Path
-from hackerterminal.session import SessionCoordinator, SessionStore
+from littleshell.session import SessionCoordinator, SessionStore
 c = SessionCoordinator(SessionStore(Path(sys.argv[1])))
 assert not c.register('second', lambda: None)
 assert not c.save()
@@ -158,7 +158,7 @@ c.close()
 
 class HistoryConcurrencyTests(unittest.TestCase):
     def test_append_is_not_lost_during_trim(self):
-        import hackerterminal.history as history
+        import littleshell.history as history
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             path, ready = root / "history.jsonl", root / "ready"
@@ -170,7 +170,7 @@ class HistoryConcurrencyTests(unittest.TestCase):
                 code = """
 import sys
 from pathlib import Path
-from hackerterminal.history import HistoryStore
+from littleshell.history import HistoryStore
 Path(sys.argv[2]).touch()
 assert HistoryStore(Path(sys.argv[1])).add('new-during-trim', 0, 0) is not None
 """
@@ -210,7 +210,7 @@ assert HistoryStore(Path(sys.argv[1])).add('new-during-trim', 0, 0) is not None
             self.assertTrue(lock_path.exists())
             with lock_path.open("a") as lock:
                 fcntl.flock(lock, fcntl.LOCK_EX)
-                code = "from pathlib import Path; from hackerterminal.history import HistoryStore; import sys; assert HistoryStore(Path(sys.argv[1])).clear()"
+                code = "from pathlib import Path; from littleshell.history import HistoryStore; import sys; assert HistoryStore(Path(sys.argv[1])).clear()"
                 child = subprocess.Popen([sys.executable, "-c", code, str(path)])
                 try:
                     with self.assertRaises(subprocess.TimeoutExpired):
@@ -228,8 +228,8 @@ assert HistoryStore(Path(sys.argv[1])).add('new-during-trim', 0, 0) is not None
 
 class ImageLoadingTests(unittest.TestCase):
     def test_excessive_source_pixels_are_rejected_before_any_decoder(self):
-        from hackerterminal.viewer import FileViewer, GdkPixbuf
-        from hackerterminal.documents import DocumentError
+        from littleshell.viewer import FileViewer, GdkPixbuf
+        from littleshell.documents import DocumentError
         with patch.object(GdkPixbuf.Pixbuf, "get_file_info", return_value=(Mock(get_name=lambda: "png"), 100000, 100000)), \
              patch.object(GdkPixbuf.PixbufAnimation, "new_from_file") as animation, \
              patch.object(GdkPixbuf.Pixbuf, "new_from_file_at_scale") as still:
@@ -239,7 +239,7 @@ class ImageLoadingTests(unittest.TestCase):
             still.assert_not_called()
 
     def test_large_static_image_is_never_decoded_at_original_size(self):
-        from hackerterminal.viewer import FileViewer, GdkPixbuf, MAX_DECODE_SIDE
+        from littleshell.viewer import FileViewer, GdkPixbuf, MAX_DECODE_SIDE
         image = Mock()
         image.apply_embedded_orientation.return_value = image
         with patch.object(GdkPixbuf.Pixbuf, "get_file_info", return_value=(Mock(get_name=lambda: "png"), 12000, 4000)), \
@@ -250,8 +250,8 @@ class ImageLoadingTests(unittest.TestCase):
         scaled.assert_called_once_with("large.png", MAX_DECODE_SIDE, MAX_DECODE_SIDE, True)
 
     def test_large_animation_is_rejected_before_decoding(self):
-        from hackerterminal.viewer import FileViewer, GdkPixbuf
-        from hackerterminal.documents import DocumentError
+        from littleshell.viewer import FileViewer, GdkPixbuf
+        from littleshell.documents import DocumentError
         with patch.object(GdkPixbuf.Pixbuf, "get_file_info", return_value=(Mock(get_name=lambda: "gif"), 10000, 3000)), \
              patch.object(GdkPixbuf.PixbufAnimation, "new_from_file") as decode:
             with self.assertRaises(DocumentError):
@@ -259,7 +259,7 @@ class ImageLoadingTests(unittest.TestCase):
             decode.assert_not_called()
 
     def test_small_animation_still_plays(self):
-        from hackerterminal.viewer import FileViewer, GdkPixbuf
+        from littleshell.viewer import FileViewer, GdkPixbuf
         animation = Mock()
         animation.is_static_image.return_value = False
         with tempfile.TemporaryDirectory() as directory:

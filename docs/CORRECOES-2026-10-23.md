@@ -30,11 +30,11 @@ Enquanto um processo gerencia `session.json`, outro processo independente não r
 
 ## Validação após as alterações
 
-Foi executado `HACKER_TERMINAL_GUI_TEST=1 make check`, que inclui compilação Python, sintaxe de scripts, CLI, testes unitários, smoke gráfico, integração com bash/zsh, testes gráficos novos, instância única, SSH local real com chaveiro, instalação/remoção em caminhos com espaços e construção/inspeção/extração do pacote Debian.
+Foi executado `LISH_GUI_TEST=1 make check`, que inclui compilação Python, sintaxe de scripts, CLI, testes unitários, smoke gráfico, integração com bash/zsh, testes gráficos novos, instância única, SSH local real com chaveiro, instalação/remoção em caminhos com espaços e construção/inspeção/extração do pacote Debian.
 
 A primeira execução completa passou com 136 testes unitários e 2 testes gráficos novos. Após adicionar o limite de pixels de origem, os 12 testes de regressão unitários e os 2 gráficos passaram novamente.
 
-**Execução completa final: aprovada, código de saída 0.** Foram 137 testes unitários (14,746 s), 2 testes gráficos novos, smoke gráfico existente, bash/zsh, instância única, SSH local real com senha do chaveiro, `ht-copy-key`, instalação/remoção e construção/inspeção/extração do `.deb`. O log completo está em [graphify-out/validation/ht-final-check.log](../graphify-out/validation/ht-final-check.log). Os demais logs antes/depois e a medição de imagens estão na mesma pasta, ignorada pelo Git.
+**Execução completa final: aprovada, código de saída 0.** Foram 137 testes unitários (14,746 s), 2 testes gráficos novos, smoke gráfico existente, bash/zsh, instância única, SSH local real com senha do chaveiro, `lish-copy-key`, instalação/remoção e construção/inspeção/extração do `.deb`. O log completo está em [graphify-out/validation/ht-final-check.log](../graphify-out/validation/ht-final-check.log). Os demais logs antes/depois e a medição de imagens estão na mesma pasta, ignorada pelo Git.
 
 O Graphify foi atualizado por extração local de código e suas consultas confirmam `SessionCoordinator` e os consumidores de `storage.write_text`. As métricas do grafo anterior não devem ser comparadas diretamente com as novas, porque a atualização também reextraiu os testes e outros arquivos de código.
 

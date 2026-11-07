@@ -3,9 +3,9 @@ set -euo pipefail
 
 project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 output_dir="${1:-$project_dir/dist}"
-version="$(sed -n 's/^VERSION = "\([0-9][0-9.]*\)"$/\1/p' "$project_dir/hackerterminal/constants.py")"
-package="hacker-terminal"
-maintainer="${DEB_MAINTAINER:-Hacker Terminal Contributors <noreply@localhost>}"
+version="$(sed -n 's/^VERSION = "\([0-9][0-9.]*\)"$/\1/p' "$project_dir/littleshell/constants.py")"
+package="lish"
+maintainer="${DEB_MAINTAINER:-Little Shell Contributors <noreply@localhost>}"
 export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-1791936000}"
 
 if [[ -z "$version" ]]; then
@@ -25,54 +25,54 @@ install -d \
   "$package_root/DEBIAN" \
   "$package_root/usr/bin" \
   "$package_root/usr/lib/$package" \
-  "$package_root/usr/lib/$package/hackerterminal" \
-  "$package_root/usr/lib/$package/hackerterminal/themes" \
+  "$package_root/usr/lib/$package/littleshell" \
+  "$package_root/usr/lib/$package/littleshell/themes" \
   "$package_root/usr/share/applications" \
   "$package_root/usr/share/doc/$package" \
   "$package_root/usr/share/icons/hicolor/scalable/apps" \
   "$package_root/usr/share/metainfo"
 
-install -m 755 "$project_dir/hacker_terminal.py" "$package_root/usr/lib/$package/hacker_terminal.py"
-install -D -m 755 "$project_dir/bin/ht-open" "$package_root/usr/lib/$package/bin/ht-open"
-install -D -m 755 "$project_dir/bin/ht-askpass" "$package_root/usr/lib/$package/bin/ht-askpass"
-install -D -m 755 "$project_dir/bin/ht-copy-key" "$package_root/usr/lib/$package/bin/ht-copy-key"
-ln -s "../lib/$package/bin/ht-open" "$package_root/usr/bin/ht-open"
+install -m 755 "$project_dir/little_shell.py" "$package_root/usr/lib/$package/little_shell.py"
+install -D -m 755 "$project_dir/bin/lish-open" "$package_root/usr/lib/$package/bin/lish-open"
+install -D -m 755 "$project_dir/bin/lish-askpass" "$package_root/usr/lib/$package/bin/lish-askpass"
+install -D -m 755 "$project_dir/bin/lish-copy-key" "$package_root/usr/lib/$package/bin/lish-copy-key"
+ln -s "../lib/$package/bin/lish-open" "$package_root/usr/bin/lish-open"
 while IFS= read -r -d '' source; do
   install -D -m 644 "$project_dir/$source" "$package_root/usr/lib/$package/$source"
-done < <(cd "$project_dir" && find hackerterminal -name '*.py' -not -path '*/__pycache__/*' -print0)
-install -D -m 644 "$project_dir/hackerterminal/shell/zsh/.zshenv" \
-  "$package_root/usr/lib/$package/hackerterminal/shell/zsh/.zshenv"
-install -D -m 644 "$project_dir/hackerterminal/shell/bash/integration.bash" \
-  "$package_root/usr/lib/$package/hackerterminal/shell/bash/integration.bash"
-for source in "$project_dir"/hackerterminal/themes/*.ini; do
-  install -m 644 "$source" "$package_root/usr/lib/$package/hackerterminal/themes/$(basename "$source")"
+done < <(cd "$project_dir" && find littleshell -name '*.py' -not -path '*/__pycache__/*' -print0)
+install -D -m 644 "$project_dir/littleshell/shell/zsh/.zshenv" \
+  "$package_root/usr/lib/$package/littleshell/shell/zsh/.zshenv"
+install -D -m 644 "$project_dir/littleshell/shell/bash/integration.bash" \
+  "$package_root/usr/lib/$package/littleshell/shell/bash/integration.bash"
+for source in "$project_dir"/littleshell/themes/*.ini; do
+  install -m 644 "$source" "$package_root/usr/lib/$package/littleshell/themes/$(basename "$source")"
 done
 while IFS= read -r -d '' source; do
   install -D -m 644 "$project_dir/$source" "$package_root/usr/lib/$package/$source"
-done < <(cd "$project_dir" && find hackerterminal/soundpacks -type f -print0)
-install -m 644 "$project_dir/assets/hacker-terminal.svg" \
-  "$package_root/usr/share/icons/hicolor/scalable/apps/hacker-terminal.svg"
-install -m 644 "$project_dir/packaging/org.hackerterminal.HackerTerminal.metainfo.xml" \
-  "$package_root/usr/share/metainfo/org.hackerterminal.HackerTerminal.metainfo.xml"
+done < <(cd "$project_dir" && find littleshell/soundpacks -type f -print0)
+install -m 644 "$project_dir/assets/lish.svg" \
+  "$package_root/usr/share/icons/hicolor/scalable/apps/lish.svg"
+install -m 644 "$project_dir/packaging/org.littleshell.LittleShell.metainfo.xml" \
+  "$package_root/usr/share/metainfo/org.littleshell.LittleShell.metainfo.xml"
 {
   cat "$project_dir/LICENSE"
   printf '\n========================================================================\n'
-  printf 'usr/lib/%s/hackerterminal/soundpacks\n\n' "$package"
-  cat "$project_dir/hackerterminal/soundpacks/LICENSE"
+  printf 'usr/lib/%s/littleshell/soundpacks\n\n' "$package"
+  cat "$project_dir/littleshell/soundpacks/LICENSE"
 } > "$package_root/usr/share/doc/$package/copyright"
 chmod 644 "$package_root/usr/share/doc/$package/copyright"
 install -m 644 "$project_dir/README.md" "$package_root/usr/share/doc/$package/README.md"
 
-sed 's|@EXEC@|/usr/bin/hacker-terminal|g' \
-  "$project_dir/assets/org.hackerterminal.HackerTerminal.desktop" \
-  > "$package_root/usr/share/applications/org.hackerterminal.HackerTerminal.desktop"
-chmod 644 "$package_root/usr/share/applications/org.hackerterminal.HackerTerminal.desktop"
+sed 's|@EXEC@|/usr/bin/lish|g' \
+  "$project_dir/assets/org.littleshell.LittleShell.desktop" \
+  > "$package_root/usr/share/applications/org.littleshell.LittleShell.desktop"
+chmod 644 "$package_root/usr/share/applications/org.littleshell.LittleShell.desktop"
 
-cat > "$package_root/usr/bin/hacker-terminal" <<'EOF'
+cat > "$package_root/usr/bin/lish" <<'EOF'
 #!/bin/sh
-exec /usr/bin/python3 /usr/lib/hacker-terminal/hacker_terminal.py "$@"
+exec /usr/bin/python3 /usr/lib/lish/little_shell.py "$@"
 EOF
-chmod 755 "$package_root/usr/bin/hacker-terminal"
+chmod 755 "$package_root/usr/bin/lish"
 
 cat > "$package_root/DEBIAN/control" <<EOF
 Package: $package
@@ -84,7 +84,7 @@ Maintainer: $maintainer
 Depends: python3 (>= 3.10), python3-gi, python3-gi-cairo, gir1.2-gtk-3.0, gir1.2-vte-2.91, hicolor-icon-theme
 Recommends: gir1.2-secret-1, librsvg2-common, python3-gst-1.0, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, fonts-hack
 Description: professional native terminal for Linux
- Hacker Terminal is a lightweight GTK 3 and VTE terminal with tabs, split
+ Little Shell is a lightweight GTK 3 and VTE terminal with tabs, split
  panes, session restoration, project context, history search, validated custom
  themes and optional retro visual effects.
 EOF

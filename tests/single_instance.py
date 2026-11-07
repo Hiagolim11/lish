@@ -1,7 +1,7 @@
 """Plain windows share one process; later launches only pass their command line.
 
 Run with: dbus-run-session -- env HT_PRIVATE_BUS=1 xvfb-run -a python3 tests/single_instance.py
-(a private bus, so the user's running Hacker Terminal is never involved).
+(a private bus, so the user's running Little Shell is never involved).
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ import time
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent.parent
-LAUNCH = [sys.executable, str(PROJECT / "hacker_terminal.py")]
+LAUNCH = [sys.executable, str(PROJECT / "little_shell.py")]
 
 
 def windows_of(pid: int) -> int:
@@ -37,7 +37,7 @@ def wait(condition, seconds: float = 15) -> bool:
 
 
 def app_processes() -> list[int]:
-    result = subprocess.run(["pgrep", "-f", str(PROJECT / "hacker_terminal.py")], capture_output=True, text=True)
+    result = subprocess.run(["pgrep", "-f", str(PROJECT / "little_shell.py")], capture_output=True, text=True)
     return [int(pid) for pid in result.stdout.split() if int(pid) != os.getpid()]
 
 
@@ -52,7 +52,7 @@ def main() -> int:
     os.environ.update({
         "HOME": str(home), "XDG_CONFIG_HOME": str(home / "config"), "XDG_CACHE_HOME": str(home / "cache"),
         "XDG_STATE_HOME": str(home / "state"), "XDG_DATA_HOME": str(home / "data"),
-        "HACKER_TERMINAL_AUDIO_SINK": "fakesink", "NO_AT_BRIDGE": "1", "SHELL": "/bin/sh",
+        "LISH_AUDIO_SINK": "fakesink", "NO_AT_BRIDGE": "1", "SHELL": "/bin/sh",
     })
     primary = subprocess.Popen([*LAUNCH, "--no-boot"], stderr=subprocess.DEVNULL)
     try:

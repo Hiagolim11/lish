@@ -11,10 +11,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from hackerterminal.config import AppConfig, Preferences
-from hackerterminal.runtime import Gtk, Vte
-from hackerterminal.terminal import TerminalPane
-from hackerterminal.themes import ThemeManager
+from littleshell.config import AppConfig, Preferences
+from littleshell.runtime import Gtk, Vte
+from littleshell.terminal import TerminalPane
+from littleshell.themes import ThemeManager
 
 
 def pump(seconds: float) -> None:
@@ -87,7 +87,7 @@ def check(shell: str) -> None:
 
 
 def main() -> int:
-    from hackerterminal.terminal import HAS_TERMPROPS
+    from littleshell.terminal import HAS_TERMPROPS
 
     if not HAS_TERMPROPS:
         print("SKIP: VTE sem termprops (anterior à 0.78); integração com o shell desativada")

@@ -1,16 +1,16 @@
 <div align="center">
 
-<img src="assets/hacker-terminal.svg" alt="Hacker Terminal" width="112">
+<img src="assets/lish.svg" alt="Little Shell" width="112">
 
-# Hacker Terminal
+# Little Shell
 
 **Um terminal nativo para Linux, rápido e totalmente personalizável — com alma retrô.**
 
 GTK 3 · VTE · Python · sem Electron, sem navegador, sem telemetria
 
-[![CI](https://github.com/Hiagolim11/hacker-terminal/actions/workflows/ci.yml/badge.svg)](https://github.com/Hiagolim11/hacker-terminal/actions/workflows/ci.yml)
-[![Site](https://img.shields.io/badge/site-hiagolim11.github.io-111111)](https://hiagolim11.github.io/hacker-terminal/)
-[![Release](https://img.shields.io/github/v/release/Hiagolim11/hacker-terminal?color=29ff9a&label=vers%C3%A3o)](https://github.com/Hiagolim11/hacker-terminal/releases/latest)
+[![CI](https://github.com/Hiagolim11/lish/actions/workflows/ci.yml/badge.svg)](https://github.com/Hiagolim11/lish/actions/workflows/ci.yml)
+[![Site](https://img.shields.io/badge/site-hiagolim11.github.io-111111)](https://hiagolim11.github.io/lish/)
+[![Release](https://img.shields.io/github/v/release/Hiagolim11/lish?color=29ff9a&label=vers%C3%A3o)](https://github.com/Hiagolim11/lish/releases/latest)
 [![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue)](LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776ab?logo=python&logoColor=white)
 ![GTK 3 + VTE](https://img.shields.io/badge/GTK%203-VTE%202.91-4a86cf?logo=gnome&logoColor=white)
@@ -24,7 +24,7 @@ GTK 3 · VTE · Python · sem Electron, sem navegador, sem telemetria
 
 <br>
 
-<img src="docs/screenshots/hero.png" alt="Hacker Terminal no tema Zero Day: um comando que falhou ganha a marca vermelha na margem e o código de saída na barra de status" width="100%">
+<img src="docs/screenshots/hero.png" alt="Little Shell no tema Zero Day: um comando que falhou ganha a marca vermelha na margem e o código de saída na barra de status" width="100%">
 
 </div>
 
@@ -58,7 +58,7 @@ GTK 3 · VTE · Python · sem Electron, sem navegador, sem telemetria
 
 ## 💡 O que é
 
-O **Hacker Terminal** é um emulador de terminal **de verdade** — não uma simulação. Ele roda o seu shell de login (`zsh`, `bash`, `fish`…) dentro de um PTY usando o **VTE**, o mesmo motor do GNOME Terminal e do Tilix. Por isso `vim`, `tmux`, `htop`, prompts Powerline, cores de 24 bits e programas de tela cheia funcionam exatamente como esperado.
+O **Little Shell** é um emulador de terminal **de verdade** — não uma simulação. Ele roda o seu shell de login (`zsh`, `bash`, `fish`…) dentro de um PTY usando o **VTE**, o mesmo motor do GNOME Terminal e do Tilix. Por isso `vim`, `tmux`, `htop`, prompts Powerline, cores de 24 bits e programas de tela cheia funcionam exatamente como esperado.
 
 Por cima desse motor maduro, ele adiciona uma camada pensada para quem passa o dia no terminal: abas e painéis divididos, paleta de comandos, temas editáveis, perfis, atalhos remapeáveis, ações rápidas, som de teclado mecânico de baixa latência e, se você quiser, a estética retrô completa, com chuva digital, scanlines e temas de tubo CRT.
 
@@ -111,7 +111,7 @@ Por cima desse motor maduro, ele adiciona uma camada pensada para quem passa o d
 - **Perfis** que guardam tema, fonte, shell, cursor, diretório e ações
 - **Ações rápidas** editáveis no painel lateral
 - **Monitor de recursos** opcional: CPU, clock, temperatura, memória e GPU na barra de status, com gráficos do último minuto no painel
-- **Visualizador de imagens e planilhas** em abas (`ht-open`)
+- **Visualizador de imagens e planilhas** em abas (`lish-open`)
 - Barra de status com diretório, branch Git e virtualenv
 
 </td>
@@ -197,25 +197,25 @@ Desenvolvido e testado no Kali Linux (XFCE em X11, PipeWire) com GTK 3.24 e VTE 
 
 ### Opção 1 — Pacote `.deb` (recomendado)
 
-Baixe o arquivo `hacker-terminal_*_all.deb` da [página de releases](https://github.com/Hiagolim11/hacker-terminal/releases/latest) e instale com o `apt`, que resolve as dependências sozinho:
+Baixe o arquivo `lish_*_all.deb` da [página de releases](https://github.com/Hiagolim11/lish/releases/latest) e instale com o `apt`, que resolve as dependências sozinho:
 
 ```bash
-sudo apt install ./hacker-terminal_*_all.deb
+sudo apt install ./lish_*_all.deb
 ```
 
-O terminal aparece no menu de aplicativos e fica disponível como `hacker-terminal`. Para atualizar, instale o `.deb` mais novo da mesma forma; para remover, `sudo apt remove hacker-terminal`.
+O terminal aparece no menu de aplicativos e fica disponível como `lish`. Para atualizar, instale o `.deb` mais novo da mesma forma; para remover, `sudo apt remove lish`.
 
 ### Opção 2 — Instalação só para o seu usuário (sem `sudo` para o app)
 
 ```bash
 sudo apt install python3 python3-gi python3-gi-cairo gir1.2-gtk-3.0 gir1.2-vte-2.91 \
                  python3-gst-1.0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good
-git clone https://github.com/Hiagolim11/hacker-terminal.git
-cd hacker-terminal
+git clone https://github.com/Hiagolim11/lish.git
+cd lish
 ./install.sh
 ```
 
-Instala em `~/.local`, cria o comando `hacker-terminal` e adiciona o atalho ao menu.
+Instala em `~/.local`, cria o comando `lish` e adiciona o atalho ao menu.
 
 ```bash
 ./install.sh --check       # confere a instalação
@@ -225,26 +225,26 @@ Instala em `~/.local`, cria o comando `hacker-terminal` e adiciona o atalho ao m
 ### Opção 3 — Rodar direto do código-fonte
 
 ```bash
-git clone https://github.com/Hiagolim11/hacker-terminal.git
-cd hacker-terminal
+git clone https://github.com/Hiagolim11/lish.git
+cd lish
 ./run.sh
 ```
 
 ### Opção 4 — Gerar o próprio `.deb`
 
 ```bash
-make deb                                   # cria dist/hacker-terminal_<versão>_all.deb
-sudo apt install ./dist/hacker-terminal_*_all.deb
+make deb                                   # cria dist/lish_<versão>_all.deb
+sudo apt install ./dist/lish_*_all.deb
 ```
 
 ### Verificar a instalação
 
 ```bash
-hacker-terminal --diagnose
+lish --diagnose
 ```
 
 ```text
-Hacker Terminal 0.22.0
+Little Shell 0.22.0
 GTK: 3.24.52
 VTE: 0.84.1
 Fonte selecionada: JetBrainsMono Nerd Font
@@ -258,7 +258,7 @@ Shell: /usr/bin/zsh
 
 ## 🚀 Primeiros passos
 
-1. **Abra** pelo menu de aplicativos ou com `hacker-terminal`.
+1. **Abra** pelo menu de aplicativos ou com `lish`.
 2. **Escolha um perfil** em `Ctrl+,` → *Geral*: *Desenvolvimento* (sóbrio), *Foco* (sem painel) ou *Retro Hacker* (chuva digital e scanlines).
 3. **Experimente a paleta** com `Ctrl+Shift+P` e digite `tema`, `perfil` ou `dividir`.
 4. **Divida a tela** com `Ctrl+Shift+D` e alterne entre os painéis com `Ctrl+Shift+O`.
@@ -290,7 +290,7 @@ Estes são os padrões — **todos podem ser alterados** em *Preferências → A
 Para listar os atalhos em uso (incluindo os seus):
 
 ```bash
-hacker-terminal --list-shortcuts
+lish --list-shortcuts
 ```
 
 ---
@@ -396,7 +396,7 @@ Em **Aparência**, os botões fazem o seguinte:
 - **Remover** — apaga um tema personalizado.
 - **Importar… / Exportar…** — compartilha temas como arquivos `.ini`.
 
-O editor tem seletores de cor para toda a interface, o terminal, a seleção, o cursor, a chuva digital e as **16 cores ANSI**. Os temas ficam em `~/.config/hacker-terminal/themes/` e usam este formato:
+O editor tem seletores de cor para toda a interface, o terminal, a seleção, o cursor, a chuva digital e as **16 cores ANSI**. Os temas ficam em `~/.config/lish/themes/` e usam este formato:
 
 <details>
 <summary><b>Exemplo de tema (<code>matrix-green.ini</code>)</b></summary>
@@ -406,7 +406,7 @@ O editor tem seletores de cor para toda a interface, o terminal, a seleção, o 
 # id: letras minúsculas, números e hífens
 id = matrix-green
 name = Matrix Green
-author = Hacker Terminal
+author = Little Shell
 
 [interface]
 background = #02090b
@@ -457,14 +457,14 @@ Um perfil guarda um conjunto completo de preferências e pode ser trocado em um 
 **Para criar:** ajuste tudo nas Preferências e clique em *Geral → **Salvar como perfil…***, ou use a paleta (*“Salvar configurações atuais como perfil”*). Ative **Ações rápidas próprias** para que o perfil tenha uma lista separada de ações (por exemplo, comandos do seu laboratório de testes), que troca automaticamente junto com o perfil.
 
 ```bash
-hacker-terminal --list-profiles
-hacker-terminal --profile pentest     # abre direto com um perfil
+lish --list-profiles
+lish --profile pentest     # abre direto com um perfil
 ```
 
 <details>
 <summary><b>Formato do arquivo de perfil</b></summary>
 
-`~/.config/hacker-terminal/profiles/pentest.ini`
+`~/.config/lish/profiles/pentest.ini`
 
 ```ini
 [profile]
@@ -515,7 +515,7 @@ Os sons sintetizados são aproximações. Para o som **idêntico** a um teclado 
 | Full travel | MX Black, MX Blue, MX Brown, Turquoise e Full Creamy Goodness (som de descida e de subida) |
 | Outros | Holy Pandas, NK Cream, Topre Purple Hybrid, EG Crystal Purple e EG Oreo |
 
-O volume das gravações é nivelado ao carregar, para que trocar de pacote não faça o som sumir nem estourar. Elas foram compactadas por `packaging/fetch_soundpacks.py` (só os trechos de cada tecla, em mono): os 21 MB originais viraram 2,5 MB. As licenças estão em `hackerterminal/soundpacks/LICENSE`.
+O volume das gravações é nivelado ao carregar, para que trocar de pacote não faça o som sumir nem estourar. Elas foram compactadas por `packaging/fetch_soundpacks.py` (só os trechos de cada tecla, em mono): os 21 MB originais viraram 2,5 MB. As licenças estão em `littleshell/soundpacks/LICENSE`.
 
 Para outro teclado, use **Importar pacote…** com:
 
@@ -530,7 +530,7 @@ Para outro teclado, use **Importar pacote…** com:
 | `enter-press.wav`, `enter-release.wav` | Enter |
 | `large-press.wav`, `large-release.wav` | Backspace, Shift, Tab, Caps Lock |
 
-`down`/`up` também são aceitos no lugar de `press`/`release`. Os pacotes ficam em `~/.local/share/hacker-terminal/soundpacks/` (o botão **Abrir pasta** leva até lá).
+`down`/`up` também são aceitos no lugar de `press`/`release`. Os pacotes ficam em `~/.local/share/lish/soundpacks/` (o botão **Abrir pasta** leva até lá).
 
 ### Atalhos personalizados
 
@@ -592,7 +592,7 @@ Com zsh ou bash, o terminal carrega pequenos ganchos (sem mexer nos seus arquivo
 - o aviso de comando longo diz se o comando deu certo ou falhou, e com qual código;
 - novas abas e divisões abrem na pasta atual.
 
-Requer VTE 0.78 ou mais novo (`hacker-terminal --diagnose` informa). Desligue em *Preferências → Geral* ou com `HACKER_TERMINAL_SHELL_INTEGRATION=0`.
+Requer VTE 0.78 ou mais novo (`lish --diagnose` informa). Desligue em *Preferências → Geral* ou com `LISH_SHELL_INTEGRATION=0`.
 
 ### Histórico de comandos
 
@@ -606,7 +606,7 @@ Requer VTE 0.78 ou mais novo (`hacker-terminal --diagnose` informa). Desligue em
 - **Só falhas** mostra apenas o que deu errado; **Mostrar repetidos** lista cada execução em vez de só a mais recente.
 - **Usar no terminal** (ou duplo clique/Enter) digita o comando no painel **sem apertar Enter**, para você revisar ou editar antes de rodar. **Copiar** leva para a área de transferência.
 
-O histórico depende da integração com o shell, fica só neste computador em `~/.local/state/hacker-terminal/history.jsonl` (permissão `0600`, os 5.000 mais recentes) e pode ser desligado em *Preferências → Geral* ou apagado em **Limpar histórico…**. Como no bash e no zsh, **um comando digitado com um espaço no início não é guardado** — útil quando ele contém uma senha.
+O histórico depende da integração com o shell, fica só neste computador em `~/.local/state/lish/history.jsonl` (permissão `0600`, os 5.000 mais recentes) e pode ser desligado em *Preferências → Geral* ou apagado em **Limpar histórico…**. Como no bash e no zsh, **um comando digitado com um espaço no início não é guardado** — útil quando ele contém uma senha.
 
 ### Digitar em todos os painéis
 
@@ -627,7 +627,7 @@ O histórico depende da integração com o shell, fica só neste computador em `
 - **tema próprio** — use o **Alerta Vermelho** para produção e nunca confunda as janelas;
 - **confirmação antes de conectar**.
 
-O comando é digitado no seu shell, então um erro de conexão fica visível e, ao sair do servidor, você volta ao shell local. As conexões ficam em `~/.config/hacker-terminal/ssh.ini` (permissão `0600`), sem senhas.
+O comando é digitado no seu shell, então um erro de conexão fica visível e, ao sair do servidor, você volta ao shell local. As conexões ficam em `~/.config/lish/ssh.ini` (permissão `0600`), sem senhas.
 
 #### Entrar sem digitar a senha
 
@@ -636,7 +636,7 @@ O comando é digitado no seu shell, então um erro de conexão fica visível e, 
 
 ### Terminal suspenso (estilo Quake)
 
-`hacker-terminal --dropdown` abre um terminal sem bordas no topo da tela; rodar de novo o esconde e o traz de volta, com as abas intactas. Em *Preferências → Geral → Terminal suspenso* você ajusta a altura, escolhe se ele some ao perder o foco e, no XFCE, ativa o **atalho global** (F12 por padrão) com **Ativar atalho**. O status logo acima diz se o atalho está ✓ ativo, ○ ainda não ativo ou ⚠ em uso por outro programa (que nunca é substituído); **Desativar** remove o atalho e **Testar agora** abre o terminal suspenso sem precisar da tecla. Ele se ajusta sozinho quando a resolução ou os monitores mudam. Em outros ambientes, crie um atalho que execute `hacker-terminal --dropdown`. O terminal suspenso guarda a própria sessão, separada da janela principal.
+`lish --dropdown` abre um terminal sem bordas no topo da tela; rodar de novo o esconde e o traz de volta, com as abas intactas. Em *Preferências → Geral → Terminal suspenso* você ajusta a altura, escolhe se ele some ao perder o foco e, no XFCE, ativa o **atalho global** (F12 por padrão) com **Ativar atalho**. O status logo acima diz se o atalho está ✓ ativo, ○ ainda não ativo ou ⚠ em uso por outro programa (que nunca é substituído); **Desativar** remove o atalho e **Testar agora** abre o terminal suspenso sem precisar da tecla. Ele se ajusta sozinho quando a resolução ou os monitores mudam. Em outros ambientes, crie um atalho que execute `lish --dropdown`. O terminal suspenso guarda a própria sessão, separada da janela principal.
 
 ### Aviso quando um comando longo termina
 
@@ -660,7 +660,7 @@ Use a extensão **`.html`** para manter as cores do tema ou **`.txt`** para text
 
 Abra imagens e planilhas **sem sair do terminal**: elas aparecem numa aba de visualização ao lado do terminal de onde vieram.
 
-Para ver uma imagem **direto na saída**, use `ht-open --inline foto.png` (ou `-i`; `--width 40` limita a largura em colunas). A imagem é desenhada com blocos coloridos em cores reais, cabe na largura e na altura da janela e respeita a transparência, então fica certa em temas claros e escuros. Se o VTE do seu sistema tiver suporte a **sixel**, ele também é ativado (programas como `img2sixel` e `chafa -f sixel` passam a funcionar); `hacker-terminal --diagnose` diz se está disponível — no Debian/Kali o VTE vem sem sixel, e o `--inline` funciona em qualquer caso.
+Para ver uma imagem **direto na saída**, use `lish-open --inline foto.png` (ou `-i`; `--width 40` limita a largura em colunas). A imagem é desenhada com blocos coloridos em cores reais, cabe na largura e na altura da janela e respeita a transparência, então fica certa em temas claros e escuros. Se o VTE do seu sistema tiver suporte a **sixel**, ele também é ativado (programas como `img2sixel` e `chafa -f sixel` passam a funcionar); `lish --diagnose` diz se está disponível — no Debian/Kali o VTE vem sem sixel, e o `--inline` funciona em qualquer caso.
 
 <div align="center">
 <img src="docs/screenshots/viewer-sheet.png" alt="Planilha XLSX no visualizador" width="100%">
@@ -669,7 +669,7 @@ Para ver uma imagem **direto na saída**, use `ht-open --inline foto.png` (ou `-
 Há quatro jeitos de abrir:
 
 ```bash
-ht-open foto.jpg relatorio.xlsx dados.csv   # um ou vários arquivos
+lish-open foto.jpg relatorio.xlsx dados.csv   # um ou vários arquivos
 ```
 
 - **`Ctrl+clique`** num nome de arquivo na saída do terminal — por exemplo, depois de um `ls`.
@@ -691,7 +691,7 @@ Imagens acima de **64 megapixels** são recusadas antes da decodificação. As d
 <details>
 <summary><b>Como funciona</b></summary>
 
-Cada janela escuta um socket UNIX privado (permissão `0600`, dentro de um diretório `0700` do seu usuário) e informa o caminho ao shell em `HACKER_TERMINAL_SOCKET`. O `ht-open` envia apenas o caminho absoluto do arquivo; o terminal valida e abre a visualização — nenhum comando é executado. As planilhas são lidas com a biblioteca padrão do Python, em segundo plano, com limites de tamanho descompactado contra arquivos zip maliciosos.
+Cada janela escuta um socket UNIX privado (permissão `0600`, dentro de um diretório `0700` do seu usuário) e informa o caminho ao shell em `LISH_SOCKET`. O `lish-open` envia apenas o caminho absoluto do arquivo; o terminal valida e abre a visualização — nenhum comando é executado. As planilhas são lidas com a biblioteca padrão do Python, em segundo plano, com limites de tamanho descompactado contra arquivos zip maliciosos.
 
 </details>
 
@@ -703,14 +703,14 @@ Cada janela escuta um socket UNIX privado (permissão `0600`, dentro de um diret
 
 | Caminho | Conteúdo |
 | --- | --- |
-| `~/.config/hacker-terminal/config.ini` | Preferências e atalhos |
-| `~/.config/hacker-terminal/actions.ini` | Ações rápidas compartilhadas |
-| `~/.config/hacker-terminal/session.json` | Abas, painéis e diretórios da última sessão |
-| `~/.config/hacker-terminal/themes/` | Temas personalizados (`.ini`) |
-| `~/.config/hacker-terminal/profiles/` | Perfis (`.ini`) e ações próprias (`.actions`) |
-| `~/.local/share/hacker-terminal/soundpacks/` | Pacotes de som gravados |
-| `~/.cache/hacker-terminal/keysounds/` | Cache dos sons sintetizados |
-| `~/.local/state/hacker-terminal/hacker-terminal.log` | Log de diagnóstico (rotativo) |
+| `~/.config/lish/config.ini` | Preferências e atalhos |
+| `~/.config/lish/actions.ini` | Ações rápidas compartilhadas |
+| `~/.config/lish/session.json` | Abas, painéis e diretórios da última sessão |
+| `~/.config/lish/themes/` | Temas personalizados (`.ini`) |
+| `~/.config/lish/profiles/` | Perfis (`.ini`) e ações próprias (`.actions`) |
+| `~/.local/share/lish/soundpacks/` | Pacotes de som gravados |
+| `~/.cache/lish/keysounds/` | Cache dos sons sintetizados |
+| `~/.local/state/lish/lish.log` | Log de diagnóstico (rotativo) |
 
 Os caminhos respeitam `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_CACHE_HOME` e `XDG_STATE_HOME`. Todos os arquivos são gravados de forma **atômica** e com permissão `0600`.
 
@@ -754,16 +754,16 @@ Valores inválidos são normalizados para o padrão; seções desconhecidas são
 
 | Variável | Efeito |
 | --- | --- |
-| `HACKER_TERMINAL_FONT` | Força uma família de fonte |
-| `HACKER_TERMINAL_EFFECTS` / `_SOUND` | `0`, `false`, `no` ou `off` desligam o recurso |
-| `HACKER_TERMINAL_AUDIO_SINK` | Força um elemento de saída do GStreamer (ex.: `pipewiresink`, `fakesink`) |
+| `LISH_FONT` | Força uma família de fonte |
+| `LISH_EFFECTS` / `_SOUND` | `0`, `false`, `no` ou `off` desligam o recurso |
+| `LISH_AUDIO_SINK` | Força um elemento de saída do GStreamer (ex.: `pipewiresink`, `fakesink`) |
 
 ---
 
 ## 💻 Linha de comando
 
 ```text
-hacker-terminal [opções] [-e COMANDO ...]
+lish [opções] [-e COMANDO ...]
 ```
 
 | Opção | Descrição |
@@ -781,9 +781,9 @@ hacker-terminal [opções] [-e COMANDO ...]
 
 | `--separate` | Abre a janela num processo próprio (veja abaixo) |
 
-Dentro do terminal também existe o comando **`ht-open ARQUIVO…`**, que abre imagens e planilhas no visualizador, e **`ht-open --inline IMAGEM`**, que desenha a imagem na própria saída.
+Dentro do terminal também existe o comando **`lish-open ARQUIVO…`**, que abre imagens e planilhas no visualizador, e **`lish-open --inline IMAGEM`**, que desenha a imagem na própria saída.
 
-**Um processo para todas as janelas.** Com o Hacker Terminal já aberto, `hacker-terminal` (pelo menu, atalho ou terminal) entrega a nova janela ao processo existente antes mesmo de carregar o GTK: ela abre em ~0,4 s e três janelas usam ~150 MB, em vez de ~470 MB em três processos. As preferências mudam em todas as janelas de uma vez, e só a primeira restaura a sessão salva. Opções que mudam a aparência de uma janela (`--theme`, `--profile`, `--font`, `--font-size`, `--no-effects`, `--no-sound`, `--no-panel`) abrem um processo próprio, assim como `--separate` ou a variável `HACKER_TERMINAL_SEPARATE=1`. O terminal suspenso (`--dropdown`) também tem o seu.
+**Um processo para todas as janelas.** Com o Little Shell já aberto, `lish` (pelo menu, atalho ou terminal) entrega a nova janela ao processo existente antes mesmo de carregar o GTK: ela abre em ~0,4 s e três janelas usam ~150 MB, em vez de ~470 MB em três processos. As preferências mudam em todas as janelas de uma vez, e só a primeira restaura a sessão salva. Opções que mudam a aparência de uma janela (`--theme`, `--profile`, `--font`, `--font-size`, `--no-effects`, `--no-sound`, `--no-panel`) abrem um processo próprio, assim como `--separate` ou a variável `LISH_SEPARATE=1`. O terminal suspenso (`--dropdown`) também tem o seu.
 
 **Sessão compartilhada.** As abas das janelas normais do mesmo processo são salvas juntas, na ordem de abertura das janelas, respeitando o limite de 20 painéis. Ao reabrir, voltam em uma janela, com nomes e divisões preservados. Janelas com `-e` não apagam nem substituem essa sessão. Um processo separado aberto enquanto outro já gerencia `session.json` não restaura nem grava esse arquivo; o terminal suspenso mantém sua própria sessão. O primeiro processo que reserva o arquivo continua sendo seu responsável até encerrar.
 
@@ -795,8 +795,8 @@ Dentro do terminal também existe o comando **`ht-open ARQUIVO…`**, que abre i
 
 ```mermaid
 flowchart LR
-    L["hacker_terminal.py<br/>+ launcher.py"] -->|"já aberto: entrega a janela via D-Bus"| APP
-    L --> CLI["cli.py<br/>argumentos e bootstrap"] --> APP["app.py<br/>processo único, ht-open, avisos"]
+    L["little_shell.py<br/>+ launcher.py"] -->|"já aberto: entrega a janela via D-Bus"| APP
+    L --> CLI["cli.py<br/>argumentos e bootstrap"] --> APP["app.py<br/>processo único, lish-open, avisos"]
     APP --> W["window/<br/>janela principal + recursos"]
     W --> D["dialogs/<br/>preferências, SSH, histórico…"]
     W --> TP["terminal.py<br/>TerminalPane (VTE + PTY)"]
@@ -810,9 +810,9 @@ A interface fica em dois pacotes. A janela (`window/`) é uma classe principal c
 
 | Módulo | Responsabilidade |
 | --- | --- |
-| `launcher.py` | Antes de carregar o GTK, entrega uma nova janela ao Hacker Terminal já aberto (só `Gio`, ~25 ms) |
-| `cli.py`, `app.py` | Argumentos, perfil/tema e log; o `Gtk.Application` com um processo para todas as janelas, socket do `ht-open` e notificações |
-| `window/main.py` | `HackerTerminal`: cabeçalho, abas, sessão, preferências, barra de status e fechamento |
+| `launcher.py` | Antes de carregar o GTK, entrega uma nova janela ao Little Shell já aberto (só `Gio`, ~25 ms) |
+| `cli.py`, `app.py` | Argumentos, perfil/tema e log; o `Gtk.Application` com um processo para todas as janelas, socket do `lish-open` e notificações |
+| `window/main.py` | `LittleShell`: cabeçalho, abas, sessão, preferências, barra de status e fechamento |
 | `window/panes.py`, `commands.py`, `output.py` | Divisões e transmissão; avisos, saltos e histórico de comandos; salvar/gravar saída e renomear painéis |
 | `window/ssh.py`, `dropdown.py`, `viewer.py` | Abas SSH e acesso por chave; terminal suspenso; abas do visualizador |
 | `window/panel.py` | Painel lateral de ações rápidas |
@@ -824,7 +824,7 @@ A interface fica em dois pacotes. A janela (`window/`) é uma classe principal c
 | `shortcuts.py` | Lê, valida, casa e rotula atalhos (sem depender de display) |
 | `keysound.py`, `soundpacks/` | Síntese dos switches, pacotes gravados (os incluídos e os importados) e o mixer; o GStreamer só carrega quando um som toca |
 | `history.py`, `connections.py`, `passwords.py` | Histórico de comandos; conexões SSH e `~/.ssh/config`; senhas no chaveiro do sistema |
-| `documents.py`, `viewer.py`, `openserver.py`, `inline_image.py` | Planilhas, aba de visualização, socket do `ht-open` e imagens desenhadas na saída |
+| `documents.py`, `viewer.py`, `openserver.py`, `inline_image.py` | Planilhas, aba de visualização, socket do `lish-open` e imagens desenhadas na saída |
 | `config.py`, `profiles.py`, `session.py`, `actions.py` | Persistência atômica de preferências, perfis e ações; coordenação da sessão entre janelas |
 | `effects.py` | Desenha a chuva digital e o visual CRT (brilho, curvatura, vinheta, ruído) por cima do VTE |
 | `dropdown.py`, `sandbox.py` | Geometria e atalho global do terminal suspenso; execução no host dentro do Flatpak |
@@ -886,7 +886,7 @@ Teclas maiores reduzem a frequência e alongam o decaimento; pequenas variaçõe
 <details>
 <summary><b>Ícones do prompt aparecem como quadrados</b></summary>
 
-Instale uma Nerd Font (por exemplo, a JetBrainsMono Nerd Font) e confira com `hacker-terminal --diagnose`. O terminal detecta a fonte sozinho; para forçar uma, use *Preferências → Aparência → Fonte* ou `--font "JetBrainsMono Nerd Font Mono"`.
+Instale uma Nerd Font (por exemplo, a JetBrainsMono Nerd Font) e confira com `lish --diagnose`. O terminal detecta a fonte sozinho; para forçar uma, use *Preferências → Aparência → Fonte* ou `--font "JetBrainsMono Nerd Font Mono"`.
 
 </details>
 
@@ -895,8 +895,8 @@ Instale uma Nerd Font (por exemplo, a JetBrainsMono Nerd Font) e confira com `ha
 
 1. Confirme que o som está ligado em *Preferências → Som do teclado* e teste no campo de digitação.
 2. Instale os plugins: `sudo apt install python3-gst-1.0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good`.
-3. Veja a linha de status abaixo do seletor de switch e o log em `~/.local/state/hacker-terminal/hacker-terminal.log`.
-4. Se a saída padrão não for a esperada, force o elemento: `HACKER_TERMINAL_AUDIO_SINK=pipewiresink hacker-terminal`.
+3. Veja a linha de status abaixo do seletor de switch e o log em `~/.local/state/lish/lish.log`.
+4. Se a saída padrão não for a esperada, force o elemento: `LISH_AUDIO_SINK=pipewiresink lish`.
 
 </details>
 
@@ -917,7 +917,7 @@ Atualize para a versão 0.11.1 ou mais nova — versões anteriores bloqueavam a
 <details>
 <summary><b>As preferências voltaram ao padrão</b></summary>
 
-Rode `hacker-terminal --diagnose`: ele aponta temas, perfis e atalhos inválidos. O arquivo `config.ini` é validado ao abrir; valores inválidos voltam ao padrão sem impedir a abertura.
+Rode `lish --diagnose`: ele aponta temas, perfis e atalhos inválidos. O arquivo `config.ini` é validado ao abrir; valores inválidos voltam ao padrão sem impedir a abertura.
 
 </details>
 
@@ -926,9 +926,9 @@ Rode `hacker-terminal --diagnose`: ele aponta temas, perfis e atalhos inválidos
 ## 🛠️ Desenvolvimento
 
 ```text
-hacker-terminal/
-├── hacker_terminal.py        # ponto de entrada
-├── hackerterminal/           # código do aplicativo (módulos descritos acima)
+lish/
+├── little_shell.py        # ponto de entrada
+├── littleshell/           # código do aplicativo (módulos descritos acima)
 │   └── themes/               # temas internos (.ini)
 ├── tests/
 │   ├── test_core.py          # testes unitários (sem display)
@@ -944,7 +944,7 @@ hacker-terminal/
 make check       # testes unitários, instalação, pacote e (com display) teste gráfico
 make check-gui   # inclui o teste gráfico usando Xvfb
 make run         # roda a partir do código-fonte
-make deb         # gera dist/hacker-terminal_<versão>_all.deb
+make deb         # gera dist/lish_<versão>_all.deb
 ```
 
 O projeto **não usa dependências do PyPI**: PyGObject, GTK, VTE e GStreamer vêm do sistema. A suíte roda o áudio em `fakesink` (sem fazer barulho), e o teste gráfico inclui eventos reais do X via `xdotool` para cobrir a rolagem. O GitHub Actions executa tudo a cada *push* e *pull request*.
@@ -953,12 +953,12 @@ O projeto **não usa dependências do PyPI**: PyGObject, GTK, VTE e GStreamer v�
 
 O GitHub publica a release sozinho quando recebe uma tag `vX.Y.Z`:
 
-1. Atualize a versão em `hackerterminal/constants.py`, `tests/smoke.sh`, no metainfo (`packaging/*.metainfo.xml`) e a seção `## X.Y.Z` do `CHANGELOG.md`.
+1. Atualize a versão em `littleshell/constants.py`, `tests/smoke.sh`, no metainfo (`packaging/*.metainfo.xml`) e a seção `## X.Y.Z` do `CHANGELOG.md`.
 2. Regere o site: `python3 packaging/build_site.py`. Ele também gera a demonstração interativa (`docs/demo.js`, `docs/demo.css` e os sons em `docs/audio/keys/`) a partir dos temas, perfis, ações e pacotes de som do próprio app, editados em `packaging/site/`.
 3. Faça o commit e envie a tag anotada — a primeira linha da mensagem vira o título da release:
 
    ```bash
-   git tag -a v0.19.0 -m "Hacker Terminal 0.19.0 — o que mudou"
+   git tag -a v0.19.0 -m "Little Shell 0.19.0 — o que mudou"
    git push origin main v0.19.0
    ```
 
@@ -989,7 +989,7 @@ use um ambiente virtual com acesso ao GTK do sistema:
 ```sh
 python3 -m venv --system-site-packages .venv
 .venv/bin/pip install -r requirements-speech.txt
-.venv/bin/python hacker_terminal.py
+.venv/bin/python little_shell.py
 ```
 
 O primeiro reconhecimento baixa vários GB do Hugging Face; requer internet,

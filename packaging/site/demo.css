@@ -1,4 +1,4 @@
-/* Interactive demo: a simulated Hacker Terminal window. Every colour comes from the
+/* Interactive demo: a simulated Little Shell window. Every colour comes from the
    app's own theme files (custom properties set by demo.js), so the window looks like
    the GTK one: header with four buttons, optional tabs, panes, side panel, status bar. */
 

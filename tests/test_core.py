@@ -1,4 +1,4 @@
-"""Unit tests for non-visual Hacker Terminal behavior."""
+"""Unit tests for non-visual Little Shell behavior."""
 
 from __future__ import annotations
 
@@ -15,16 +15,16 @@ import wave
 from pathlib import Path
 from unittest.mock import patch
 
-from hackerterminal.actions import DEFAULT_ACTIONS, ActionStore, QuickAction, needs_terminal
-from hackerterminal.cli import build_parser
-from hackerterminal.config import ConfigStore, Preferences, clamp, env_enabled
-from hackerterminal.logs import setup_logging
-from hackerterminal.runtime import Gdk
-from hackerterminal.shortcuts import DEFAULT_SHORTCUTS, ShortcutMap, accelerator_label, accelerator_name, parse_accelerator
-from hackerterminal.profiles import ProfileError, ProfileManager, load_profile, profile_from_preferences, profile_to_ini, slugify
-from hackerterminal.project import detect_project_context, find_git_root, read_git_branch
-from hackerterminal.session import SessionState, SessionStore, SessionTab
-from hackerterminal.terminal import (
+from littleshell.actions import DEFAULT_ACTIONS, ActionStore, QuickAction, needs_terminal
+from littleshell.cli import build_parser
+from littleshell.config import ConfigStore, Preferences, clamp, env_enabled
+from littleshell.logs import setup_logging
+from littleshell.runtime import Gdk
+from littleshell.shortcuts import DEFAULT_SHORTCUTS, ShortcutMap, accelerator_label, accelerator_name, parse_accelerator
+from littleshell.profiles import ProfileError, ProfileManager, load_profile, profile_from_preferences, profile_to_ini, slugify
+from littleshell.project import detect_project_context, find_git_root, read_git_branch
+from littleshell.session import SessionState, SessionStore, SessionTab
+from littleshell.terminal import (
     normalize_uri_candidate,
     path_from_file_uri,
     process_has_children,
@@ -32,7 +32,7 @@ from hackerterminal.terminal import (
     resolve_shell,
     shell_argv,
 )
-from hackerterminal.themes import ThemeError, ThemeManager, _mix, load_theme, theme_to_ini
+from littleshell.themes import ThemeError, ThemeManager, _mix, load_theme, theme_to_ini
 import dataclasses
 
 
@@ -218,7 +218,7 @@ class ActionTests(unittest.TestCase):
         self.assertFalse(needs_terminal(""))
 
     def test_result_window_text_drops_terminal_codes(self) -> None:
-        from hackerterminal.dialogs.result import clean_output
+        from littleshell.dialogs.result import clean_output
 
         self.assertEqual(clean_output("\x1b[1;32mok\x1b[0m pronto"), "ok pronto")
         self.assertEqual(clean_output("\x1b]0;título\x07texto"), "texto")
@@ -314,7 +314,7 @@ class ThemeTests(unittest.TestCase):
                 self.assertTrue(theme.css())
 
     def test_effective_opacity_prefers_theme_glass_then_preference(self) -> None:
-        from hackerterminal.themes import effective_opacity
+        from littleshell.themes import effective_opacity
         with tempfile.TemporaryDirectory() as directory:
             manager = ThemeManager(Path(directory))
             glass, plain = manager.get("mac-glass"), manager.get("minimal-dark")
@@ -611,7 +611,7 @@ def write_wav(path: Path, samples: list[int], rate: int = 48_000) -> None:
 class KeySoundTests(unittest.TestCase):
     def setUp(self) -> None:
         self.cache = tempfile.TemporaryDirectory()
-        self.env = patch.dict(os.environ, {"XDG_CACHE_HOME": self.cache.name, "HACKER_TERMINAL_AUDIO_SINK": "fakesink"})
+        self.env = patch.dict(os.environ, {"XDG_CACHE_HOME": self.cache.name, "LISH_AUDIO_SINK": "fakesink"})
         self.env.start()
 
     def tearDown(self) -> None:
@@ -619,7 +619,7 @@ class KeySoundTests(unittest.TestCase):
         self.cache.cleanup()
 
     def test_synthesis_is_deterministic_and_bounded(self) -> None:
-        from hackerterminal import keysound
+        from littleshell import keysound
         first = keysound.synthesize("blue", "press", "normal", 3)
         self.assertEqual(first, keysound.synthesize("blue", "press", "normal", 3))
         self.assertNotEqual(first, keysound.synthesize("blue", "press", "normal", 4))
@@ -629,7 +629,7 @@ class KeySoundTests(unittest.TestCase):
 
     def test_switches_have_distinct_character(self) -> None:
         import math
-        from hackerterminal import keysound
+        from littleshell import keysound
 
         def mean_frequency(samples):
             energy = sum(value * value for value in samples)
@@ -649,23 +649,23 @@ class KeySoundTests(unittest.TestCase):
         self.assertGreater(onset / keysound.RATE * 1000, 4)  # tactile tick, then bottom-out
 
     def test_synth_bank_cache_round_trip(self) -> None:
-        from hackerterminal import keysound
+        from littleshell import keysound
         built = keysound.synth_bank("red")
         cached = keysound.synth_bank("red")
         self.assertEqual(built.sounds, cached.sounds)
         self.assertEqual(len(cached.sounds), len(keysound.KINDS) * len(keysound.SIZES))
-        (Path(self.cache.name) / "hacker-terminal" / "keysounds" / f"red-v{keysound.SYNTH_VERSION}.pcm").write_bytes(b"junk")
+        (Path(self.cache.name) / "lish" / "keysounds" / f"red-v{keysound.SYNTH_VERSION}.pcm").write_bytes(b"junk")
         self.assertEqual(keysound.synth_bank("red").sounds, built.sounds)  # corrupt cache is rebuilt
 
     def test_key_sizes(self) -> None:
-        from hackerterminal.keysound import key_size
+        from littleshell.keysound import key_size
         self.assertEqual(key_size(Gdk.KEY_space), "space")
         self.assertEqual(key_size(Gdk.KEY_Return), "enter")
         self.assertEqual(key_size(Gdk.KEY_BackSpace), "large")
         self.assertEqual(key_size(Gdk.KEY_a), "normal")
 
     def test_folder_pack(self) -> None:
-        from hackerterminal import keysound
+        from littleshell import keysound
         with tempfile.TemporaryDirectory() as directory:
             folder = Path(directory)
             write_wav(folder / "press1.wav", [1000] * 480)
@@ -685,7 +685,7 @@ class KeySoundTests(unittest.TestCase):
                     keysound.load_pack(invalid)
 
     def test_mechvibes_single_and_multi_packs(self) -> None:
-        from hackerterminal import keysound
+        from littleshell import keysound
         # Which key gets which sound; loudness levelling has its own test.
         with tempfile.TemporaryDirectory() as directory, patch.object(keysound, "_level", lambda bank: bank):
             single = Path(directory) / "single"
@@ -719,7 +719,7 @@ class KeySoundTests(unittest.TestCase):
                 keysound.load_pack(escape)
 
     def test_mechvibes_v2_variants_release_sounds_and_missing_files(self) -> None:
-        from hackerterminal import keysound
+        from littleshell import keysound
         with tempfile.TemporaryDirectory() as directory:
             pack = Path(directory) / "travel"
             (pack / "press").mkdir(parents=True)
@@ -748,7 +748,7 @@ class KeySoundTests(unittest.TestCase):
             self.assertIn(bank.pick("press", "space", 57 + 8), bank.sounds[("press", "normal")])
 
     def test_bundled_mechvibes_packs_all_load(self) -> None:
-        from hackerterminal import keysound
+        from littleshell import keysound
         packs = keysound.list_packs(Path("/nonexistent"))
         self.assertEqual(len(packs), 18)
         self.assertTrue(all(pack.bundled for pack in packs))
@@ -760,7 +760,7 @@ class KeySoundTests(unittest.TestCase):
                     self.assertGreater(len(bank.pick("press", size, keycode) or ()), 480)
 
     def test_imported_pack_wins_over_a_bundled_one_with_its_name(self) -> None:
-        from hackerterminal import keysound
+        from littleshell import keysound
         with tempfile.TemporaryDirectory() as directory:
             own, shipped = Path(directory) / "own", Path(directory) / "shipped"
             for root, name in ((own, "holy-pandas"), (shipped, "holy-pandas"), (shipped, "eg-oreo")):
@@ -775,8 +775,8 @@ class KeySoundTests(unittest.TestCase):
 
     def test_engine_keeps_playing_after_silence(self) -> None:
         """Regression: each output stream used to play once and then go mute."""
-        from hackerterminal.keysound import KeySoundEngine
-        from hackerterminal.runtime import GLib, load_gst
+        from littleshell.keysound import KeySoundEngine
+        from littleshell.runtime import GLib, load_gst
         Gst = load_gst()
         engine = KeySoundEngine()
         loop = GLib.MainLoop()
@@ -838,8 +838,8 @@ class KeySoundTests(unittest.TestCase):
         engine.shutdown()
 
     def test_mixer_overlaps_and_clips_safely(self) -> None:
-        from hackerterminal import keysound
-        from hackerterminal.runtime import load_gst
+        from littleshell import keysound
+        from littleshell.runtime import load_gst
         Gst = load_gst()
         Gst.init(None)
         mixer = keysound._Mixer()
@@ -861,8 +861,8 @@ class KeySoundTests(unittest.TestCase):
             mixer.stop()
 
     def test_broken_pack_falls_back_to_synth(self) -> None:
-        from hackerterminal.keysound import KeySoundEngine
-        from hackerterminal.runtime import GLib
+        from littleshell.keysound import KeySoundEngine
+        from littleshell.runtime import GLib
         engine = KeySoundEngine()
         loop = GLib.MainLoop()
         engine.on_loaded.append(loop.quit)
@@ -916,7 +916,7 @@ def make_xlsx(path: Path, sheet_xml: str, shared: list[str] | None = None, with_
 
 class DocumentTests(unittest.TestCase):
     def test_real_libreoffice_xlsx_and_ods(self) -> None:
-        from hackerterminal.documents import load_spreadsheet
+        from littleshell.documents import load_spreadsheet
 
         expected = [
             ["Produto", "Qtd", "Preço", "Data", "Hora", "Pago", "Obs"],
@@ -939,7 +939,7 @@ class DocumentTests(unittest.TestCase):
             self.assertEqual((sheets[2].rows, sheets[2].total_rows), ([], 0))
 
     def test_csv_dialects_and_encodings(self) -> None:
-        from hackerterminal.documents import load_spreadsheet
+        from littleshell.documents import load_spreadsheet
 
         with tempfile.TemporaryDirectory() as directory:
             folder = Path(directory)
@@ -953,7 +953,7 @@ class DocumentTests(unittest.TestCase):
             self.assertEqual(load_spreadsheet(folder / "aspas.csv")[0].rows[1], ["1", "vírgula, e\nlinha"])
 
     def test_large_csv_is_streamed_and_estimated(self) -> None:
-        from hackerterminal import documents
+        from littleshell import documents
 
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "grande.csv"
@@ -964,7 +964,7 @@ class DocumentTests(unittest.TestCase):
             self.assertTrue(sheet.truncated)
 
     def test_xlsx_edge_cases(self) -> None:
-        from hackerterminal import documents
+        from littleshell import documents
 
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "mao.xlsx"
@@ -989,7 +989,7 @@ class DocumentTests(unittest.TestCase):
             self.assertEqual((len(sheet.rows), sheet.total_rows, sheet.total_prefix), (50, 300, ""))
 
     def test_hostile_or_broken_files_fail_cleanly(self) -> None:
-        from hackerterminal import documents
+        from littleshell import documents
 
         with tempfile.TemporaryDirectory() as directory:
             folder = Path(directory)
@@ -1010,8 +1010,8 @@ class DocumentTests(unittest.TestCase):
     def test_kinds_and_terminal_file_matching(self) -> None:
         import re as regex
 
-        from hackerterminal.documents import kind_of
-        from hackerterminal.terminal import FILE_PATTERN, resolve_viewable
+        from littleshell.documents import kind_of
+        from littleshell.terminal import FILE_PATTERN, resolve_viewable
 
         self.assertEqual(kind_of(Path("a.PNG")), "image")
         self.assertEqual(kind_of(Path("a.ods")), "spreadsheet")
@@ -1043,16 +1043,16 @@ class OpenServerTests(unittest.TestCase):
     def run_client(self, socket_path: Path | None, *names: str, cwd: Path | None = None):
         import subprocess
 
-        environment = {key: value for key, value in os.environ.items() if key != "HACKER_TERMINAL_SOCKET"}
+        environment = {key: value for key, value in os.environ.items() if key != "LISH_SOCKET"}
         if socket_path is not None:
-            environment["HACKER_TERMINAL_SOCKET"] = str(socket_path)
-            environment["HACKER_TERMINAL_PANE"] = "pane-1"
-        client = Path(__file__).resolve().parents[1] / "bin" / "ht-open"
+            environment["LISH_SOCKET"] = str(socket_path)
+            environment["LISH_PANE"] = "pane-1"
+        client = Path(__file__).resolve().parents[1] / "bin" / "lish-open"
         return subprocess.run([str(client), *names], env=environment, cwd=cwd, capture_output=True, text=True, timeout=10)
 
     def test_client_server_round_trip(self) -> None:
-        from hackerterminal.openserver import OpenServer
-        from hackerterminal.runtime import GLib
+        from littleshell.openserver import OpenServer
+        from littleshell.runtime import GLib
 
         received = []
         server = OpenServer(lambda path, pane: received.append((path, pane)))
@@ -1077,11 +1077,11 @@ class OpenServerTests(unittest.TestCase):
         import json
         import socket as sockets
 
-        from hackerterminal.openserver import OpenServer
+        from littleshell.openserver import OpenServer
 
         result = self.run_client(None, "x.png")
         self.assertEqual(result.returncode, 2)
-        self.assertIn("dentro do Hacker Terminal", result.stderr)
+        self.assertIn("dentro do Little Shell", result.stderr)
         server = OpenServer(lambda *_args: None)
         socket_path = server.start()
         try:
@@ -1101,8 +1101,8 @@ class OpenServerTests(unittest.TestCase):
             server.stop()
 
     def test_unsafe_directory_and_stale_sockets(self) -> None:
-        from hackerterminal.constants import APP_NAME
-        from hackerterminal.openserver import OpenServer
+        from littleshell.constants import APP_NAME
+        from littleshell.openserver import OpenServer
 
         directory = Path(self.runtime.name) / APP_NAME
         directory.mkdir(mode=0o700)
@@ -1196,7 +1196,7 @@ class PhosphorThemeTests(unittest.TestCase):
 
 class LongCommandTests(unittest.TestCase):
     def test_duration_format(self) -> None:
-        from hackerterminal.terminal import format_duration
+        from littleshell.terminal import format_duration
 
         self.assertEqual(format_duration(9.6), "10 s")
         self.assertEqual(format_duration(125), "2 min 05 s")
@@ -1205,7 +1205,7 @@ class LongCommandTests(unittest.TestCase):
     def test_foreground_child_reads_proc(self) -> None:
         import subprocess
 
-        from hackerterminal.terminal import foreground_child
+        from littleshell.terminal import foreground_child
 
         child = subprocess.Popen(["sleep", "2"])
         try:
@@ -1227,7 +1227,7 @@ class LongCommandTests(unittest.TestCase):
 
 class SplitLayoutSessionTests(unittest.TestCase):
     def test_layout_validation(self) -> None:
-        from hackerterminal.session import valid_layout
+        from littleshell.session import valid_layout
 
         self.assertTrue(valid_layout(0, 1))
         self.assertTrue(valid_layout(["horizontal", ["vertical", 0, 1], ["vertical", 2, 3]], 4))
@@ -1263,7 +1263,7 @@ class SplitLayoutSessionTests(unittest.TestCase):
 
     def test_split_ratios_and_pane_names(self) -> None:
         import json
-        from hackerterminal.session import clean_name, valid_layout
+        from littleshell.session import clean_name, valid_layout
 
         self.assertTrue(valid_layout(["horizontal", 0, ["vertical", 1, 2, 0.25], 0.7], 3))
         for ratio in (0.0, 1.5, True, "0.5", None):
@@ -1303,7 +1303,7 @@ class SplitLayoutSessionTests(unittest.TestCase):
 
 class ShellIntegrationTests(unittest.TestCase):
     def test_parse_mark(self) -> None:
-        from hackerterminal.terminal import parse_mark
+        from littleshell.terminal import parse_mark
 
         self.assertEqual(parse_mark("1|7|2|1530|2|make %7C tee log%3B ok %25"), (7, 2, 1.53, 2, "make | tee log; ok %"))
         self.assertEqual(parse_mark("1|8||0|1|"), (8, None, 0.0, 1, ""))
@@ -1312,7 +1312,7 @@ class ShellIntegrationTests(unittest.TestCase):
         self.assertEqual(parse_mark("1|1|0|0|99|x")[3], 10)  # prompt height is bounded
 
     def test_command_rows(self) -> None:
-        from hackerterminal.terminal import PromptMark, command_extra_rows
+        from littleshell.terminal import PromptMark, command_extra_rows
 
         self.assertEqual(command_extra_rows(PromptMark(10, 4, 1, "ls"), 80), 0)
         self.assertEqual(command_extra_rows(PromptMark(10, 70, 1, "x" * 10), 80), 0)   # fills the row exactly
@@ -1320,8 +1320,8 @@ class ShellIntegrationTests(unittest.TestCase):
         self.assertEqual(command_extra_rows(PromptMark(10, 2, 1, "for i\ndo\ndone"), 80), 2)
 
     def test_launch_adapts_only_plain_bash_and_zsh(self) -> None:
-        import hackerterminal.terminal as terminal_module
-        from hackerterminal.terminal import SHELL_DIRECTORY, integration_launch
+        import littleshell.terminal as terminal_module
+        from littleshell.terminal import SHELL_DIRECTORY, integration_launch
 
         with patch.object(terminal_module, "HAS_TERMPROPS", False):
             self.assertEqual(integration_launch(["/bin/bash", "-l"], ""), (["/bin/bash", "-l"], {}))
@@ -1330,19 +1330,19 @@ class ShellIntegrationTests(unittest.TestCase):
             argv, env = integration_launch(["/usr/bin/zsh", "-l"], "")
         self.assertEqual(argv, ["/usr/bin/zsh", "-l"])
         self.assertEqual(env["ZDOTDIR"], str(SHELL_DIRECTORY / "zsh"))
-        self.assertEqual(env["HACKER_TERMINAL_ZDOTDIR"], "/meu/zdotdir")
+        self.assertEqual(env["LISH_ZDOTDIR"], "/meu/zdotdir")
         argv, env = integration_launch(["/bin/bash", "-l"], "")
         self.assertEqual(argv, ["/bin/bash", "--init-file", str(SHELL_DIRECTORY / "bash" / "integration.bash"), "-i"])
         self.assertEqual(integration_launch(["/bin/bash", "--norc"], "bash --norc"), (["/bin/bash", "--norc"], {}))
         self.assertEqual(integration_launch(["/usr/bin/fish", "-l"], ""), (["/usr/bin/fish", "-l"], {}))
-        with patch.dict(os.environ, {"HACKER_TERMINAL_SHELL_INTEGRATION": "0"}):
+        with patch.dict(os.environ, {"LISH_SHELL_INTEGRATION": "0"}):
             self.assertEqual(integration_launch(["/bin/bash", "-l"], ""), (["/bin/bash", "-l"], {}))
 
     def test_scripts_are_valid_shell(self) -> None:
         import shutil
         import subprocess
 
-        from hackerterminal.terminal import SHELL_DIRECTORY
+        from littleshell.terminal import SHELL_DIRECTORY
 
         subprocess.run(["bash", "-n", str(SHELL_DIRECTORY / "bash" / "integration.bash")], check=True)
         if shutil.which("zsh"):
@@ -1351,7 +1351,7 @@ class ShellIntegrationTests(unittest.TestCase):
 
 class ConnectionTests(unittest.TestCase):
     def test_validation_blocks_option_injection(self) -> None:
-        from hackerterminal.connections import Connection, ConnectionError, validate
+        from littleshell.connections import Connection, ConnectionError, validate
 
         validate(Connection("ok", "Servidor", "kali@10.0.0.5", 2222, "~/.ssh/id_ed25519", "-J bastiao -A"))
         for bad in (
@@ -1367,7 +1367,7 @@ class ConnectionTests(unittest.TestCase):
                 validate(bad)
 
     def test_command_line_is_quoted(self) -> None:
-        from hackerterminal.connections import Connection
+        from littleshell.connections import Connection
 
         connection = Connection("c", "C", "me@host", 2200, "~/chave com espaço", "-o 'User=x y'")
         line = connection.command_line()
@@ -1377,7 +1377,7 @@ class ConnectionTests(unittest.TestCase):
         self.assertTrue(connection.command()[4].endswith("chave com espaço"))
 
     def test_reads_ssh_config_hosts(self) -> None:
-        from hackerterminal.connections import read_ssh_config
+        from littleshell.connections import read_ssh_config
 
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "config"
@@ -1391,7 +1391,7 @@ class ConnectionTests(unittest.TestCase):
         self.assertEqual(read_ssh_config(Path("/definitely/missing")), [])
 
     def test_store_round_trip_and_ssh_config_merge(self) -> None:
-        from hackerterminal.connections import Connection, ConnectionStore
+        from littleshell.connections import Connection, ConnectionStore
 
         with tempfile.TemporaryDirectory() as directory:
             ssh_config = Path(directory) / "config"
@@ -1414,7 +1414,7 @@ class ConnectionTests(unittest.TestCase):
 
 class CommandFieldTests(unittest.TestCase):
     def test_fields_and_defaults(self) -> None:
-        from hackerterminal.actions import Field, fields
+        from littleshell.actions import Field, fields
 
         self.assertEqual(
             fields("ping -c {vezes=4} {host} {host} {extra=}"),
@@ -1424,13 +1424,13 @@ class CommandFieldTests(unittest.TestCase):
         self.assertFalse(Field("extra", "").required)
 
     def test_shell_syntax_is_not_mistaken_for_fields(self) -> None:
-        from hackerterminal.actions import fields
+        from littleshell.actions import fields
 
         for command in ("awk '{print $1}' f", "echo ${HOME} ${x:-y}", "cp a.{txt,bak}", "f() { ls; }", "echo {1..3}", "echo \\{x}"):
             self.assertEqual(fields(command), [], command)
 
     def test_values_cannot_run_as_code(self) -> None:
-        from hackerterminal.actions import fill
+        from littleshell.actions import fill
 
         self.assertEqual(fill("nmap -sV {alvo}", {"alvo": "1.2.3.4; id"}), "nmap -sV '1.2.3.4; id'")
         self.assertEqual(fill("ping -c {n=4} {h}", {"h": "x"}), "ping -c 4 x")
@@ -1446,7 +1446,7 @@ class CommandFieldTests(unittest.TestCase):
 
 class DropdownTests(unittest.TestCase):
     def test_geometry_spans_work_area_top(self) -> None:
-        from hackerterminal.dropdown import geometry
+        from littleshell.dropdown import geometry
 
         self.assertEqual(geometry((0, 32, 1920, 1048), 45), (0, 32, 1920, 471))
         self.assertEqual(geometry((1920, 0, 1280, 1024), 200), (1920, 0, 1280, 921))  # clamped to 90%
@@ -1463,7 +1463,7 @@ class DropdownTests(unittest.TestCase):
             self.assertEqual((loaded.dropdown_height, loaded.dropdown_autohide), (90, True))
 
     def test_xfce_binding_never_steals_a_taken_key(self) -> None:
-        from hackerterminal import dropdown
+        from littleshell import dropdown
 
         calls = []
 
@@ -1474,22 +1474,22 @@ class DropdownTests(unittest.TestCase):
             return subprocess.CompletedProcess(argv, 0 if stdout or writing else 1, stdout, "")
 
         with patch.object(dropdown.subprocess, "run", fake_run):
-            ok, message = dropdown.bind_xfce("Print", "hacker-terminal --dropdown")
+            ok, message = dropdown.bind_xfce("Print", "lish --dropdown")
             self.assertFalse(ok)
             self.assertIn("xfce4-screenshooter", message)
             self.assertEqual(len(calls), 1)  # only the lookup, nothing written
-            ok, _message = dropdown.bind_xfce("F12", "hacker-terminal --dropdown")
+            ok, _message = dropdown.bind_xfce("F12", "lish --dropdown")
             self.assertTrue(ok)
-            self.assertEqual(calls[-1][-6:], ["/commands/custom/F12", "-n", "-t", "string", "-s", "hacker-terminal --dropdown"])
+            self.assertEqual(calls[-1][-6:], ["/commands/custom/F12", "-n", "-t", "string", "-s", "lish --dropdown"])
 
     def test_finds_and_removes_only_our_binding(self) -> None:
-        from hackerterminal import dropdown
+        from littleshell import dropdown
 
         listing = (
             "/commands/custom/<Alt>F1      xfce4-popup-whiskermenu --pointer\n"
-            "/commands/custom/<Super>grave /usr/bin/hacker-terminal --dropdown\n"
+            "/commands/custom/<Super>grave /usr/bin/lish --dropdown\n"
         )
-        bindings = {"F12": "", "Print": "xfce4-screenshooter", "<Super>grave": "/usr/bin/hacker-terminal --dropdown"}
+        bindings = {"F12": "", "Print": "xfce4-screenshooter", "<Super>grave": "/usr/bin/lish --dropdown"}
         calls = []
 
         def fake_run(argv, **_kwargs):
@@ -1509,21 +1509,21 @@ class DropdownTests(unittest.TestCase):
             self.assertIsNone(dropdown.xfce_dropdown_key())
 
     def test_launch_command_mentions_dropdown(self) -> None:
-        from hackerterminal.dropdown import launch_command
+        from littleshell.dropdown import launch_command
 
         self.assertTrue(launch_command().endswith("--dropdown"))
 
 
 class AccessibleThemeTests(unittest.TestCase):
     def test_contrast_helpers(self) -> None:
-        from hackerterminal.themes import contrast_ratio, luminance
+        from littleshell.themes import contrast_ratio, luminance
 
         self.assertAlmostEqual(contrast_ratio("#000000", "#ffffff"), 21.0, places=2)
         self.assertAlmostEqual(contrast_ratio("#777777", "#777777"), 1.0)
         self.assertLess(luminance("#111315"), luminance("#f6f4ef"))
 
     def test_light_theme_is_readable_and_light(self) -> None:
-        from hackerterminal.themes import contrast_ratio
+        from littleshell.themes import contrast_ratio
 
         theme = ThemeManager().get("paper-light")
         self.assertFalse(theme.dark)
@@ -1536,7 +1536,7 @@ class AccessibleThemeTests(unittest.TestCase):
         self.assertGreaterEqual(contrast_ratio(theme.accent, theme.background), 4.5)
 
     def test_high_contrast_theme_meets_aaa(self) -> None:
-        from hackerterminal.themes import contrast_ratio
+        from littleshell.themes import contrast_ratio
 
         theme = ThemeManager().get("high-contrast")
         self.assertTrue(theme.dark and theme.high_contrast)
@@ -1550,7 +1550,7 @@ class AccessibleThemeTests(unittest.TestCase):
 
 class SSHAccessTests(unittest.TestCase):
     def test_copy_id_options_translate_what_ssh_copy_id_cannot_take(self) -> None:
-        from hackerterminal.connections import copy_id_options
+        from littleshell.connections import copy_id_options
 
         self.assertEqual(
             copy_id_options("-J bastiao -A -X -o 'User=x y' -oConnectTimeout=3 -i ~/outra"),
@@ -1559,9 +1559,9 @@ class SSHAccessTests(unittest.TestCase):
         self.assertEqual(copy_id_options("-o 'aberto"), [])
 
     def test_key_setup_command(self) -> None:
-        from hackerterminal.connections import Connection
+        from littleshell.connections import Connection
 
-        helper = Path("/opt/ht/bin/ht-copy-key")
+        helper = Path("/opt/ht/bin/lish-copy-key")
         default = Connection("u", "Umbrel", "umbrel@10.0.0.3").key_setup_command(helper)
         self.assertEqual(
             shlex.split(default),
@@ -1574,19 +1574,19 @@ class SSHAccessTests(unittest.TestCase):
         )
 
     def test_askpass_command_carries_only_the_identifier(self) -> None:
-        from hackerterminal.connections import Connection
+        from littleshell.connections import Connection
 
         connection = Connection("umbrel", "Umbrel", "umbrel@10.0.0.3")
         self.assertEqual(connection.command_line(), "ssh umbrel@10.0.0.3")
-        line = connection.command_line(Path("/opt/ht/bin/ht-askpass"))
+        line = connection.command_line(Path("/opt/ht/bin/lish-askpass"))
         self.assertEqual(
             shlex.split(line),
-            ["env", "SSH_ASKPASS=/opt/ht/bin/ht-askpass", "SSH_ASKPASS_REQUIRE=force",
-             "HACKER_TERMINAL_SSH_ID=umbrel", "ssh", "umbrel@10.0.0.3"],
+            ["env", "SSH_ASKPASS=/opt/ht/bin/lish-askpass", "SSH_ASKPASS_REQUIRE=force",
+             "LISH_SSH_ID=umbrel", "ssh", "umbrel@10.0.0.3"],
         )
 
     def test_passwords_degrade_without_libsecret(self) -> None:
-        from hackerterminal import passwords
+        from littleshell import passwords
 
         with patch.object(passwords, "Secret", None):
             self.assertFalse(passwords.available())
@@ -1599,7 +1599,7 @@ class LazyStartupTests(unittest.TestCase):
     def test_gstreamer_is_not_loaded_until_a_sound_plays(self) -> None:
         code = (
             "import sys\n"
-            "import hackerterminal.app, hackerterminal.keysound, hackerterminal.window.main\n"
+            "import littleshell.app, littleshell.keysound, littleshell.window.main\n"
             "print('gi.repository.Gst' in sys.modules)\n"
         )
         result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True,
@@ -1609,7 +1609,7 @@ class LazyStartupTests(unittest.TestCase):
 
 class InlineImageTests(unittest.TestCase):
     def test_fit_keeps_aspect_and_whole_cells(self) -> None:
-        from hackerterminal.inline_image import fit
+        from littleshell.inline_image import fit
 
         self.assertEqual(fit(400, 200, 80, 24), (80, 40))       # limited by width
         self.assertEqual(fit(100, 400, 80, 10), (5, 20))        # limited by height (2 px per row)
@@ -1617,7 +1617,7 @@ class InlineImageTests(unittest.TestCase):
         self.assertEqual(fit(3000, 1, 5, 5), (5, 2))
 
     def test_half_blocks_and_transparency(self) -> None:
-        from hackerterminal.inline_image import render
+        from littleshell.inline_image import render
 
         red, blue, clear = (255, 0, 0, 255), (0, 0, 255, 255), (0, 0, 0, 0)
         image = {(0, 0): red, (0, 1): blue, (1, 0): red, (1, 1): clear, (2, 0): clear, (2, 1): clear}
@@ -1631,7 +1631,7 @@ class InlineImageTests(unittest.TestCase):
         )
 
     def test_real_image_file(self) -> None:
-        from hackerterminal.inline_image import render_file
+        from littleshell.inline_image import render_file
 
         text = render_file(str(Path(__file__).parent / "fixtures" / "gradiente.png"), 20, 10)
         lines = text.splitlines()
@@ -1644,7 +1644,7 @@ class InlineImageTests(unittest.TestCase):
 
 class CommandHistoryTests(unittest.TestCase):
     def test_store_round_trip_privacy_and_trim(self) -> None:
-        from hackerterminal import history
+        from littleshell import history
 
         with tempfile.TemporaryDirectory() as directory:
             store = history.HistoryStore(Path(directory) / "state" / "history.jsonl")
@@ -1671,7 +1671,7 @@ class CommandHistoryTests(unittest.TestCase):
             self.assertEqual(store.load(), [])
 
     def test_search_words_failures_and_duplicates(self) -> None:
-        from hackerterminal.history import HistoryEntry, search
+        from littleshell.history import HistoryEntry, search
 
         entries = [
             HistoryEntry("nmap -sV 10.0.0.5", 0, 3, 300, "/srv/pentest", "Umbrel"),
@@ -1687,7 +1687,7 @@ class CommandHistoryTests(unittest.TestCase):
 
 class BackgroundImageTests(unittest.TestCase):
     def test_placement_cover_contain_tile(self) -> None:
-        from hackerterminal.background import placement
+        from littleshell.background import placement
 
         self.assertEqual(placement((200, 100), (100, 100), "cover"), (1.0, -50.0, 0.0))      # crops the sides evenly
         self.assertEqual(placement((200, 100), (100, 100), "contain"), (0.5, 0.0, 25.0))     # whole image, centred
@@ -1708,7 +1708,7 @@ class BackgroundImageTests(unittest.TestCase):
             self.assertEqual(Preferences().background_image, "")  # off by default
 
     def test_unreadable_images_are_ignored(self) -> None:
-        from hackerterminal.background import load
+        from littleshell.background import load
 
         with tempfile.TemporaryDirectory() as directory:
             broken = Path(directory) / "quebrada.png"
@@ -1759,7 +1759,7 @@ class SystemMonitorTests(unittest.TestCase):
         return proc, sys_dir
 
     def test_intel_laptop(self) -> None:
-        from hackerterminal.sysmon import SystemReader, status_groups
+        from littleshell.sysmon import SystemReader, status_groups
         with tempfile.TemporaryDirectory() as directory:
             proc, sys_dir = self.machine(Path(directory))
             reader = SystemReader(proc, sys_dir)
@@ -1782,7 +1782,7 @@ class SystemMonitorTests(unittest.TestCase):
             self.assertEqual(status_groups(snapshot, ("freq", "ram")), [("CPU 2,5 GHz", False), ("RAM 1,9/7,6 GB", False)])
 
     def test_amd_gpu_hot_and_memory_full(self) -> None:
-        from hackerterminal.sysmon import SystemReader, status_groups
+        from littleshell.sysmon import SystemReader, status_groups
         with tempfile.TemporaryDirectory() as directory:
             proc, sys_dir = self.machine(Path(directory), gpu="amd")
             self.write(proc / "meminfo", "MemTotal: 8000000 kB\nMemAvailable: 400000 kB\n")
@@ -1796,7 +1796,7 @@ class SystemMonitorTests(unittest.TestCase):
             self.assertTrue(groups["GPU 42% · 1,8 GHz · 88 °C"])
 
     def test_missing_files_leave_readings_empty(self) -> None:
-        from hackerterminal.sysmon import SystemReader, status_groups
+        from littleshell.sysmon import SystemReader, status_groups
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             self.write(root / "proc/cpuinfo", "processor: 0\ncpu MHz\t\t: 1996.250\n")
@@ -1808,7 +1808,7 @@ class SystemMonitorTests(unittest.TestCase):
             self.assertEqual(status_groups(snapshot, ("cpu", "temp", "ram", "gpu")), [])
 
     def test_nvidia_smi_output(self) -> None:
-        from hackerterminal.sysmon import parse_nvidia_smi
+        from littleshell.sysmon import parse_nvidia_smi
         gpus = parse_nvidia_smi("NVIDIA GeForce RTX 3060, 17, 1410, 2100, 1024, 12288, 47\nTesla, [N/A], 300, 1000, 0, 0, [N/A]\nlixo\n")
         self.assertEqual(len(gpus), 2)
         self.assertEqual((gpus[0].name, gpus[0].busy, gpus[0].mhz, gpus[0].temp), ("NVIDIA GeForce RTX 3060", 17.0, 1410.0, 47.0))

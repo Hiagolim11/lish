@@ -1,4 +1,4 @@
-/* Interactive demo of Hacker Terminal for the project site.
+/* Interactive demo of Little Shell for the project site.
  *
  * A small simulated zsh inside a window drawn like the GTK app. The themes,
  * profiles, quick actions and keyboard sound packs are the app's own: they come
@@ -281,14 +281,14 @@
         ".segredo": file("# anotacao pessoal — NAO COMMITAR\nHT{nada_fica_escondido}\n"),
         ".ssh": dir({ config: file("Host lab.ctf\n  HostName 10.10.13.37\n  User hacker\n"), "id_ed25519.pub": file("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI… hacker@lab\n"), known_hosts: file("") }),
         ".config": dir({
-          "hacker-terminal": dir({
+          "lish": dir({
             "config.ini": file(configIni),
             "actions.ini": file(actionsIni),
             profiles: dir({}),
             themes: dir({}),
           }),
         }),
-        ".zshrc": file("# o Hacker Terminal le o seu .zshrc normalmente\nautoload -U compinit && compinit\nsource ~/.zsh/zsh-autosuggestions.zsh\n"),
+        ".zshrc": file("# o Little Shell le o seu .zshrc normalmente\nautoload -U compinit && compinit\nsource ~/.zsh/zsh-autosuggestions.zsh\n"),
       }),
     }),
     usr: dir({ bin: dir({}) }),
@@ -321,7 +321,7 @@
   }
   const readFile = (node) => (typeof node.content === "function" ? node.content() : node.content);
   const shortPath = (path) => (path === HOME ? "~" : path.startsWith(HOME + "/") ? "~" + path.slice(HOME.length) : path);
-  const inRepo = (path) => path === `${HOME}/hacker-terminal` || path.startsWith(`${HOME}/hacker-terminal/`);
+  const inRepo = (path) => path === `${HOME}/lish` || path.startsWith(`${HOME}/lish/`);
   const sizeOf = (node) => (node.type === "dir" ? 4096 : node.image ? 180000 + (hash(node.image) % 90000) : new TextEncoder().encode(readFile(node)).length);
   function nameClass(name, node) {
     if (node.type === "dir") return "c4 b";
@@ -478,7 +478,7 @@
   const HELP_GROUPS = [
     ["Arquivos", "ls cd pwd cat tree head tail grep wc sort echo base64 touch mkdir rm"],
     ["Rede e CTF", "nmap curl ping ip ss mission flag"],
-    ["Sistema", "whoami hostname uname date uptime ps df free neofetch ht-open history clear sleep exit"],
+    ["Sistema", "whoami hostname uname date uptime ps df free neofetch lish-open history clear sleep exit"],
   ];
   const def = (names, fn) => names.split(" ").forEach((name) => { COMMANDS[name] = fn; });
   const out = (ctx, text = "", cls, style) => ctx.out.write(text + "\n", cls, style);
@@ -486,7 +486,7 @@
   const flags = (args) => args.filter((a) => /^-[^-]/.test(a)).join("").replace(/-/g, "");
 
   def("help ajuda", (ctx) => {
-    out(ctx, `Hacker Terminal ${VERSION} — demonstração no navegador (um zsh simulado)`, "b");
+    out(ctx, `Little Shell ${VERSION} — demonstração no navegador (um zsh simulado)`, "b");
     out(ctx);
     for (const [title, names] of HELP_GROUPS) {
       ctx.out.write(pad(`  ${title}`, 14), "c3");
@@ -603,7 +603,7 @@
       const node = lookup(resolvePath(ctx.session.cwd, path));
       if (!node) return { error: `${name}: ${path}: Arquivo ou diretório inexistente` };
       if (node.type === "dir") return { error: `${name}: ${path}: É um diretório` };
-      if (node.image) return { text: `\u0089PNG\n(imagem binária: use ht-open ${path})\n` };
+      if (node.image) return { text: `\u0089PNG\n(imagem binária: use lish-open ${path})\n` };
       return { text: readFile(node) };
     });
   }
@@ -819,7 +819,7 @@
   def("ps", (ctx) => {
     out(ctx, "USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND");
     const rows = [
-      ["hacker", 1873, "3.1", "1.9", 1104332, 152340, "?", "Sl", "/usr/bin/python3 /usr/bin/hacker-terminal"],
+      ["hacker", 1873, "3.1", "1.9", 1104332, 152340, "?", "Sl", "/usr/bin/python3 /usr/bin/lish"],
       ["hacker", 1412, "1.2", "2.7", 3982120, 221844, "?", "Ssl", "/usr/bin/pipewire"],
       ["root", 902, "0.8", "1.3", 1290044, 105380, "tty7", "Ssl+", "/usr/lib/xorg/Xorg :0"],
       ["hacker", 1655, "0.4", "1.0", 734512, 82220, "?", "Sl", "xfwm4 --replace"],
@@ -1001,7 +1001,7 @@
     });
     out(ctx);
     out(ctx, `Placar: ${got}/${FLAGS.length} flags · ${score}/${total} pontos`, got === FLAGS.length ? "c2 b" : "b");
-    if (got === FLAGS.length) out(ctx, "Laboratorio concluido! Agora e so instalar o Hacker Terminal de verdade.", "c3 b");
+    if (got === FLAGS.length) out(ctx, "Laboratorio concluido! Agora e so instalar o Little Shell de verdade.", "c3 b");
     else out(ctx, "Registre no terminal (flag HT{...}) ou no campo de flags da pagina.", "dim");
     return 0;
   }
@@ -1069,7 +1069,7 @@
       return 0;
     }
     if (sub === "branch") { ctx.out.write("* "); out(ctx, "main", "c2"); return 0; }
-    if (sub === "remote") { out(ctx, rest.includes("-v") ? "origin\thttps://github.com/Hiagolim11/hacker-terminal.git (fetch)\norigin\thttps://github.com/Hiagolim11/hacker-terminal.git (push)" : "origin"); return 0; }
+    if (sub === "remote") { out(ctx, rest.includes("-v") ? "origin\thttps://github.com/Hiagolim11/lish.git (fetch)\norigin\thttps://github.com/Hiagolim11/lish.git (push)" : "origin"); return 0; }
     if (sub === "diff") return 0;
     if (!sub) { out(ctx, "uso: git [--version] [--help] <comando> [<args>]"); out(ctx, "nesta demonstração: git status, git log [--oneline] [-N], git branch, git remote -v", "c8"); return 1; }
     return fail(ctx, `git: '${sub}' não é um comando do git (aqui só há status, log, branch, remote e diff).`);
@@ -1095,7 +1095,7 @@
     const info = [
       [`${USER}@${HOST}`, "", "title"], ["-------", "", "rule"],
       ["SO", "Kali GNU/Linux Rolling x86_64"], ["Kernel", "6.12.25-amd64"], ["Uptime", uptimeText().replace(":", " h ") + " min"],
-      ["Shell", "zsh 5.9"], ["Terminal", `hacker-terminal ${VERSION}`], ["Tema", `${theme.name} (${theme.id})`],
+      ["Shell", "zsh 5.9"], ["Terminal", `lish ${VERSION}`], ["Tema", `${theme.name} (${theme.id})`],
       ["Fonte", `${state.font} ${state.fontSize}`], ["Perfil", PROFILES.get(state.profile)?.name || "personalizado"],
       ["Som", state.sound ? PACKS.get(state.pack)?.name || "ligado" : "desligado"], ["CPU", "Intel i7-1165G7 (8) @ 4.70 GHz"], ["Memória", "2,9 GiB / 7,7 GiB"],
     ];
@@ -1227,13 +1227,13 @@
     return 0;
   });
 
-  def("hacker-terminal ht", (ctx) => {
+  def("lish ht", (ctx) => {
     const args = ctx.args;
     if (!args.length) { app.newTab(); return 0; }
     const value = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined; };
-    if (args.includes("--version")) { out(ctx, `hacker-terminal ${VERSION}`); return 0; }
+    if (args.includes("--version")) { out(ctx, `lish ${VERSION}`); return 0; }
     if (args.includes("--help") || args.includes("-h")) {
-      out(ctx, "uso: hacker-terminal [-h] [--version] [--diagnose] [--list-shortcuts] [--theme ID] [--list-themes]");
+      out(ctx, "uso: lish [-h] [--version] [--diagnose] [--list-shortcuts] [--theme ID] [--list-themes]");
       out(ctx, "                     [--profile ID] [--list-profiles] [--no-effects] [--no-sound] [--no-panel] [-e ...]");
       out(ctx);
       out(ctx, "Terminal nativo para Linux com temas, perfis, ações rápidas e som de teclado mecânico.");
@@ -1243,18 +1243,18 @@
     if (args.includes("--list-profiles")) { PROFILES.forEach((p) => out(ctx, `${pad(p.id, 12)}${pad(p.name, 18)}${p.description}`)); return 0; }
     if (args.includes("--list-shortcuts")) { SHORTCUTS.forEach(([label, keys]) => out(ctx, `${pad(keys, 16)}${label}`)); return 0; }
     if (args.includes("--diagnose")) {
-      const rows = [["Hacker Terminal", VERSION], ["GTK", "3.24.52"], ["VTE", "0.84.1"], ["Fonte selecionada", state.font],
+      const rows = [["Little Shell", VERSION], ["GTK", "3.24.52"], ["VTE", "0.84.1"], ["Fonte selecionada", state.font],
         ["Powerline", "OK"], ["Nerd Font", "OK"], ["Shell", "/usr/bin/zsh"], ["Integração com o shell", "OK (VTE 0.78+)"],
         ["Tema", `${currentTheme().name} (${state.theme})`], ["Temas internos", String(THEMES.size)],
-        ["Som", state.sound ? `pack:${state.pack}` : "desligado"], ["GStreamer", "1.26.2"], ["Config", "~/.config/hacker-terminal/config.ini"]];
+        ["Som", state.sound ? `pack:${state.pack}` : "desligado"], ["GStreamer", "1.26.2"], ["Config", "~/.config/lish/config.ini"]];
       rows.forEach(([k, v], i) => out(ctx, i ? `${k}: ${v}` : `${k} ${v}`));
       return 0;
     }
     const patch = {};
     const theme = value("--theme");
-    if (theme) { const t = findTheme(theme); if (!t) return fail(ctx, `hacker-terminal: tema desconhecido: ${theme}`, 2); patch.theme = t.id; }
+    if (theme) { const t = findTheme(theme); if (!t) return fail(ctx, `lish: tema desconhecido: ${theme}`, 2); patch.theme = t.id; }
     const profile = value("--profile");
-    if (profile) { const p = findProfile(profile); if (!p) return fail(ctx, `hacker-terminal: perfil desconhecido: ${profile}`, 2); app.applyProfile(p.id); }
+    if (profile) { const p = findProfile(profile); if (!p) return fail(ctx, `lish: perfil desconhecido: ${profile}`, 2); app.applyProfile(p.id); }
     if (args.includes("--no-effects")) patch.effects = false;
     if (args.includes("--no-sound")) patch.sound = false;
     if (args.includes("--no-panel")) patch.panel = false;
@@ -1263,13 +1263,13 @@
     return 0;
   });
 
-  def("ht-open xdg-open", (ctx) => {
+  def("lish-open xdg-open", (ctx) => {
     const inline = ctx.args.includes("--inline");
     const path = ctx.args.find((a) => !a.startsWith("-"));
-    if (!path) return fail(ctx, "uso: ht-open [--inline] ARQUIVO", 2);
+    if (!path) return fail(ctx, "uso: lish-open [--inline] ARQUIVO", 2);
     const node = lookup(resolvePath(ctx.session.cwd, path));
-    if (!node) return fail(ctx, `ht-open: ${path}: Arquivo ou diretório inexistente`);
-    if (!node.image) return fail(ctx, `ht-open: ${path}: esta demonstração só abre as imagens de docs/screenshots`);
+    if (!node) return fail(ctx, `lish-open: ${path}: Arquivo ou diretório inexistente`);
+    if (!node.image) return fail(ctx, `lish-open: ${path}: esta demonstração só abre as imagens de docs/screenshots`);
     const name = path.split("/").pop();
     if (inline && ctx.pane) { ctx.pane.writeImage(node.image, name); return 0; }
     app.openViewer(node.image, name);
@@ -1413,7 +1413,7 @@
       this.id = ++paneCounter;
       this.cwd = cwd || HOME;
       this.oldCwd = null;
-      this.env = { HOME, USER, SHELL: "/usr/bin/zsh", TERM: "xterm-256color", LANG: "pt_BR.UTF-8", HACKER_TERMINAL_VERSION: VERSION };
+      this.env = { HOME, USER, SHELL: "/usr/bin/zsh", TERM: "xterm-256color", LANG: "pt_BR.UTF-8", LISH_VERSION: VERSION };
       this.history = app.sharedHistory;
       this.historyIndex = null;
       this.buffer = "";
@@ -1768,7 +1768,7 @@
       this.toast = el("div", { class: "ht-toast", role: "status" });
       this.input = el("input", { class: "ht-input", type: "text", autocomplete: "off", autocapitalize: "off", autocorrect: "off", spellcheck: "false",
         "aria-label": "Linha de comando do terminal de demonstração", enterkeyhint: "go" });
-      this.root = el("div", { class: "ht", role: "application", "aria-label": "Demonstração interativa do Hacker Terminal", "aria-roledescription": "terminal" },
+      this.root = el("div", { class: "ht", role: "application", "aria-label": "Demonstração interativa do Little Shell", "aria-roledescription": "terminal" },
         el("div", { class: "ht-header" },
           el("div", { class: "ht-group" }, button("Nova aba (Ctrl+Shift+T)", '<rect x="3" y="5" width="18" height="15" rx="2"/><path d="M12 9v7M8.5 12.5h7"/>', () => this.newTab())),
           this.title,
@@ -2380,7 +2380,7 @@
       const dialog = el("div", { class: "ht-dialog ht-prefs", role: "dialog", "aria-label": "Preferências" },
         el("h4", { text: "Preferências" }), tabBar, body,
         el("div", { class: "ht-row spread" },
-          el("span", { class: "sub", text: "Tudo é aplicado na hora. Veja o resultado em ~/.config/hacker-terminal/config.ini" }),
+          el("span", { class: "sub", text: "Tudo é aplicado na hora. Veja o resultado em ~/.config/lish/config.ini" }),
           el("button", { type: "button", class: "ht-action primary", onclick: () => this.closeOverlay() }, "Fechar")));
       this.openOverlay(dialog);
       this.prefsRefresh = () => { if (!["range", "text"].includes(document.activeElement?.type)) render(); };
@@ -2520,7 +2520,7 @@
       this.apply();
       const tab = this.newTab(HOME, false);
       const pane = tab.panes[0];
-      pane.write(`Hacker Terminal ${VERSION} · laboratorio CTF simulado no navegador\n`, "c8");
+      pane.write(`Little Shell ${VERSION} · laboratorio CTF simulado no navegador\n`, "c8");
       pane.write("Missao autorizada: capture 5 flags. Digite ", "c8");
       pane.write("mission", "c2");
       pane.write(" para o briefing, ", "c8");

@@ -3,21 +3,21 @@ set -euo pipefail
 
 project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
-app_dir="$data_home/hacker-terminal"
+app_dir="$data_home/lish"
 bin_dir="${HOME}/.local/bin"
 desktop_dir="$data_home/applications"
 icon_dir="$data_home/icons/hicolor/scalable/apps"
 
 uninstall() {
-  # Only remove ht-open when it is our own link, never a user's command.
-  [ "$(readlink -- "$bin_dir/ht-open" 2>/dev/null)" = "$app_dir/bin/ht-open" ] && rm -f -- "$bin_dir/ht-open"
-  rm -f -- "$bin_dir/hacker-terminal" "$desktop_dir/hacker-terminal.desktop" \
-    "$desktop_dir/org.hackerterminal.HackerTerminal.desktop" \
-    "$icon_dir/hacker-terminal.svg"
+  # Only remove lish-open when it is our own link, never a user's command.
+  [ "$(readlink -- "$bin_dir/lish-open" 2>/dev/null)" = "$app_dir/bin/lish-open" ] && rm -f -- "$bin_dir/lish-open"
+  rm -f -- "$bin_dir/lish" "$desktop_dir/lish.desktop" \
+    "$desktop_dir/org.littleshell.LittleShell.desktop" \
+    "$icon_dir/lish.svg"
   rm -rf -- "$app_dir"
   command -v update-desktop-database >/dev/null && update-desktop-database "$desktop_dir" >/dev/null 2>&1 || true
   command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -f -t "$data_home/icons/hicolor" >/dev/null 2>&1 || true
-  printf '%s\n' "Hacker Terminal removido da conta atual."
+  printf '%s\n' "Little Shell removido da conta atual."
 }
 
 if [[ "${1:-}" == "--uninstall" ]]; then
@@ -41,53 +41,53 @@ done
 "$project_dir/run.sh" --diagnose
 
 mkdir -p -- "$app_dir" "$bin_dir" "$desktop_dir" "$icon_dir"
-install -m 755 "$project_dir/hacker_terminal.py" "$app_dir/hacker_terminal.py"
+install -m 755 "$project_dir/little_shell.py" "$app_dir/little_shell.py"
 # Only the code folder is replaced (modules removed in a new version must
 # not linger); sound packs and other data next to it stay untouched.
-rm -rf -- "$app_dir/hackerterminal"
+rm -rf -- "$app_dir/littleshell"
 while IFS= read -r -d '' source; do
   install -D -m 644 "$project_dir/$source" "$app_dir/$source"
-done < <(cd "$project_dir" && find hackerterminal -name '*.py' -not -path '*/__pycache__/*' -print0)
-install -D -m 644 "$project_dir/hackerterminal/shell/zsh/.zshenv" "$app_dir/hackerterminal/shell/zsh/.zshenv"
-install -D -m 644 "$project_dir/hackerterminal/shell/bash/integration.bash" "$app_dir/hackerterminal/shell/bash/integration.bash"
-install -d "$app_dir/hackerterminal/themes"
-for source in "$project_dir"/hackerterminal/themes/*.ini; do
-  install -m 644 "$source" "$app_dir/hackerterminal/themes/$(basename "$source")"
+done < <(cd "$project_dir" && find littleshell -name '*.py' -not -path '*/__pycache__/*' -print0)
+install -D -m 644 "$project_dir/littleshell/shell/zsh/.zshenv" "$app_dir/littleshell/shell/zsh/.zshenv"
+install -D -m 644 "$project_dir/littleshell/shell/bash/integration.bash" "$app_dir/littleshell/shell/bash/integration.bash"
+install -d "$app_dir/littleshell/themes"
+for source in "$project_dir"/littleshell/themes/*.ini; do
+  install -m 644 "$source" "$app_dir/littleshell/themes/$(basename "$source")"
 done
 while IFS= read -r -d '' source; do
   install -D -m 644 "$project_dir/$source" "$app_dir/$source"
-done < <(cd "$project_dir" && find hackerterminal/soundpacks -type f -print0)
-install -m 644 "$project_dir/assets/hacker-terminal.svg" "$icon_dir/hacker-terminal.svg"
-launcher="$bin_dir/hacker-terminal"
+done < <(cd "$project_dir" && find littleshell/soundpacks -type f -print0)
+install -m 644 "$project_dir/assets/lish.svg" "$icon_dir/lish.svg"
+launcher="$bin_dir/lish"
 escaped_launcher="${launcher//\\/\\\\}"
 escaped_launcher="${escaped_launcher//&/\\&}"
 escaped_launcher="${escaped_launcher//|/\\|}"
 sed "s|@EXEC@|\"$escaped_launcher\"|g" \
-  "$project_dir/assets/org.hackerterminal.HackerTerminal.desktop" \
-  > "$desktop_dir/org.hackerterminal.HackerTerminal.desktop"
-chmod 644 "$desktop_dir/org.hackerterminal.HackerTerminal.desktop"
-rm -f -- "$desktop_dir/hacker-terminal.desktop"
+  "$project_dir/assets/org.littleshell.LittleShell.desktop" \
+  > "$desktop_dir/org.littleshell.LittleShell.desktop"
+chmod 644 "$desktop_dir/org.littleshell.LittleShell.desktop"
+rm -f -- "$desktop_dir/lish.desktop"
 
 install -d "$app_dir/bin"
-install -m 755 "$project_dir/bin/ht-open" "$app_dir/bin/ht-open"
-install -m 755 "$project_dir/bin/ht-askpass" "$app_dir/bin/ht-askpass"
-install -m 755 "$project_dir/bin/ht-copy-key" "$app_dir/bin/ht-copy-key"
-if [ -e "$bin_dir/ht-open" ] && [ "$(readlink -- "$bin_dir/ht-open")" != "$app_dir/bin/ht-open" ]; then
-  printf '%s\n' "Aviso: $bin_dir/ht-open já existe e não foi alterado." >&2
+install -m 755 "$project_dir/bin/lish-open" "$app_dir/bin/lish-open"
+install -m 755 "$project_dir/bin/lish-askpass" "$app_dir/bin/lish-askpass"
+install -m 755 "$project_dir/bin/lish-copy-key" "$app_dir/bin/lish-copy-key"
+if [ -e "$bin_dir/lish-open" ] && [ "$(readlink -- "$bin_dir/lish-open")" != "$app_dir/bin/lish-open" ]; then
+  printf '%s\n' "Aviso: $bin_dir/lish-open já existe e não foi alterado." >&2
 else
-  ln -sfn "$app_dir/bin/ht-open" "$bin_dir/ht-open"
+  ln -sfn "$app_dir/bin/lish-open" "$bin_dir/lish-open"
 fi
 
-cat > "$bin_dir/hacker-terminal" <<EOF
+cat > "$bin_dir/lish" <<EOF
 #!/bin/sh
-exec python3 "$app_dir/hacker_terminal.py" "\$@"
+exec python3 "$app_dir/little_shell.py" "\$@"
 EOF
-chmod 755 "$bin_dir/hacker-terminal"
+chmod 755 "$bin_dir/lish"
 
 if command -v desktop-file-validate >/dev/null; then
-  desktop-file-validate "$desktop_dir/org.hackerterminal.HackerTerminal.desktop"
+  desktop-file-validate "$desktop_dir/org.littleshell.LittleShell.desktop"
 fi
 command -v update-desktop-database >/dev/null && update-desktop-database "$desktop_dir" >/dev/null 2>&1 || true
 command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -f -t "$data_home/icons/hicolor" >/dev/null 2>&1 || true
 
-printf '%s\n' "Instalado para a conta atual. Abra pelo menu ou execute: hacker-terminal"
+printf '%s\n' "Instalado para a conta atual. Abra pelo menu ou execute: lish"

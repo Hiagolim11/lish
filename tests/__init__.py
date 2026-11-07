@@ -1,1 +1,1 @@
-"""Hacker Terminal test suite."""
+"""Little Shell test suite."""

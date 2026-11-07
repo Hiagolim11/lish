@@ -2,8 +2,8 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-from hackerterminal.runtime import GLib, Gtk
-from hackerterminal.dialogs.speech import SpeechController
+from littleshell.runtime import GLib, Gtk
+from littleshell.dialogs.speech import SpeechController
 
 
 def fake_window():
@@ -26,7 +26,7 @@ class SpeechControllerTests(unittest.TestCase):
         controller.ready = True  # skip the background dependency check
         worker = Mock()
         worker.poll.return_value = None  # still recording
-        with patch("hackerterminal.dialogs.speech.subprocess.Popen", return_value=worker):
+        with patch("littleshell.dialogs.speech.subprocess.Popen", return_value=worker):
             controller.toggle()
         self.assertEqual(controller.state, "recording")
         drop_timers(controller)
@@ -46,7 +46,7 @@ class SpeechControllerTests(unittest.TestCase):
         controller.ready = True
         worker = Mock()
         worker.poll.return_value = None
-        with patch("hackerterminal.dialogs.speech.subprocess.Popen", return_value=worker):
+        with patch("littleshell.dialogs.speech.subprocess.Popen", return_value=worker):
             controller.toggle()
         drop_timers(controller)
         controller.remaining = 1
@@ -60,7 +60,7 @@ class SpeechControllerTests(unittest.TestCase):
         controller.ready = True
         worker = Mock()
         worker.poll.return_value = None
-        with patch("hackerterminal.dialogs.speech.subprocess.Popen", return_value=worker):
+        with patch("littleshell.dialogs.speech.subprocess.Popen", return_value=worker):
             controller.toggle()
         controller.cleanup()
         worker.kill.assert_called_once()
