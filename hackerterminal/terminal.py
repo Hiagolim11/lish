@@ -859,13 +859,17 @@ class TerminalPane(Gtk.Box):
             target = candidates[0] if candidates else None
         if target is None:
             return False
+        self.scroll_to_row(target)
+        return True
+
+    def scroll_to_row(self, target: float) -> None:
+        """Scroll so absolute buffer row ``target`` sits at the top of the view."""
         adjustment = self.terminal.get_vadjustment()
         height = self.terminal.get_char_height()
         # Relative move from the current view: no need to know where the
         # buffer starts (it shifts after `clear` or a scrollback overflow).
-        value = adjustment.get_value() + (target - top) * height
+        value = adjustment.get_value() + (target - self.top_visible_row()) * height
         adjustment.set_value(max(adjustment.get_lower(), min(value, adjustment.get_upper() - adjustment.get_page_size())))
-        return True
 
     def ensure_gutter(self) -> None:
         if not self.gutter_handler:

@@ -192,6 +192,12 @@ class HackerTerminal(ViewerMixin, CommandsMixin, OutputMixin, DropdownMixin, Ssh
             controller = self.speech_controller = SpeechController(self)
         controller.toggle()
 
+    def show_command_navigator(self) -> None:
+        pane = self.get_active_terminal()
+        if pane is not None:
+            from ..dialogs.command_nav import CommandNavigator
+            CommandNavigator(self, pane).present()
+
     def show_shortcuts_help(self) -> None:
         existing = getattr(self, "shortcuts_help", None)
         if existing is not None:
@@ -298,6 +304,7 @@ class HackerTerminal(ViewerMixin, CommandsMixin, OutputMixin, DropdownMixin, Ssh
             "toggle_header": self.toggle_header,
             "dictate": self.dictate,
             "shortcuts_help": self.show_shortcuts_help,
+            "command_nav": self.show_command_navigator,
             "preferences": self.show_preferences,
             "zoom_in": on_terminal("zoom", 1),
             "zoom_out": on_terminal("zoom", -1),
@@ -709,6 +716,7 @@ class HackerTerminal(ViewerMixin, CommandsMixin, OutputMixin, DropdownMixin, Ssh
             ("Pesquisar no terminal", "Terminal", self.search_active),
             ("Fechar as outras abas", "Terminal", self.close_other_tabs),
             ("Reabrir a última aba fechada", "Terminal", self.reopen_closed_tab),
+            ("Navegar pelos comandos", "Terminal", self.show_command_navigator),
             ("Mostrar ou ocultar ações", "Interface", self.toggle_panel),
             ("Mostrar ou ocultar a barra de título", "Interface", self.toggle_header),
             ("Ditar: fala para texto no terminal", "Interface", self.dictate),

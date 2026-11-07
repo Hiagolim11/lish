@@ -10,6 +10,7 @@ Este projeto segue [Semantic Versioning](https://semver.org/).
   - **Abas mais ágeis**: `Alt+1`…`8` vão direto para a aba, `Alt+9` para a última; arraste para reordenar; o botão direito na aba abre um menu (nova aba, fechar, fechar as outras).
   - **Folha de atalhos** (`F1`): uma janela lista todos os atalhos em vigor, já com os que você personalizou.
   - **Reabrir a última aba fechada** (`Ctrl+Shift+N`), na mesma pasta em que estava.
+  - **Navegar pelos comandos** (`Ctrl+Shift+G`): lista os comandos do painel (com ✓/✗ e duração) e salta para o que você escolher.
 
 - **Novo tema "Vidro (macOS)"**: visual claro e moderno inspirado no macOS, com cores de sistema (azul `#007aff`) e sem efeitos CRT. O **efeito de vidro** (translucidez ~85%) já vem ligado ao escolher o tema — ajuste em *Preferências → Aparência* se quiser. O desfoque atrás depende de um compositor que o suporte.
 
