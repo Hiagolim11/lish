@@ -101,13 +101,13 @@ window, .app-root {{ background-color: {window_background}; color: {self.foregro
 .app-root {{ background-color: transparent; }}
 tooltip, tooltip.background {{
   background-color: {self.surface}; color: {self.foreground};
-  border: 1px solid {self.border}; border-radius: 6px;
+  border: 1px solid {self.border}; border-radius: 8px;
 }}
 tooltip label {{ color: {self.foreground}; }}
 
 headerbar {{
   background-image: none; background-color: {terminal_background}; color: {self.foreground};
-  border-bottom: 1px solid {hairline}; box-shadow: none; min-height: 38px; padding: 0 8px;
+  border-bottom: 1px solid {hairline}; box-shadow: none; min-height: 42px; padding: 0 10px;
 }}
 headerbar .title {{ font-weight: 600; font-size: 13px; color: {self.foreground}; }}
 headerbar .subtitle {{ color: {self.muted}; font-family: monospace; font-size: 10px; opacity: 1; }}
@@ -116,8 +116,8 @@ headerbar button.titlebutton:hover {{ color: {self.foreground}; background-color
 .header-group {{ margin: 0 2px; }}
 .header-action {{
   color: {self.muted}; background-image: none; background-color: transparent;
-  border: 0; border-radius: 6px; box-shadow: none; text-shadow: none;
-  min-width: 32px; min-height: 28px; padding: 0 6px; -gtk-icon-shadow: none;
+  border: 0; border-radius: 8px; box-shadow: none; text-shadow: none;
+  min-width: 34px; min-height: 30px; padding: 0 8px; -gtk-icon-shadow: none;
 }}
 .header-action:hover {{ color: {self.foreground}; background-color: {raised}; }}
 .header-action:active, .header-action:checked {{ color: {self.accent}; background-color: {accent_soft}; }}
@@ -126,7 +126,7 @@ headerbar button.titlebutton:hover {{ color: {self.foreground}; background-color
 
 .workspace {{ padding: 0; }}
 .statusbar-row {{
-  background-color: {terminal_background}; border-top: 1px solid {hairline}; padding: 4px 14px;
+  background-color: {terminal_background}; border-top: 1px solid {hairline}; padding: 6px 16px;
 }}
 .status, .status-context {{ color: {self.muted}; font-size: 11px; }}
 
@@ -155,7 +155,7 @@ notebook > header tab, notebook > header tab:checked, notebook > header tab:hove
 }}
 notebook > header tab {{
   background-color: transparent; color: {self.muted}; border: 0; border-radius: 0;
-  padding: 6px 4px 6px 12px; margin: 0 2px 0 0; min-height: 0; box-shadow: inset 0 -2px transparent;
+  padding: 8px 6px 8px 14px; margin: 0 2px 0 0; min-height: 0; box-shadow: inset 0 -2px transparent;
 }}
 notebook > header tab:hover {{ color: {self.foreground}; }}
 notebook > header tab:checked {{ color: {self.foreground}; box-shadow: inset 0 -2px {self.accent}; }}
