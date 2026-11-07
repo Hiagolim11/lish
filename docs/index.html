@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=IBM+Plex+Mono:wght@400;600&family=VT323&display=swap" rel="stylesheet"><!-- taste-skill-ignore: monospace faces are for the terminal demo (data-ui) and code -->
-<link rel="stylesheet" href="demo.css?v=90c02922">
+<link rel="stylesheet" href="demo.css?v=7e43f47a">
 <style>
 /* The product performs: a dark terminal ground, one phosphor-green accent, and the real
    running terminal as the page's main image. Switzer for everything in the page chrome;
@@ -24,15 +24,15 @@
    no shadows at rest, no cards topped with icons: scale, filled fields and motion instead. */
 :root {
   color-scheme: dark;
-  --bg: #0a0d0b;          /* terminal black ground */
-  --tile: #12170f;        /* one tone step up from the ground */
-  --tile-2: #171d14;      /* two steps up, for fragments on tiles */
-  --ink: #e9f1ea;
-  --muted: #8da093;
-  --accent: #39ff88;      /* phosphor green: on the action and the one live thing */
-  --accent-ink: #061108;
-  --accent-deep: #0e3a22; /* quiet green field behind fragments */
-  --danger: #ff5d73;
+  --bg: #1b1c1f;          /* soft graphite ground */
+  --tile: #232427;        /* one tone step up from the ground */
+  --tile-2: #2b2d31;      /* two steps up, for fragments on tiles */
+  --ink: #f2f3f5;
+  --muted: #b2b5bc;
+  --accent: #0a84ff;      /* system blue: on the action and the one live thing */
+  --accent-ink: #ffffff;
+  --accent-deep: #13233a; /* quiet blue field behind fragments */
+  --danger: #ff5d63;
   --sans: "Switzer", "Helvetica Neue", Arial, sans-serif;
   --mono: "JetBrains Mono", "IBM Plex Mono", "DejaVu Sans Mono", monospace; /* taste-skill-ignore: terminal + code only */
   --radius: 14px;
@@ -57,13 +57,13 @@ p { margin: 0; }
 .lead { font-size: clamp(1.15rem, 1.02rem + 0.7vw, 1.6rem); line-height: 1.4; letter-spacing: -0.01em; color: var(--muted); max-width: 46ch; }
 /* inside product-UI fragments, monospace and the product's own borders are correct */
 [data-ui] { font-family: var(--mono); } /* taste-skill-ignore: product-UI fragments are monospace */
-code { font-family: var(--mono); font-size: 0.86em; background: var(--tile-2); color: var(--accent); padding: 0.12em 0.4em; border-radius: 5px; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--tile-2); color: var(--ink); padding: 0.12em 0.4em; border-radius: 5px; }
 kbd { font-family: var(--mono); font-size: 0.8em; background: var(--tile-2); color: var(--ink); border-radius: 5px; padding: 0.18em 0.5em; white-space: nowrap; }
 
 /* buttons: one shape (6px), one fill (accent) for the primary, filled tile for the secondary */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; padding: 0 22px;
   border: 0; border-radius: 6px; font: 600 16px/1 var(--sans); letter-spacing: -0.01em; cursor: pointer;
-  background: var(--accent); color: var(--accent-ink); transition: transform 140ms var(--ease), filter 140ms; }
+  background: #0a63cf; color: var(--accent-ink); transition: transform 140ms var(--ease), filter 140ms; }
 .btn:hover { filter: brightness(1.08); transform: translateY(-2px); }
 .btn:active { transform: translateY(0) scale(0.98); }
 .btn.secondary { background: var(--tile-2); color: var(--ink); }
@@ -71,7 +71,7 @@ kbd { font-family: var(--mono); font-size: 0.8em; background: var(--tile-2); col
 
 /* nav: a plain bar, no glass, no rule; a faint lift appears only once scrolled */
 .nav { position: sticky; top: 0; z-index: 20; background: var(--bg); transition: box-shadow 220ms, background 220ms; }
-.nav.scrolled { box-shadow: 0 8px 30px -18px rgba(0,0,0,0.9); background: #0b0f0c; } /* taste-skill-ignore: sticky bar may cast a shadow */
+.nav.scrolled { box-shadow: 0 8px 30px -18px rgba(0,0,0,0.6); background: #16171a; } /* taste-skill-ignore: sticky bar may cast a shadow */
 .nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 66px; }
 .brand { display: flex; align-items: center; gap: 11px; font-weight: 600; letter-spacing: -0.02em; font-size: 17px; }
 .brand .mark { width: 26px; height: 26px; border-radius: 7px; background: var(--accent); color: var(--accent-ink);
@@ -102,7 +102,7 @@ kbd { font-family: var(--mono); font-size: 0.8em; background: var(--tile-2); col
 .demo-try { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-top: 18px; }
 .demo-try .label { font-size: 15px; color: var(--muted); margin-right: 2px; }
 .demo-try button { min-height: 38px; padding: 0 14px; border: 0; border-radius: 7px; background: var(--tile);
-  color: var(--ink); font: 500 13.5px/1 var(--mono); cursor: pointer; transition: background-color 150ms, transform 120ms, color 150ms; }
+  color: var(--ink); font: 500 13.5px/1 var(--sans); cursor: pointer; transition: background-color 150ms, transform 120ms, color 150ms; }
 .demo-try button:hover { background: var(--tile-2); color: var(--accent); }
 .demo-try button:active { transform: scale(0.97); }
 .demo-note { margin-top: 16px; font-size: 15px; color: var(--muted); max-width: 70ch; }
@@ -116,14 +116,14 @@ kbd { font-family: var(--mono); font-size: 0.8em; background: var(--tile-2); col
 .ctf-flags.ctf-done { background: var(--accent-deep); }
 .ctf-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .ctf-head h3 { font-size: 1.25rem; }
-.ctf-count { font: 500 14px/1 var(--mono); color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ctf-count { font: 500 14px/1 var(--sans); color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .ctf-row { display: flex; gap: 10px; margin-top: 16px; }
 .ctf-row input { flex: 1; min-width: 0; min-height: 48px; padding: 0 14px; border: 0; border-radius: 7px;
-  background: var(--tile-2); color: var(--ink); font: 500 15px/1 var(--mono); }
+  background: var(--tile-2); color: var(--ink); font: 500 15px/1 var(--sans); }
 .ctf-row input::placeholder { color: #5f6f63; }
 .ctf-row input:focus { outline: 2px solid var(--accent); outline-offset: 0; }
 .ctf-row .btn { min-height: 48px; }
-.ctf-dots { margin-top: 16px; font-size: 20px; letter-spacing: 8px; color: var(--accent); }
+.ctf-dots { margin-top: 16px; font-size: 20px; letter-spacing: 8px; color: #4a9dff; }
 .ctf-msg { margin-top: 12px; font-size: 14.5px; color: var(--muted); }
 .ctf-msg.ok { color: var(--accent); }
 .ctf-msg.err { color: var(--danger); }
@@ -149,23 +149,23 @@ section { padding-top: clamp(96px, 13vw, 168px); }
 .cell.flip .frag { margin-top: 0; margin-bottom: auto; }
 
 /* product-UI fragments inside cells (data-ui) */
-.term { background: #04070500; color: #cdeed8; font: 13px/1.62 var(--mono); padding: 16px 18px 18px 24px; position: relative; }
+.term { background: #04070500; color: #d7dce2; font: 13px/1.62 var(--mono); padding: 16px 18px 18px 24px; position: relative; }
 .term p { white-space: pre-wrap; overflow-wrap: anywhere; position: relative; margin: 0; }
 .term .mk::before { content: ""; position: absolute; left: -12px; top: 0.25em; bottom: 0.25em; width: 3px; border-radius: 2px; background: var(--accent); opacity: 0.6; }
 .term .bad::before { background: var(--danger); opacity: 1; }
 .term .err { color: #ff93a4; }
-.term .dim { color: #6fa585; }
+.term .dim { color: #8a93a0; }
 .term .bar { margin-top: 12px; display: flex; justify-content: space-between; gap: 10px; color: #7fb594; font-size: 12px; }
 .term .bar b { color: var(--danger); font-weight: 600; }
 .term .bar .hot { color: var(--accent); }
 /* a status-bar-only fragment (resource monitor) */
-.statusbar { background: #060a07; color: #8fcfa6; font: 12.5px/1 var(--mono); padding: 12px 16px; display: flex;
+.statusbar { background: #121317; color: #aab3bf; font: 12.5px/1 var(--mono); padding: 12px 16px; display: flex;
   flex-wrap: wrap; gap: 6px 16px; align-items: center; }
 .statusbar .hot { color: var(--danger); }
 .statusbar .g { color: var(--accent); }
 /* split-pane edge */
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: #0a0f0b; min-height: 150px; }
-.split .pane { background: #04070500; padding: 12px 14px; font: 12.5px/1.6 var(--mono); color: #bfe9cd; }
+.split .pane { background: #04070500; padding: 12px 14px; font: 12.5px/1.6 var(--mono); color: #cdd2da; }
 .split .pane .nm { color: var(--accent); }
 /* sound control */
 .switches { display: flex; flex-wrap: wrap; gap: 8px; padding: clamp(20px, 2vw, 26px); padding-top: 0; }
@@ -189,7 +189,7 @@ section { padding-top: clamp(96px, 13vw, 168px); }
 .theme-tile .face .pal i { width: 15px; height: 15px; border-radius: 4px; display: block; }
 .theme-tile .strip { padding: 12px 14px; background: var(--tile); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .theme-tile .strip b { font: 600 14px/1 var(--sans); letter-spacing: -0.01em; }
-.theme-tile .strip span { font: 500 13px/1 var(--mono); color: var(--muted); }
+.theme-tile .strip span { font: 500 13px/1 var(--sans); color: var(--muted); }
 .theme-shot { grid-column: span 2; border-radius: 12px; overflow: hidden; background: var(--tile); }
 .theme-wide { grid-column: span 4; border-radius: 12px; overflow: hidden; background: var(--tile); }
 .theme-list { margin-top: 22px; font-size: 15px; color: var(--muted); line-height: 1.9; }
@@ -202,23 +202,23 @@ section { padding-top: clamp(96px, 13vw, 168px); }
 .row kbd { font-size: 13px; }
 
 /* install: the first step, already open, a full-bleed accent band */
-.install { margin-top: clamp(96px, 13vw, 168px); background: var(--accent); color: var(--accent-ink); }
+.install { margin-top: clamp(96px, 13vw, 168px); background: var(--tile); }
 .install .inner { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 5vw, 72px);
   align-items: center; padding-top: clamp(64px, 8vw, 112px); padding-bottom: clamp(64px, 8vw, 112px); }
-.install h2 { font-size: clamp(2.2rem, 1.3rem + 4.4vw, 4.4rem); color: var(--accent-ink); max-width: 14ch; }
-.install .sub { margin-top: 18px; color: #0c2e1b; font-size: 1.1rem; max-width: 40ch; }
+.install h2 { font-size: clamp(2.2rem, 1.3rem + 4.4vw, 4.4rem); color: var(--ink); max-width: 14ch; }
+.install .sub { margin-top: 18px; color: var(--muted); font-size: 1.1rem; max-width: 40ch; }
 .install .steps { display: grid; gap: 18px; }
 .install .steps .st { display: flex; gap: 14px; align-items: baseline; }
-.install .steps .st .n { font: 600 15px/1.4 var(--mono); color: #0c2e1b; flex: none; }
-.install .steps .st p { color: #0a2616; font-weight: 500; }
-.install .steps .st a { text-decoration: underline; text-underline-offset: 3px; }
-.code { display: flex; align-items: stretch; background: var(--accent-ink); border-radius: 10px; overflow: hidden; }
+.install .steps .st .n { font: 600 15px/1.4 var(--mono); color: var(--accent); flex: none; }
+.install .steps .st p { color: var(--ink); font-weight: 500; }
+.install .steps .st a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.code { display: flex; align-items: stretch; background: var(--bg); border-radius: 10px; overflow: hidden; }
 .code pre { margin: 0; padding: 16px 18px; overflow-x: auto; flex: 1; min-width: 0; }
 .code code { background: none; color: var(--accent); font-size: 14.5px; line-height: 1.5; }
-.code button { border: 0; background: #0f1d14; color: var(--accent); padding: 0 18px; font: 600 13.5px var(--sans); cursor: pointer; transition: background 150ms; }
-.code button:hover { background: #163021; }
-.install .alt { margin-top: 16px; color: #0c2e1b; font-size: 15px; }
-.install .alt code { background: #0c2e1b2a; color: #082013; }
+.code button { border: 0; background: var(--tile-2); color: var(--ink); padding: 0 18px; font: 600 13.5px var(--sans); cursor: pointer; transition: background 150ms; }
+.code button:hover { background: #343640; }
+.install .alt { margin-top: 16px; color: var(--muted); font-size: 15px; }
+.install .alt code { background: var(--tile-2); color: var(--accent); }
 
 /* faq: accordion of filled tiles */
 .faq { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(28px, 4vw, 56px); align-items: start; }
@@ -233,12 +233,12 @@ section { padding-top: clamp(96px, 13vw, 168px); }
 .faq summary .pm::before, .faq summary .pm::after { content: ""; position: absolute; background: var(--muted); border-radius: 2px; transition: transform 200ms, background 200ms; }
 .faq summary .pm::before { left: 0; right: 0; top: 6.5px; height: 3px; }
 .faq summary .pm::after { top: 0; bottom: 0; left: 6.5px; width: 3px; }
-.faq details[open] { background: var(--accent); color: var(--accent-ink); }
-.faq details[open] summary .pm::before { background: var(--accent-ink); }
-.faq details[open] summary .pm::after { background: var(--accent-ink); transform: scaleY(0); }
+.faq details[open] { background: var(--tile-2); color: var(--ink); }
+.faq details[open] summary .pm::before { background: var(--accent); }
+.faq details[open] summary .pm::after { background: var(--accent); transform: scaleY(0); }
 .faq details p { padding: 0 22px 22px; max-width: 58ch; line-height: 1.55; }
 .faq details:not([open]) p { color: var(--muted); }
-.faq details[open] p { color: #0c2e1b; }
+.faq details[open] p { color: var(--ink); }
 .faq details a { text-decoration: underline; text-underline-offset: 3px; }
 
 /* footer: the name returns at full width */
@@ -283,56 +283,10 @@ footer { padding-top: clamp(96px, 13vw, 168px); padding-bottom: 48px; }
   .hero-actions .btn { flex: 1 1 auto; }
 }
 
-/* ---------- cyber layer: a starfield behind everything, CRT scanlines, neon glow ---------- */
-#space { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-#space canvas { width: 100% !important; height: 100% !important; display: block; }
-.nav, main, footer { position: relative; z-index: 1; }
-body { background: #080b09; }
-/* faint CRT scanlines + vignette over the whole page */
-.crt-lines, .crt-vig { position: fixed; inset: 0; z-index: 3; pointer-events: none; }
-.crt-lines { background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.16) 0 1px, rgba(0,0,0,0) 1px 3px); opacity: 0.45; }
-.crt-vig { background: radial-gradient(130% 100% at 50% 12%, rgba(0,0,0,0) 52%, rgba(0,0,0,0.55) 100%); }
-@media (prefers-reduced-motion: no-preference) { .crt-lines { animation: crtroll 8s linear infinite; } }
-@keyframes crtroll { to { background-position: 0 96px; } }
-/* neon glow */
-.hero h1 { text-shadow: 0 0 26px rgba(57,255,136,0.22), 0 0 2px rgba(57,255,136,0.25); }
-.head h2, .ctf-copy h2, .faq-head h2, .foot-cta h2, .install h2, .showcase h2 { text-shadow: 0 0 22px rgba(57,255,136,0.16); }
-.btn { box-shadow: 0 0 22px rgba(57,255,136,0.38); }
-.btn:hover { box-shadow: 0 0 34px rgba(57,255,136,0.6); }
-.btn.secondary { box-shadow: inset 0 0 0 1px rgba(57,255,136,0.22); }
-.brand .mark { box-shadow: 0 0 18px rgba(57,255,136,0.55); }
-.cell, .theme-tile, .faq details, .ctf-flags, .code { box-shadow: inset 0 0 0 1px rgba(57,255,136,0.07); }
-.cell:hover, .theme-tile:hover { box-shadow: 0 0 34px rgba(57,255,136,0.14), inset 0 0 0 1px rgba(57,255,136,0.28); }
-.ht-demo { box-shadow: 0 0 70px rgba(57,255,136,0.12), inset 0 0 0 1px rgba(57,255,136,0.2); }
-.theme-tile .face, .frag.term, .frag.statusbar, .frag.split { box-shadow: inset 0 0 40px rgba(57,255,136,0.05); }
-kbd { box-shadow: 0 0 10px rgba(57,255,136,0.12); }
-.lead, .head p, .demo-note, .ctf-copy p, .hero-meta, .theme-list, .foot-meta, .cell .txt p { text-shadow: 0 1px 14px rgba(4,8,6,0.9); }
-.theme-wide, .theme-shot { box-shadow: 0 0 36px rgba(57,255,136,0.1), inset 0 0 0 1px rgba(57,255,136,0.2); }
-.theme-wide:hover, .theme-shot:hover { box-shadow: 0 0 46px rgba(57,255,136,0.2), inset 0 0 0 1px rgba(57,255,136,0.4); }
-.cell .frag img { filter: saturate(1.05) contrast(1.03); }
-.cell .frag[data-ui] { box-shadow: inset 0 0 0 1px rgba(57,255,136,0.12); }
-/* a scanning sheen across the terminal */
-.stage::after { content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none; border-radius: var(--radius);
-  background: linear-gradient(180deg, rgba(57,255,136,0.08), rgba(57,255,136,0) 18%); mix-blend-mode: screen; }
-@media (prefers-reduced-motion: no-preference) {
-  .hero h1 { animation: hglitch 7s infinite; }
-}
-@keyframes hglitch { 0%,92%,100% { clip-path: none; transform: none; } 93% { transform: translate(-2px,0); } 94% { transform: translate(2px,0); } 95% { transform: none; } }
-/* boot intro + scroll progress */
-#boot { position: fixed; inset: 0; z-index: 100; background: #06080a; display: grid; place-items: center; transition: opacity 600ms var(--ease); }
-#boot.done { opacity: 0; pointer-events: none; }
-#boot pre { margin: 0; width: min(90vw, 470px); font: 14px/1.75 var(--mono); color: var(--accent); text-shadow: 0 0 12px rgba(57,255,136,0.5); white-space: pre-wrap; }
-#boot .cur { animation: bcur 1s steps(1) infinite; }
-@keyframes bcur { 50% { opacity: 0; } }
-#progress { position: fixed; top: 0; left: 0; height: 2px; width: 0; z-index: 30; background: var(--accent); box-shadow: 0 0 12px rgba(57,255,136,0.85); transition: width 120ms linear; }
+/* cyber layer removed — Little Shell is calm graphite: no neon, CRT or WebGL. */
 </style>
 </head>
 <body>
-<div id="boot" aria-hidden="true"><pre id="boot-log"></pre></div>
-<div id="progress" aria-hidden="true"></div>
-<div id="space" aria-hidden="true"></div>
-<div class="crt-lines" aria-hidden="true"></div>
-<div class="crt-vig" aria-hidden="true"></div>
 <header class="nav" id="nav">
   <div class="container nav-inner">
     <a class="brand" href="#top">
@@ -425,7 +379,7 @@ kbd { box-shadow: 0 0 10px rgba(57,255,136,0.12); }
             <p>evidencias  notas.md  scan.sh</p>
             <p class="bad">hacker@lab:~$ grep -r senha /etc/nao-existe</p>
             <p class="err">grep: /etc/nao-existe: Arquivo ou diretório inexistente</p>
-            <div class="bar"><span>~/lab</span><b>&#10007; saída 2 · 1 aba</b></div>
+            <div class="bar"><span>~/lab</span><b>x saída 2 · 1 aba</b></div>
           </div>
         </article>
         <article class="cell reveal">
@@ -447,7 +401,7 @@ kbd { box-shadow: 0 0 10px rgba(57,255,136,0.12); }
             <p><kbd>Ctrl+Shift+M</kbd> grava alguns segundos e <b>escreve o comando direto no painel</b>, sem Enter. Whisper <b>local</b>, nada sai da máquina, e as dependências se instalam sozinhas no primeiro uso.</p>
           </div>
           <div class="frag term" data-ui aria-label="Ditado escrevendo um comando no terminal">
-            <p class="dim">🎤 gravando… 4s · Ctrl+Shift+M para parar</p>
+            <p class="dim">● gravando… 4s · Ctrl+Shift+M para parar</p>
             <p class="dim">transcrevendo…</p>
             <p class="mk">hacker@lab:~$ nmap -sV -p- 10.10.13.37_</p>
           </div>
@@ -606,7 +560,6 @@ kbd { box-shadow: 0 0 10px rgba(57,255,136,0.12); }
   </div>
 </footer>
 
-<script src="three.min.js"></script>
 <script>
 (() => {
   const nav = document.getElementById("nav");
@@ -637,139 +590,6 @@ kbd { box-shadow: 0 0 10px rgba(57,255,136,0.12); }
     if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => done("Copiado"), select); else select();
   });
 
-  /* 3D hero — a WebGL field of neon points flowing in perspective (Three.js), the terminal
-     sitting over it. Reduced motion or no WebGL falls back to the flat dark hero. */
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const small = matchMedia("(max-width: 760px)").matches;
-
-  /* ONE WebGL scene behind the whole page: a starfield flying past plus the hero's
-     wireframe core on the right, which fades out as you scroll past the hero. One
-     context, one loop, ~40fps. Falls back to a 2D starfield + globe without WebGL. */
-  /* shared scroll state for the scene and the progress bar */
-  let scrollVel = 0, lastY = scrollY;
-  const prog = document.getElementById("progress");
-  addEventListener("scroll", () => {
-    const h = document.documentElement.scrollHeight - innerHeight;
-    if (prog) prog.style.width = (h > 0 ? (scrollY / h) * 100 : 0) + "%";
-    scrollVel = Math.min(1.5, scrollVel + Math.abs(scrollY - lastY) / 90); lastY = scrollY;
-  }, { passive: true });
-
-  /* boot intro: a quick terminal boot, then it lifts to reveal the page (once per session) */
-  (function boot() {
-    const el = document.getElementById("boot");
-    if (!el) return;
-    let played = null; try { played = sessionStorage.getItem("ht-booted"); } catch (e) {}
-    if (reduce || played) { el.remove(); return; }
-    try { sessionStorage.setItem("ht-booted", "1"); } catch (e) {}
-    const log = document.getElementById("boot-log");
-    const lines = ["lish :: boot", "[ ok ] nucleo GTK/VTE carregado", "[ ok ] 23 temas  .  18 teclados reais", "[ ok ] monitor de recursos", "[ ok ] laboratorio CTF pronto", "> iniciando sessao..."];
-    let li = 0, ci = 0, timer = 0;
-    const finish = () => { el.classList.add("done"); setTimeout(() => el.remove(), 650); removeEventListener("keydown", skip); removeEventListener("pointerdown", skip); };
-    const step = () => {
-      if (li >= lines.length) { timer = setTimeout(finish, 380); return; }
-      const line = lines[li];
-      if (ci <= line.length) {
-        const base = lines.slice(0, li).join("\n");
-        log.innerHTML = (base ? base + "\n" : "") + line.slice(0, ci) + '<span class="cur">_</span>';
-        ci++; timer = setTimeout(step, 15 + Math.random() * 20);
-      } else { li++; ci = 0; timer = setTimeout(step, 110); }
-    };
-    const skip = () => { clearTimeout(timer); finish(); };
-    addEventListener("keydown", skip); addEventListener("pointerdown", skip);
-    timer = setTimeout(step, 180);
-  })();
-
-  const space = document.getElementById("space");
-  (function cyber() {
-    if (!space) return;
-    if (!window.THREE) return space2D();
-    let renderer;
-    try {
-      const T = window.THREE;
-      renderer = new T.WebGLRenderer({ antialias: !small, powerPreference: "low-power" });
-      renderer.setPixelRatio(Math.min(devicePixelRatio || 1, small ? 1.3 : 1.6));
-      renderer.setClearColor(0x080b09, 1);
-      space.appendChild(renderer.domElement);
-      const scene = new T.Scene(); scene.fog = new T.FogExp2(0x080b09, 0.05);
-      const camera = new T.PerspectiveCamera(72, 1, 0.1, 80); camera.position.set(0, 0, 12);
-
-      const COUNT = small ? 1200 : 2600;
-      const starPos = new Float32Array(COUNT * 3), starSpd = new Float32Array(COUNT), scol = new Float32Array(COUNT * 3);
-      for (let i = 0; i < COUNT; i++) {
-        starPos[i*3] = (Math.random()-0.5)*50; starPos[i*3+1] = (Math.random()-0.5)*34; starPos[i*3+2] = -Math.random()*58;
-        starSpd[i] = 0.04 + Math.random()*0.13;
-        const b = Math.random() > 0.8; scol[i*3] = b?0.6:0.17; scol[i*3+1] = 1; scol[i*3+2] = b?0.85:0.5;
-      }
-      const sg = new T.BufferGeometry();
-      sg.setAttribute("position", new T.BufferAttribute(starPos, 3));
-      sg.setAttribute("color", new T.BufferAttribute(scol, 3));
-      const stars = new T.Points(sg, new T.PointsMaterial({ size: 0.09, vertexColors: true, transparent: true, opacity: 0.85, blending: T.AdditiveBlending, depthWrite: false, sizeAttenuation: true }));
-      scene.add(stars);
-
-      const core = new T.Group();
-      const outer = new T.IcosahedronGeometry(3.6, 2);
-      const wire = new T.LineSegments(new T.WireframeGeometry(outer), new T.LineBasicMaterial({ color: 0x39ff88, transparent: true, opacity: 0.6, blending: T.AdditiveBlending, depthWrite: false }));
-      const nodes = new T.Points(outer, new T.PointsMaterial({ color: 0xc8ffdd, size: 0.15, transparent: true, opacity: 0.95, blending: T.AdditiveBlending, depthWrite: false, sizeAttenuation: true }));
-      const inner = new T.LineSegments(new T.WireframeGeometry(new T.IcosahedronGeometry(2.1, 1)), new T.LineBasicMaterial({ color: 0x2aa866, transparent: true, opacity: 0.55, blending: T.AdditiveBlending, depthWrite: false }));
-      core.add(wire); core.add(nodes); core.add(inner);
-      const coreMats = [[wire.material, 0.6], [nodes.material, 0.95], [inner.material, 0.55]];
-      scene.add(core);
-
-      let sX = 0, sY = 0;
-      addEventListener("pointermove", (e) => { sX = e.clientX/innerWidth - 0.5; sY = e.clientY/innerHeight - 0.5; }, { passive: true });
-      const layout = () => {
-        renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
-        const wide = innerWidth/innerHeight > 1.1;
-        core.position.set(wide ? 6.4 : 0, wide ? 0 : -1.4, wide ? -1 : -4.5);
-        core.scale.setScalar(wide ? 1 : 0.8);
-      };
-      layout(); addEventListener("resize", layout, { passive: true });
-
-      let raf = 0, vis = true, t = 0, last = 0;
-      const frame = (now) => {
-        raf = requestAnimationFrame(frame);
-        if (now - last < 24) return; last = now;
-        t += 0.016;
-        const boost = 2 + scrollVel * 7; scrollVel *= 0.9;
-        for (let i = 0; i < COUNT; i++) { starPos[i*3+2] += starSpd[i]*boost; if (starPos[i*3+2] > 9) { starPos[i*3+2] = -58; starPos[i*3] = (Math.random()-0.5)*50; starPos[i*3+1] = (Math.random()-0.5)*34; } }
-        stars.geometry.attributes.position.needsUpdate = true;
-        core.rotation.y += 0.004; core.rotation.x += 0.0015; inner.rotation.y -= 0.006;
-        const fade = Math.max(0, 1 - scrollY / (innerHeight * 0.72));
-        core.visible = fade > 0.02;
-        for (const [m, base] of coreMats) m.opacity = base * fade;
-        camera.position.x += (sX*3.4 - camera.position.x)*0.03; camera.position.y += (-sY*2.5 - camera.position.y)*0.03; camera.lookAt(0, 0, -18);
-        renderer.render(scene, camera);
-      };
-      const run = () => { cancelAnimationFrame(raf); if (vis && !document.hidden) { last = 0; raf = requestAnimationFrame(frame); } };
-      run();
-      document.addEventListener("visibilitychange", run);
-    } catch (e) { if (renderer && renderer.domElement) renderer.domElement.remove(); space2D(); }
-  })();
-
-  function space2D() {
-    const cv = document.createElement("canvas"); space.appendChild(cv);
-    const g = cv.getContext("2d"); if (!g) return;
-    const dpr = Math.min(devicePixelRatio || 1, 1.5), N = 160, st = [];
-    for (let i = 0; i < N; i++) st.push({ x: Math.random(), y: Math.random(), z: Math.random()*0.9 + 0.1 });
-    const size = () => { cv.width = Math.max(1, innerWidth*dpr); cv.height = Math.max(1, innerHeight*dpr); };
-    const draw = () => {
-      const W = cv.width, H = cv.height; g.fillStyle = "#080b09"; g.fillRect(0, 0, W, H);
-      g.fillStyle = "#39ff88";
-      for (const s of st) { g.globalAlpha = s.z; const r = s.z*2*dpr; g.fillRect(s.x*W, s.y*H, r, r); }
-      const wide = W/H > 1.1, cx = W*(wide?0.75:0.5), cy = H*(wide?0.4:0.28), R = Math.min(W, H)*(wide?0.25:0.3);
-      g.strokeStyle = "#39ff88"; g.lineWidth = dpr; g.globalAlpha = 0.3;
-      for (let i = 1; i < 6; i++) { g.beginPath(); g.ellipse(cx, cy, R, R*(i/6), 0, 0, Math.PI*2); g.stroke(); }
-      for (let i = 0; i < 8; i++) { g.beginPath(); g.ellipse(cx, cy, Math.abs(R*Math.cos(i/8*Math.PI)) + dpr, R, 0, 0, Math.PI*2); g.stroke(); }
-      g.globalAlpha = 1;
-    };
-    let raf = 0, vis = true;
-    const tick = () => { for (const s of st) { s.z += 0.004; if (s.z > 1) { s.z = 0.1; s.x = Math.random(); s.y = Math.random(); } } draw(); raf = requestAnimationFrame(tick); };
-    const run = () => { cancelAnimationFrame(raf); if (vis && !document.hidden) raf = requestAnimationFrame(tick); else draw(); };
-    size(); run();
-    addEventListener("resize", () => { size(); }, { passive: true });
-    document.addEventListener("visibilitychange", run);
-  }
-
   /* staggered reveal; without the observer (or with reduced motion) everything just shows */
   if ("IntersectionObserver" in window && matchMedia("(prefers-reduced-motion: no-preference)").matches) {
     const observer = new IntersectionObserver((entries) => {
@@ -786,6 +606,6 @@ kbd { box-shadow: 0 0 10px rgba(57,255,136,0.12); }
 })();
 </script>
 <script type="application/json" id="demo-data">{"version":"0.22.0","default_theme":"minimal-dark","themes":[{"id":"red-alert","name":"Alerta Vermelho","author":"Little Shell","dark":true,"font":null,"ui":{"background":"#140607","surface":"#1f0a0c","foreground":"#ffe3e3","accent":"#ff4d5e","border":"#6b1f27","muted":"#c27a80","danger":"#ffb347"},"term":{"background":"#120405","foreground":"#f4d6d6","cursor":"#ff4d5e","selection_background":"#8a2430","selection_foreground":"#ffffff"},"ansi":["#2a0d10","#ff5c6c","#6fd08c","#ffcf5c","#6fa8ff","#e08cff","#5fd7d7","#f0d0d0","#a34c55","#ff8090","#8ff0a8","#ffe08a","#92c0ff","#f0b0ff","#8ff0f0","#ffffff"],"fx":{"matrix":"#ff4d5e","scanlines":0.04,"glow":0.2,"vignette":0.45,"noise":0.0,"flicker":0.0,"curvature":0.0,"rain":false}},{"id":"high-contrast","name":"Alto Contraste","author":"Little Shell","dark":true,"font":null,"ui":{"background":"#000000","surface":"#0a0a0a","foreground":"#ffffff","accent":"#ffff00","border":"#ffffff","muted":"#d9d9d9","danger":"#ff6b6b"},"term":{"background":"#000000","foreground":"#ffffff","cursor":"#ffff00","selection_background":"#ffff00","selection_foreground":"#000000"},"ansi":["#000000","#ff6b6b","#5dff6b","#ffe14d","#7cb8ff","#ff8cff","#5cf2ff","#e6e6e6","#b3b3b3","#ff9090","#8dff95","#fff27a","#a8d0ff","#ffb0ff","#9cf8ff","#ffffff"],"fx":{"matrix":"#ffff00","scanlines":0.0,"glow":0.0,"vignette":0.0,"noise":0.0,"flicker":0.0,"curvature":0.0,"rain":false}},{"id":"amber-crt","name":"Amber CRT","author":"Little Shell","dark":true,"font":null,"ui":{"background":"#100b03","surface":"#1a1206","foreground":"#ffe8b0","accent":"#ffb000","border":"#6e4d0c","muted":"#a07732","danger":"#ff5f56"},"term":{"background":"#090600","foreground":"#ffc24b","cursor":"#fff0c2","selection_background":"#805b12","selection_foreground":"#ffffff"},"ansi":["#120d04","#df553f","#a8b84c","#ffb000","#d28b35","#cc7a4b","#e0a84f","#ead7ac","#806233","#ff725c","#c7d96b","#ffd066","#e7aa59","#ed9b6c","#f2c06e","#fff0ce"],"fx":{"matrix":"#ffb000","scanlines":0.18,"glow":0.0,"vignette":0.0,"noise":0.0,"flicker":0.0,"curvature":0.0,"rain":true}},{"id":"aurora","name":"Aurora","author":"Little Shell","dark":true,"font":null,"ui":{"background":"#0b1220","surface":"#111a2c","foreground":"#e6edf7","accent":"#5eead4","border":"#23314d","muted":"#8fa3c4","danger":"#f87171"},"term":{"background":"#091019","foreground":"#dbe5f3","cursor":"#5eead4","selection_background":"#22385a","selection_foreground":"#ffffff"},"ansi":["#172238","#f87171","#5eead4","#fcd34d","#60a5fa","#a78bfa","#67e8f9","#cbd5e1","#546b90","#fca5a5","#99f6e4","#fde68a","#93c5fd","#c4b5fd","#a5f3fc","#f8fafc"],"fx":{"matrix":"#5eead4","scanlines":0.0,"glow":0.08,"vignette":0.2,"noise":0.0,"flicker":0.0,"curvature":0.0,"rain":false}},{"id":"cyberpunk-purple","name":"Cyberpunk Purple","author":"Little Shell","dark":true,"font":null,"ui":{"background":"#090612","surface":"#140d21","foreground":"#f6eaff","accent":"#df5cff","border":"#63347c","muted":"#9a72ab","danger":"#ff5370"},"term":{"background":"#06030d","foreground":"#e7b8ff","cursor":"#4dfff3","selection_background":"#63347c","selection_foreground":"#ffffff"},"ansi":["#100a19","#ff5370","#5dffa7","#ffe66d","#55b9ff","#df5cff","#4dfff3","#e9dcf0","#755c84","#ff7890","#87ffc1","#fff09a","#82ccff","#ec8dff","#81fff7","#ffffff"],"fx":{"matrix":"#df5cff","scanlines":0.1,"glow":0.0,"vignette":0.0,"noise":0.0,"flicker":0.0,"curvature":0.0,"rain":true}},{"id":"phosphor-dos","name":"DOS VGA","author":"Little Shell (inspirado no Cool Retro Term)","dark":true,"font":"Terminus","ui":{"background":"#070707","surface":"#0e0e0e","foreground":"#e1e1e1","accent":"#c8c8c8","border":"#4c4c4c","muted":"#7c7c7c","danger":"#f16c6c"},"term":{"background":"#000000","foreground":"#c8c8c8","cursor":"#dbdbdb","selection_background":"#b0b0b0","selection_foreground":"#000000"},"ansi":["#000000","#ec0000","#00aa00","#b75b00","#5c69e0","#c039c0","#00aaaa","#aaaaaa","#646464","#ff5555","#55ff55","#ffff55","#5f5fff","#ff55ff","#55ffff","#ffffff"],"fx":{"matrix":"#c8c8c8","scanlines":0.1,"glow":0.25,"vignette":0.45,"noise":0.06,"flicker":0.05,"curvature":0.35,"rain":false}},{"id":"phosphor-futuristic","name":"Fósforo Futurista","author":"Little Shell (inspirado no Cool Retro Term)","dark":true,"font":null,"ui":{"background":"#040607","surface":"#080b0e","foreground":"#b1cae5","accent":"#729fcf","border":"#2b3c4f","muted":"#597ca1","danger":"#dc626e"},"term":{"background":"#02050a","foreground":"#729fcf","cursor":"#a3c1e0","selection_background":"#648cb6","selection_foreground":"#02050a"},"ansi":["#141e2a","#57799e","#577a9e","#6289b2","#57799e","#57799e","#5b7fa6","#678fba","#49698b","#6086ae","#6992be","#729fcf","#597ca1","#648cb6","#95b7db","#c0d4e9"],"fx":{"matrix":"#729fcf","scanlines":0.0,"glow":0.7,"vignette":0.35,"noise":0.04,"flicker":0.03,"curvature":0.2,"rain":false}},{"id":"phosphor-green","name":"Fósforo Verde","author":"Little Shell (inspirado no Cool Retro Term)","dark":true,"font":"Terminus","ui":{"background":"#000704","surface":"#010e07","foreground":"#79e3ac","accent":"#0ccc68","border":"#054e28","muted":"#088c47","danger":"#c26d54"},"term":{"background":"#000a05","foreground":"#0ccc68","cursor":"#61de9d","selection_background":"#0bb45c","selection_foreground":"#000a05"},"ansi":["#022915","#088c47","#09974d","#0aaf59","#088c47","#088f49","#0aa353","#0bb85e","#07773d","#0aab57","#0bbc60","#0ccc68","#099f51","#0bb45c","#49d98e","#92e8bb"],"fx":{"matrix":"#0ccc68","scanlines":0.06,"glow":0.5,"vignette":0.55,"noise":0.12,"flicker":0.1,"curvature":0.45,"rain":false}},{"id":"phosphor-scanlines","name":"Fósforo Verde Scanlines","author":"Little Shell (inspirado no Cool Retro Term)","dark":true,"font":"Terminus","ui":{"background":"#040903","surface":"#091206","foreground":"#b7ff9e","accent":"#7cff4f","border":"#2f611e","muted":"#48942e","danger":"#de7a4e"},"term":{"background":"#030a01","foreground":"#7cff4f","cursor":"#aaff8d","selection_background":"#6de046","selection_foreground":"#030a01"},"ansi":["#16310d","#52a834","#5cbd3a","#6bdb44","#48942e","#57b237","#63cc3f","#70e647","#377422","#68d642","#72eb49","#7cff4f","#61c73e","#6de046","#9dff7b","#c4ffb0"],"fx":{"matrix":"#7cff4f","scanlines":0.32,"glow":0.6,"vignette":0.5,"noise":0.1,"flicker":0.08,"curvature":0.4,"rain":false}},{"id":"phosphor-vintage","name":"Fósforo Vintage","author":"Little Shell (inspirado no Cool Retro Term)","dark":true,"font":"Terminus","ui":{"background":"#000902","surface":"#001204","foreground":"#73ff95","accent":"#00ff3e","border":"#006118","muted":"#009424","danger":"#bf7a49"},"term":{"background":"#000a02","foreground":"#00ff3e","cursor":"#59ff82","selection_background":"#00e037","selection_foreground":"#000a02"},"ansi":["#00310c","#00a829","#00bd2e","#00db35","#009424","#00b22b","#00cc32","#00e638","#00791d","#00d634","#00eb39","#00ff3e","#00c730","#00e037","#40ff6e","#8cffa8"],"fx":{"matrix":"#00ff3e","scanlines":0.28,"glow":0.5,"vignette":0.75,"noise":0.4,"flicker":0.45,"curvature":0.7,"rain":false}},{"id":"phosphor-amber","name":"Fósforo Âmbar","author":"Little Shell (inspirado no Cool Retro Term)","dark":true,"font":"Terminus","ui":{"background":"#090500","surface":"#120900","foreground":"#ffba73","accent":"#ff8100","border":"#613100","muted":"#bd6000","danger":"#ff5a3a"},"term":{"background":"#0a0500","foreground":"#ff8100","cursor":"#ffad59","selection_background":"#e07200","selection_foreground":"#0a0500"},"ansi":["#311900","#ba5e00","#bd5f00","#db6f00","#ba5e00","#ba5e00","#cc6700","#e67400","#9f5100","#d66c00","#eb7700","#ff8100","#c76500","#e07200","#ffa040","#ffc68c"],"fx":{"matrix":"#ff8100","scanlines":0.06,"glow":0.55,"vignette":0.55,"noise":0.12,"flicker":0.1,"curvature":0.45,"rain":false}},{"id":"graphite","name":"Grafite","author":"Little Shell","dark":true,"font":null,"ui":{"background":"#141517","surface":"#1b1c1f","foreground":"#e6e6e6","accent":"#8ab4f8","border":"#2e3034","muted":"#9a9da3","danger":"#f28b82"},"term":{"background":"#111214","foreground":"#dcdcdc","cursor":"#e6e6e6","selection_background":"#3a3d42","selection_foreground":"#ffffff"},"ansi":["#1e1f22","#f28b82","#a8dab5","#fdd663","#8ab4f8","#d7aefb","#78d9ec","#c8c8c8","#686c71","#f6aea9","#c6e9ce","#fee49b","#aecbfa","#e7c8fd","#a5e7f3","#f5f5f5"],"fx":{"matrix":"#8ab4f8","scanlines":0.0,"glow":0.0,"vignette":0.0,"noise":0.0,"flicker":0.0,"curvature":0.0,"rain":false}},{"id":"ice-blue","name":"Ice Blue","author":"Little Shell","dark":true,"font":null,"ui":{"background":"#061018","surface":"#0b1a26","foreground":"#e7f7ff","accent":"#54d7ff","border":"#22506a","muted":"#6995aa","danger":"#ff6b83"},"term":{"background":"#030b11","foreground":"#a9e9ff","cursor":"#ffffff","selection_background":"#1d607d","selection_foreground":"#ffffff"},"ansi":["#07131b","#ff6b83","#69e0b1","#d9df78","#59b8ff","#bb8cff","#54d7ff","#d7ecf5","#496c7e","#ff8da0","#8df0c8","#edf09b","#83ccff","#d0aaff","#85e6ff","#ffffff"],"fx":{"matrix":"#54d7ff","scanlines":0.08,"glow":0.0,"vignette":0.0,"noise":0.0,"flicker":0.0,"curvature":0.0,"rain":true}},{"id":"phosphor-mainframe","name":"Mainframe 3270","author":"Little Shell (inspirado no Cool Retro Term)","dark":true,"font":"IBM 3270","ui":{"background":"#020904","surface":"#041209","foreground":"#94ffb6","accent":"#3cff7a","border":"#17612e","muted":"#239447","danger":"#ce7a58"},"term":{"background":"#010a04","foreground":"#3cff7a","cursor":"#80ffa9","selection_background":"#35e06b","selection_foreground":"#010a04"},"ansi":["#0a3117","#28a851","#2cbd5a","#34db69","#239447","#2ab255","#30cc62","#36e66e","#1b7638","#32d666","#37eb70","#3cff7a","#2fc75f","#35e06b","#6dff9b","#a7ffc3"],"fx":{"matrix":"#3cff7a","scanlines":0.04,"glow":0.35,"vignette":0.4,"noise":0.06,"flicker":0.04,"curvature":0.25,"rain":false}},{"id":"matrix-green","name":"Matrix Green","author":"Little Shell","dark":true,"font":null,"ui":{"background":"#02090b","surface":"#080f14","foreground":"#eafff8","accent":"#29ff9a","border":"#145c48","muted":"#4d8572","danger":"#ff7383"},"term":{"background":"#00090b","foreground":"#72ffcb","cursor":"#e8fff7","selection_background":"#12664a","selection_foreground":"#ffffff"},"ansi":["#07100f","#ff5b6e","#2de391","#e4d769","#44a8ff","#d779ff","#39d9d0","#c8e6dc","#427064","#ff7383","#50ffad","#fff083","#72c0ff","#e69aff","#68fff4","#f0fff9"],"fx":{"matrix":"#14ff8a","scanlines":0.12,"glow":0.0,"vignette":0.0,"noise":0.0,"flicker":0.0,"curvature":0.0,"rain":true}},{"id":"phosphor-1977","name":"Micro 1977","author":"Little Shell (inspirado no Cool Retro Term)","dark":true,"font":"VT323","ui":{"background":"#020905","surface":"#03120a","foreground":"#8dffc2","accent":"#2fff91","border":"#126137","muted":"#1b9454","danger":"#cb7a5e"},"term":{"background":"#000a05","foreground":"#2fff91","cursor":"#78ffb8","selection_background":"#29e080","selection_foreground":"#000a05"},"ansi":["#08311b","#1fa860","#23bd6b","#28db7d","#1b9454","#21b266","#26cc74","#2ae682","#157743","#27d67a","#2beb85","#2fff91","#25c771","#29e080","#63ffac","#a1ffce"],"fx":{"matrix":"#2fff91","scanlines":0.3,"glow":0.5,"vignette":0.6,"noise":0.14,"flicker":0.12,"curvature":0.55,"rain":false}},{"id":"minimal-dark","name":"Minimal Dark","author":"Little Shell","dark":true,"font":null,"ui":{"background":"#111315","surface":"#181b1e","foreground":"#e4e7e9","accent":"#a8b0b5","border":"#343a3e","muted":"#7d858a","danger":"#e06c75"},"term":{"background":"#0d0f10","foreground":"#d5d8da","cursor":"#ffffff","selection_background":"#454b50","selection_foreground":"#ffffff"},"ansi":["#161819","#d26a73","#8eae7b","#c6aa65","#719ac2","#a68bb8","#72aaaa","#c9ccce","#656b6e","#e28189","#a5c391","#dcc17d","#89b2d8","#bca2cc","#89c1c1","#f2f3f4"],"fx":{"matrix":"#a8b0b5","scanlines":0.05,"glow":0.0,"vignette":0.0,"noise":0.0,"flicker":0.0,"curvature":0.0,"rain":true}},{"id":"neon-noir","name":"Neon Noir","author":"Little Shell","dark":true,"font":null,"ui":{"background":"#0a0912","surface":"#12101d","foreground":"#f2ecff","accent":"#ff3ea5","border":"#2c2342","muted":"#9a8fbc","danger":"#ff5e5e"},"term":{"background":"#08070f","foreground":"#e9e3ff","cursor":"#2de2e6","selection_background":"#3a1d4d","selection_foreground":"#ffffff"},"ansi":["#15121f","#ff4f8b","#2bf5a4","#ffd84d","#4d9dff","#ff3ea5","#2de2e6","#d8d0f0","#6b608d","#ff7eaa","#6bffc4","#ffe47f","#82bbff","#ff7cc6","#7cf0f2","#ffffff"],"fx":{"matrix":"#ff3ea5","scanlines":0.03,"glow":0.25,"vignette":0.35,"noise":0.0,"flicker":0.0,"curvature":0.0,"rain":false}},{"id":"mist-light","name":"Névoa (claro)","author":"Little Shell","dark":false,"font":null,"ui":{"background":"#eef1f5","surface":"#e3e8ef","foreground":"#1c2430","accent":"#2563eb","border":"#c3ccd8","muted":"#566273","danger":"#c81e1e"},"term":{"background":"#f5f7fa","foreground":"#1f2733","cursor":"#2563eb","selection_background":"#cddcfa","selection_foreground":"#0f1620"},"ansi":["#1f2733","#c81e1e","#1d7a3a","#946300","#2563eb","#8b3fc9","#0e7490","#5b6575","#47515f","#dc2424","#15803d","#a16207","#1d4ed8","#7e22ce","#0f766e","#64707f"],"fx":{"matrix":"#2563eb","scanlines":0.0,"glow":0.0,"vignette":0.0,"noise":0.0,"flicker":0.0,"curvature":0.0,"rain":false}},{"id":"paper-light","name":"Papel (claro)","author":"Little Shell","dark":false,"font":null,"ui":{"background":"#f6f4ef","surface":"#ebe8e1","foreground":"#22262a","accent":"#0b5cad","border":"#c9c4b8","muted":"#5c6166","danger":"#b42318"},"term":{"background":"#fbfaf7","foreground":"#1f2328","cursor":"#0b5cad","selection_background":"#cfe3fa","selection_foreground":"#111417"},"ansi":["#1f2328","#b42318","#2e6b1f","#8a5a00","#0b5cad","#8a3fa0","#0f6e75","#5f6670","#4b5259","#d1242f","#1a7f37","#9a6700","#0969da","#8250df","#1b7c83","#636a73"],"fx":{"matrix":"#0b5cad","scanlines":0.0,"glow":0.0,"vignette":0.0,"noise":0.0,"flicker":0.0,"curvature":0.0,"rain":false}},{"id":"synthwave-sunset","name":"Pôr do Sol Synth","author":"Little Shell","dark":true,"font":null,"ui":{"background":"#170f26","surface":"#1f1533","foreground":"#fbe9ff","accent":"#ff8a5c","border":"#3d2a5c","muted":"#b39dd1","danger":"#ff4d6d"},"term":{"background":"#140c22","foreground":"#f6e3ff","cursor":"#ff8a5c","selection_background":"#4a2a63","selection_foreground":"#ffffff"},"ansi":["#23173a","#ff5c8a","#72f1b8","#fede5d","#36f9f6","#ff7edb","#67e8f9","#e8d8f5","#736195","#ff86a8","#9cf5cd","#fff08a","#7dfbf9","#ffa8e8","#9aeffc","#ffffff"],"fx":{"matrix":"#ff7edb","scanlines":0.02,"glow":0.18,"vignette":0.3,"noise":0.0,"flicker":0.0,"curvature":0.0,"rain":false}},{"id":"mac-glass","name":"Vidro (macOS)","author":"Little Shell","dark":false,"font":null,"ui":{"background":"#f4f4f7","surface":"#eaeaef","foreground":"#1d1d1f","accent":"#007aff","border":"#d7d7dd","muted":"#86868b","danger":"#ff3b30"},"term":{"background":"#fbfbfd","foreground":"#1d1d1f","cursor":"#007aff","selection_background":"#b3d7ff","selection_foreground":"#0b0b0c"},"ansi":["#2b2b2e","#ff3b30","#28cd41","#ff9f0a","#007aff","#bf5af2","#5ac8fa","#8e8e93","#48484a","#ff6961","#30d158","#ffd60a","#409cff","#da8fff","#70d7ff","#c7c7cc"],"fx":{"matrix":"#007aff","scanlines":0.0,"glow":0.0,"vignette":0.0,"noise":0.0,"flicker":0.0,"curvature":0.0,"rain":false}},{"id":"zero-day","name":"Zero Day","author":"Little Shell","dark":true,"font":null,"ui":{"background":"#060a08","surface":"#0b120e","foreground":"#d6ffe6","accent":"#39ff88","border":"#17331f","muted":"#6fa585","danger":"#ff4f6d"},"term":{"background":"#040806","foreground":"#c8f7d9","cursor":"#39ff88","selection_background":"#1d4d33","selection_foreground":"#eafff1"},"ansi":["#0d1a12","#ff5c7a","#39ff88","#e8ff59","#4dd2ff","#c77dff","#2ef2d0","#b8d9c4","#427056","#ff8aa0","#7dffb2","#f3ff8c","#8ae3ff","#dcaaff","#7af8e3","#ecfff4"],"fx":{"matrix":"#39ff88","scanlines":0.03,"glow":0.12,"vignette":0.25,"noise":0.0,"flicker":0.0,"curvature":0.0,"rain":true}}],"profiles":[{"id":"developer","name":"Desenvolvimento","description":"Visual sóbrio e sem distrações.","theme":"minimal-dark","font_size":11,"effects":false,"sound":false,"panel":false},{"id":"focus","name":"Foco","description":"Terminal limpo em azul, sem painel lateral.","theme":"ice-blue","font_size":12,"effects":false,"sound":false,"panel":false},{"id":"retro","name":"Retro Hacker","description":"Identidade visual completa, com chuva digital e efeitos.","theme":"matrix-green","font_size":11,"effects":true,"sound":false,"panel":true},{"id":"crt","name":"Retrô CRT","description":"Monitor de fósforo âmbar com brilho, curvatura e ruído, inspirado no Cool Retro Term.","theme":"phosphor-amber","font_size":12,"effects":true,"sound":false,"panel":false}],"actions":[{"id":"identity","label":"Identidade","command":"printf '\\nUSER: '; whoami; printf 'HOST: '; hostname; printf 'KERNEL: '; uname -r","fields":[],"in_terminal":false},{"id":"network","label":"Interfaces de rede","command":"command -v ip >/dev/null && ip -brief address || echo 'Comando ip nao encontrado'","fields":[],"in_terminal":false},{"id":"ports","label":"Portas locais","command":"command -v ss >/dev/null && ss -tulpen || echo 'Comando ss nao encontrado'","fields":[],"in_terminal":false},{"id":"routes","label":"Rotas","command":"command -v ip >/dev/null && ip route || echo 'Comando ip nao encontrado'","fields":[],"in_terminal":false},{"id":"processes","label":"Processos ativos","command":"ps aux --sort=-%cpu | head -15","fields":[],"in_terminal":false},{"id":"ping","label":"Pingar host","command":"ping -c {vezes=4} {host}","fields":[{"name":"vezes","default":"4"},{"name":"host","default":null}],"in_terminal":false},{"id":"services","label":"Serviços de um alvo","command":"nmap -sV {alvo}","fields":[{"name":"alvo","default":null}],"in_terminal":false},{"id":"ssh","label":"Conexões SSH","command":"printf 'SSH config:\\n'; ls -la ~/.ssh 2>/dev/null || echo 'Nenhuma configuracao SSH'","fields":[],"in_terminal":false},{"id":"health","label":"Saúde do sistema","command":"printf 'DISCO\\n'; df -h /; printf '\\nMEMORIA\\n'; free -h; printf '\\nUPTIME\\n'; uptime","fields":[],"in_terminal":false},{"id":"clear","label":"Limpar terminal","command":"clear","fields":[],"in_terminal":true}],"soundpacks":[{"id":"holy-pandas","name":"Holy Pandas","base":"audio/keys/holy-pandas/","press":["GENERIC_R0.mp3","GENERIC_R1.mp3","GENERIC_R2.mp3","GENERIC_R3.mp3","GENERIC_R4.mp3"],"release":"release/GENERIC.mp3","keys":{"Backspace":{"press":"BACKSPACE.mp3","release":"release/BACKSPACE.mp3"},"Enter":{"press":"ENTER.mp3","release":"release/ENTER.mp3"},"Space":{"press":"SPACE.mp3","release":"release/SPACE.mp3"}}},{"id":"mxblue-travel","name":"MX Blue - Full Travel","base":"audio/keys/mxblue-travel/","press":["press/GENERIC_R0.mp3","press/GENERIC_R1.mp3","press/GENERIC_R2.mp3","press/GENERIC_R3.mp3","press/GENERIC_R4.mp3"],"release":"release/GENERIC.mp3","keys":{}},{"id":"turquoise","name":"Turquoise (Full Travel)","base":"audio/keys/turquoise/","press":["press/GENERIC_R0.mp3","press/GENERIC_R1.mp3","press/GENERIC_R2.mp3","press/GENERIC_R3.mp3","press/GENERIC_R4.mp3"],"release":"release/GENERIC.mp3","keys":{"Backspace":{"press":"press/BACKSPACE.mp3","release":"release/BACKSPACE.mp3"},"Enter":{"press":"press/ENTER.mp3","release":"release/ENTER.mp3"},"Space":{"press":"press/SPACE.mp3","release":"release/SPACE.mp3"}}},{"id":"cream-travel","name":"Full Creamy Goodness","base":"audio/keys/cream-travel/","press":["press/GENERIC_R0.mp3","press/GENERIC_R1.mp3","press/GENERIC_R2.mp3","press/GENERIC_R3.mp3","press/GENERIC_R4.mp3"],"release":"release/GENERIC.mp3","keys":{"Backspace":{"press":"press/BACKSPACE.mp3","release":"release/BACKSPACE.mp3"},"Enter":{"press":"press/ENTER.mp3","release":"release/ENTER.mp3"},"Space":{"press":"press/SPACE.mp3","release":"release/SPACE.mp3"}}}]}</script>
-<script src="demo.js?v=0f12ae39" defer></script>
+<script src="demo.js?v=404cdd02" defer></script>
 </body>
 </html>

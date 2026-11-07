@@ -1479,7 +1479,7 @@
     }
 
     promptParts() {
-      const parts = [["➜ ", "c2 b"], [shortPath(this.cwd), "c6 b"]];
+      const parts = [["› ", "c2 b"], [shortPath(this.cwd), "c6 b"]];
       if (inRepo(this.cwd)) parts.push([" (", "c4 b"], ["main", "c1 b"], [")", "c4 b"]);
       parts.push([" $ ", ""]);
       return parts;
@@ -1923,7 +1923,7 @@
       this.title.textContent = pane ? `${USER}@${HOST}: ${shortPath(pane.cwd)}` : `Visualizador: ${tab.name}`;
       this.statusLeft.textContent = pane ? shortPath(pane.cwd) : tab.name;
       const right = [];
-      if (pane && pane.failedCode) right.push(el("span", { class: "warn", text: `✗ saída ${pane.failedCode}` }));
+      if (pane && pane.failedCode) right.push(el("span", { class: "warn", text: `x saída ${pane.failedCode}` }));
       if (tab.broadcast) right.push(el("span", { class: "warn", text: `⇉ TRANSMITINDO PARA ${tab.panes.length}` }));
       right.push(el("span", { text: `${this.tabs.length} ${this.tabs.length === 1 ? "aba" : "abas"}` }));
       if (pane && inRepo(pane.cwd)) right.push(el("span", { text: "git main" }));
@@ -2419,7 +2419,7 @@
         list.replaceChildren(...shown.map((entry, index) => el("li", {
           role: "option", "aria-selected": String(index === selected), onclick: () => { selected = index; render(); }, ondblclick: use,
         }, el("span", { style: "display:flex;gap:10px;min-width:0;align-items:center" },
-          el("span", { class: entry.code ? "bad" : "good", text: entry.code ? `✗ ${entry.code}` : "✓" }),
+          el("span", { class: entry.code ? "bad" : "good", text: entry.code ? `x ${entry.code}` : "✓" }),
           el("code", { text: entry.command, style: "overflow:hidden;text-overflow:ellipsis;white-space:nowrap" })),
         el("span", { class: "meta", text: `${ago(entry.when)} · ${entry.duration < 1000 ? Math.round(entry.duration) + " ms" : (entry.duration / 1000).toFixed(1).replace(".", ",") + " s"} · ${entry.cwd}` }))));
         if (!shown.length) list.append(el("li", { style: "cursor:default;color:var(--ui-muted)" }, this.commandLog.length ? "Nenhum comando combina com a busca" : "Rode alguns comandos: eles aparecem aqui, de todas as abas"));
@@ -2509,7 +2509,7 @@
         const seconds = ((performance.now() - startedAt) / 1000).toFixed(1).replace(".", ",");
         stop.disabled = true;
         if (session.aborted) { status.textContent = `■ interrompido · ${seconds} s`; status.className = "state fail"; return; }
-        status.textContent = code === 0 ? `✓ concluído · código 0 · ${seconds} s` : `✗ falhou · código ${code} · ${seconds} s`;
+        status.textContent = code === 0 ? `✓ concluído · código 0 · ${seconds} s` : `x falhou · código ${code} · ${seconds} s`;
         status.className = `state ${code === 0 ? "ok" : "fail"}`;
         this.recordHistory({ command, code, duration: performance.now() - startedAt, cwd: shortPath(session.cwd), when: new Date(), place: "ação rápida" });
       });
