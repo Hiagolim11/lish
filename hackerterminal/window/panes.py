@@ -264,6 +264,8 @@ class PanesMixin:
         active = [pane for pane in panes if pane.has_active_process()]
         if not force and active and not self.confirm_close("Há processos ativos nesta aba."):
             return False
+        if panes:  # remember where it was, so the tab can be reopened there
+            self.reopen_directory = (self.active_panes.get(frame) or panes[0]).current_working_directory()
         removed_labels = set()
         for pane in panes:
             pane.prepare_close()

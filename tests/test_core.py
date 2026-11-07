@@ -313,6 +313,17 @@ class ThemeTests(unittest.TestCase):
                 self.assertEqual(len(theme.ansi), 16)
                 self.assertTrue(theme.css())
 
+    def test_effective_opacity_prefers_theme_glass_then_preference(self) -> None:
+        from hackerterminal.themes import effective_opacity
+        with tempfile.TemporaryDirectory() as directory:
+            manager = ThemeManager(Path(directory))
+            glass, plain = manager.get("mac-glass"), manager.get("minimal-dark")
+            self.assertEqual(glass.glass, 0.85)
+            self.assertEqual(effective_opacity(glass, 100), 0.85)  # untouched slider → theme's glass
+            self.assertEqual(effective_opacity(glass, 70), 0.70)   # user override wins
+            self.assertIsNone(plain.glass)
+            self.assertEqual(effective_opacity(plain, 100), 1.0)
+
     def test_import_export_and_user_override(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

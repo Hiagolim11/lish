@@ -22,6 +22,7 @@ class ShortcutAction:
 
 SHORTCUT_ACTIONS = (
     ShortcutAction("new_tab", "Nova aba", "<Primary><Shift>t"),
+    ShortcutAction("reopen_tab", "Reabrir a última aba fechada", "<Primary><Shift>n"),
     ShortcutAction("close_pane", "Fechar painel ou aba", "<Primary><Shift>w"),
     ShortcutAction("split_horizontal", "Dividir horizontalmente", "<Primary><Shift>d"),
     ShortcutAction("split_vertical", "Dividir verticalmente", "<Primary><Shift>e"),

@@ -27,7 +27,7 @@ from .runtime import Atk, Gdk, Gio, GLib, Gtk, Pango, Vte
 from .background import BackgroundPainter, load as load_background
 from .session import clean_name
 from .sandbox import IN_FLATPAK, export_to_host, host_command, host_shell
-from .themes import Theme
+from .themes import Theme, effective_opacity
 
 LOGGER = logging.getLogger(__name__)
 PCRE2_MULTILINE = 0x00000400
@@ -485,7 +485,7 @@ class TerminalPane(Gtk.Box):
         )
         self.terminal.set_colors(
             rgba(theme.terminal_foreground),
-            rgba(theme.terminal_background, preferences.opacity / 100),
+            rgba(theme.terminal_background, effective_opacity(theme, preferences.opacity)),
             [rgba(color) for color in theme.ansi],
         )
         self.apply_background(theme)
@@ -506,7 +506,7 @@ class TerminalPane(Gtk.Box):
         self.background.set_image(pixbuf)
         red, green, blue = (int(theme.terminal_background[index:index + 2], 16) / 255 for index in (1, 3, 5))
         self.background_settings = (
-            (red, green, blue, preferences.opacity / 100),
+            (red, green, blue, effective_opacity(theme, preferences.opacity)),
             preferences.background_opacity / 100,
             preferences.background_fit,
         )

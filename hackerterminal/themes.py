@@ -57,6 +57,7 @@ class Theme:
     curvature: float = 0.0   # rounded tube corners and inner bezel shadow
     rain: bool = True        # digital rain
     font: str | None = None  # suggested font family
+    glass: float | None = None  # window/terminal translucency this theme asks for (0–1)
 
     @property
     def dark(self) -> bool:
@@ -517,6 +518,7 @@ def load_theme(path: Path, builtin: bool = False) -> Theme:
     if rain_text not in ("true", "false", "1", "0", "yes", "no", "on", "off"):
         raise ThemeError("effects.rain deve ser true ou false")
     font = " ".join(metadata.get("font", "").split()) or None
+    glass = _fraction(effects, "opacity") if effects.get("opacity", "").strip() else None
 
     return Theme(
         identifier, name, author,
@@ -527,8 +529,18 @@ def load_theme(path: Path, builtin: bool = False) -> Theme:
         _color(terminal, "foreground"), _color(terminal, "cursor"),
         _color(terminal, "selection_background"), _color(terminal, "selection_foreground"),
         _color(effects, "matrix_color"), opacity, ansi, path, builtin,
-        rain=rain_text in ("true", "1", "yes", "on"), font=font, **crt,
+        rain=rain_text in ("true", "1", "yes", "on"), font=font, glass=glass, **crt,
     )
+
+
+def effective_opacity(theme: Theme, preference_percent: int) -> float:
+    """The opacity to draw with: the user's setting, or a glass theme's own
+    value while that setting is left fully opaque."""
+    # shortcut: a glass theme can't be forced opaque except via the slider;
+    # add a per-theme opt-out if anyone asks.
+    if preference_percent >= 100 and theme.glass is not None:
+        return theme.glass
+    return preference_percent / 100
 
 
 CRT_EFFECTS = ("glow", "vignette", "noise", "flicker", "curvature")

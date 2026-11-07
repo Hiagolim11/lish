@@ -25,7 +25,7 @@ from ..runtime import GLib, Gdk, Gtk, Pango
 from ..session import SessionState, SessionStore, SessionTab
 from ..shortcuts import ShortcutMap, accelerator_label
 from ..terminal import TerminalPane
-from ..themes import ThemeManager
+from ..themes import ThemeManager, effective_opacity
 from .commands import CommandsMixin
 from .monitor import MonitorMixin
 from .dropdown import DropdownMixin
@@ -233,6 +233,12 @@ class HackerTerminal(ViewerMixin, CommandsMixin, OutputMixin, DropdownMixin, Ssh
             if frame is not None and frame is not keep:
                 self.close_page(frame)
 
+    def reopen_closed_tab(self) -> None:
+        directory = getattr(self, "reopen_directory", None)
+        if directory is not None:
+            self.reopen_directory = None  # one level: only the most recently closed
+            self.new_tab(working_directory=directory)
+
     def make_header_button(self, icon_name: str, fallback: str, tooltip: str, action: str) -> Gtk.Button:
         button = header_button(icon_name, fallback, tooltip)
         button.connect("clicked", lambda _button, name=action: self.run_shortcut_action(name))
@@ -270,6 +276,7 @@ class HackerTerminal(ViewerMixin, CommandsMixin, OutputMixin, DropdownMixin, Ssh
 
         return {
             "new_tab": self.new_tab,
+            "reopen_tab": self.reopen_closed_tab,
             "close_pane": self.close_active_pane,
             "split_horizontal": lambda: self.split_active(Gtk.Orientation.HORIZONTAL),
             "split_vertical": lambda: self.split_active(Gtk.Orientation.VERTICAL),
@@ -360,7 +367,7 @@ class HackerTerminal(ViewerMixin, CommandsMixin, OutputMixin, DropdownMixin, Ssh
     def load_theme_css(self) -> None:
         # Both are costly (GTK restyles every widget), so only when they change:
         # the startup code has usually loaded the same CSS already.
-        opacity = self.preferences.opacity / 100 if self.translucent else 1.0
+        opacity = effective_opacity(self.active_theme, self.preferences.opacity) if self.translucent else 1.0
         css = self.active_theme.css(opacity)
         if getattr(self.css_provider, "loaded_css", None) != css:
             self.css_provider.load_from_data(css)
@@ -701,6 +708,7 @@ class HackerTerminal(ViewerMixin, CommandsMixin, OutputMixin, DropdownMixin, Ssh
             ("Fechar painel ativo", "Terminal", self.close_active_pane),
             ("Pesquisar no terminal", "Terminal", self.search_active),
             ("Fechar as outras abas", "Terminal", self.close_other_tabs),
+            ("Reabrir a última aba fechada", "Terminal", self.reopen_closed_tab),
             ("Mostrar ou ocultar ações", "Interface", self.toggle_panel),
             ("Mostrar ou ocultar a barra de título", "Interface", self.toggle_header),
             ("Ditar: fala para texto no terminal", "Interface", self.dictate),
