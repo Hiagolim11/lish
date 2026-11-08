@@ -95,6 +95,14 @@ kbd { font-family: var(--mono); font-size: 0.8em; background: var(--tile-2); col
 .hero-meta { margin-top: 22px; font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .hero-meta b { color: var(--ink); font-weight: 600; }
 
+/* hero 3D: a flat-shaded isometric terminal, floating — SVG, no WebGL */
+.hero-3d { position: absolute; top: 54%; right: clamp(8px, 4vw, 72px); width: clamp(300px, 30vw, 440px);
+  transform: translateY(-50%); z-index: 0; pointer-events: none; }
+.hero-3d .term-iso { width: 100%; height: auto; display: block; animation: iso-float 6s ease-in-out infinite; }
+@keyframes iso-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+@media (prefers-reduced-motion: reduce) { .hero-3d .term-iso { animation: none; } }
+@media (max-width: 1000px) { .hero-3d { display: none; } }
+
 /* the terminal stage: the running product, big, on a darker field */
 .stage { margin-top: clamp(40px, 6vw, 72px); position: relative; }
 .ht-demo { --term-h: clamp(420px, 64vh, 620px); position: relative; min-height: calc(var(--term-h) + 70px);
@@ -314,6 +322,21 @@ footer { padding-top: clamp(96px, 13vw, 168px); padding-bottom: 48px; }
         <a class="btn secondary" href="https://github.com/Hiagolim11/lish">Ver o código</a>
       </div>
       <p class="hero-meta reveal">Licença <b>MIT</b> &nbsp;·&nbsp; <b>GTK 3</b> + VTE &nbsp;·&nbsp; em português &nbsp;·&nbsp; <b>~2,5 MB</b></p>
+    </div>
+    <div class="hero-3d" aria-hidden="true">
+      <svg class="term-iso" viewBox="0 0 440 400" role="img" aria-label="Ilustração 3D do terminal Little Shell">
+        <ellipse cx="226" cy="356" rx="150" ry="22" fill="#000000" opacity="0.30"/>
+        <polygon points="92,96 372,96 402,66 122,66" fill="#34363c"/>
+        <polygon points="372,96 372,286 402,256 402,66" fill="#1a1b1f"/>
+        <rect x="92" y="96" width="280" height="190" rx="14" fill="#2b2d31"/>
+        <circle cx="114" cy="120" r="6" fill="#ff5f57"/>
+        <circle cx="136" cy="120" r="6" fill="#febc2e"/>
+        <circle cx="158" cy="120" r="6" fill="#28c840"/>
+        <rect x="108" y="140" width="248" height="130" rx="9" fill="#141518"/>
+        <text x="124" y="170" font-family="'JetBrains Mono', monospace" font-size="15" fill="#d7dce2">$ lish</text>
+        <text x="124" y="198" font-family="'JetBrains Mono', monospace" font-size="15" fill="#8a93a0">23 temas · ~2,5 MB</text>
+        <text x="124" y="226" font-family="'JetBrains Mono', monospace" font-size="15" fill="#0a84ff">›<tspan fill="#d7dce2"> _</tspan></text>
+      </svg>
     </div>
   </section>
 
