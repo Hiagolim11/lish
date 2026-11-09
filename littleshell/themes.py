@@ -107,7 +107,7 @@ tooltip label {{ color: {self.foreground}; }}
 
 headerbar {{
   background-image: none; background-color: {terminal_background}; color: {self.foreground};
-  border-bottom: 1px solid {hairline}; box-shadow: none; min-height: 42px; padding: 0 10px;
+  border-bottom: 1px solid {hairline}; box-shadow: 0 6px 20px -14px rgba(0,0,0,0.6); min-height: 42px; padding: 0 10px;
 }}
 headerbar .title {{ font-weight: 600; font-size: 13px; color: {self.foreground}; }}
 headerbar .subtitle {{ color: {self.muted}; font-family: monospace; font-size: 10px; opacity: 1; }}
@@ -127,6 +127,7 @@ headerbar button.titlebutton:hover {{ color: {self.foreground}; background-color
 .workspace {{ padding: 0; }}
 .statusbar-row {{
   background-color: {terminal_background}; border-top: 1px solid {hairline}; padding: 6px 16px;
+  box-shadow: 0 -6px 20px -14px rgba(0,0,0,0.55);
 }}
 .status, .status-context {{ color: {self.muted}; font-size: 11px; }}
 
@@ -148,7 +149,7 @@ headerbar button.titlebutton:hover {{ color: {self.foreground}; background-color
 vte-terminal {{ background-color: transparent; color: {self.terminal_foreground}; padding: {self.tube_padding}px; }}
 
 notebook {{ background-color: transparent; }}
-notebook > header {{ background-color: {terminal_background}; border: 0; border-bottom: 1px solid {hairline}; box-shadow: none; padding: 0 8px; }}
+notebook > header {{ background-color: {terminal_background}; border: 0; border-bottom: 1px solid {hairline}; box-shadow: 0 6px 18px -14px rgba(0,0,0,0.5); padding: 0 8px; }}
 notebook > header > tabs {{ margin: 0; }}
 notebook > header tab, notebook > header tab:checked, notebook > header tab:hover {{
   background-image: none; background-color: transparent; outline: 0;
@@ -229,7 +230,7 @@ scrollbar slider:active {{ background-color: {self.accent}; }}
 }}
 .search-button:hover {{ color: {self.foreground}; background-color: {self.border}; }}
 
-.panel {{ background-color: {self.surface}; border: 0; border-left: 1px solid {hairline}; border-radius: 0; margin: 0; }}
+.panel {{ background-color: {self.surface}; border: 0; border-left: 1px solid {hairline}; border-radius: 0; margin: 0; box-shadow: -8px 0 22px -16px rgba(0,0,0,0.5); }}
 .panel-inner {{ padding: 16px 10px 12px 10px; }}
 .panel-title {{ color: {self.muted}; font-weight: 600; font-size: 12px; }}
 .panel-hint {{ color: {self.muted}; font-size: 11px; }}

@@ -307,7 +307,7 @@ class ThemeTests(unittest.TestCase):
     def test_builtin_themes_are_valid_and_complete(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             manager = ThemeManager(Path(directory))
-            self.assertEqual(len(manager.all()), 23)  # 5 classic + 8 phosphor + red alert, 3 light, high contrast, 5 modern
+            self.assertEqual(len(manager.all()), 26)  # + macOS Escuro, Fiorde, Meia-noite
             self.assertFalse(manager.errors)
             for theme in manager.all():
                 self.assertEqual(len(theme.ansi), 16)

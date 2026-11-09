@@ -4,6 +4,9 @@ Este projeto segue [Semantic Versioning](https://semver.org/).
 
 ## 0.22.0
 
+- **Três temas novos** (26 no total): **macOS Escuro** (grafite + azul de sistema, combina com o app), **Fiorde** (paleta Nord) e **Meia-noite** (Tokyo Night).
+- **Profundidade sutil na interface**: o cabeçalho, as abas, a barra de status e o painel lateral ganham uma sombra suave (estilo macOS) e passam a "flutuar" sobre o terminal — em todos os temas.
+
 - **Usabilidade**:
   - **Busca na saída do terminal** (`Ctrl+Shift+F`): procura na rolagem do painel ativo, com navegação entre ocorrências.
   - **Links e caminhos clicáveis**: `Ctrl+clique` abre URLs no navegador e arquivos no visualizador; o botão direito traz copiar, colar e pesquisar.
