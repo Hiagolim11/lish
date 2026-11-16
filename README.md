@@ -244,7 +244,7 @@ lish --diagnose
 ```
 
 ```text
-Little Shell 0.22.0
+Little Shell 0.23.0
 GTK: 3.24.52
 VTE: 0.84.1
 Fonte selecionada: JetBrainsMono Nerd Font

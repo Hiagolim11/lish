@@ -26,7 +26,7 @@ test -x bin/lish-open
 bin/lish-open --help | grep -F "lish-open ARQUIVO" >/dev/null
 bash -n run.sh install.sh tests/smoke.sh packaging/build-deb.sh
 python3 little_shell.py --help >/dev/null
-python3 little_shell.py --version | grep -F "0.22.0" >/dev/null
+python3 little_shell.py --version | grep -F "0.23.0" >/dev/null
 test "$(python3 little_shell.py --list-themes | grep -c "	interno$")" -eq 26
 test "$(python3 little_shell.py --list-profiles | wc -l)" -eq 4
 python3 tests/bench_startup.py
@@ -71,7 +71,7 @@ mkdir -p "$test_home"
 HOME="$test_home" XDG_DATA_HOME="$test_data" ./install.sh
 test -x "$test_home/.local/bin/lish"
 HOME="$test_home" XDG_DATA_HOME="$test_data" "$test_home/.local/bin/lish" --version \
-  | grep -F '0.22.0' >/dev/null
+  | grep -F '0.23.0' >/dev/null
 test -f "$test_data/lish/littleshell/themes/matrix-green.ini"
 test -x "$test_home/.local/bin/lish-open"
 test -x "$test_data/lish/bin/lish-askpass"
@@ -99,7 +99,7 @@ if command -v dpkg-deb >/dev/null; then
     | grep -F './usr/lib/lish/littleshell/themes/matrix-green.ini' >/dev/null
   dpkg-deb --extract "$artifact" "$test_dir/package-root"
   python3 "$test_dir/package-root/usr/lib/lish/little_shell.py" --version \
-    | grep -F '0.22.0' >/dev/null
+    | grep -F '0.23.0' >/dev/null
   desktop-file-validate \
     "$test_dir/package-root/usr/share/applications/org.littleshell.LittleShell.desktop"
 fi

@@ -2,7 +2,7 @@
 
 APP_NAME = "lish"
 APP_ID = "org.littleshell.LittleShell"
-VERSION = "0.22.0"
+VERSION = "0.23.0"
 DEFAULT_FONT_SIZE = 11
 DEFAULT_SCROLLBACK = 20_000
 DEFAULT_THEME = "minimal-dark"
