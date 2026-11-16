@@ -1,22 +1,26 @@
 """Optional, isolated local speech recognition worker (no GTK imports).
 
-Run as ``python -m littleshell.speech``. With ``--file`` it transcribes an
-audio file; otherwise it records from the microphone until it receives
-SIGTERM/SIGINT (the app sends it when you press the shortcut again) and then
-transcribes. The result is printed as one JSON line: ``{"text": ...}`` or
-``{"error": ...}``. A small Whisper model is the default so dictation on a CPU
-stays fast; override with ``--model`` or the ``LISH_SPEECH_MODEL`` env var.
+Run as ``python -m littleshell.speech``. It serves a line protocol on stdin so
+the app keeps ONE worker alive and the Whisper model warm between dictations:
+send ``record`` to start capturing the microphone and ``stop`` to end it; the
+worker transcribes and writes one JSON line — ``{"text": ...}`` or
+``{"error": ...}`` — to stdout, then waits for the next ``record``. The model
+is loaded once, on the first transcription, and reused, so only the first
+dictation pays the load cost. Closing stdin exits the worker. With ``--file``
+it transcribes one audio file and exits (used by tests and the CLI). A small
+model is the default; override with ``--model`` or ``LISH_SPEECH_MODEL``.
 """
 from __future__ import annotations
 
 import argparse
 import json
 import os
+import sys
 
 from .env import SPEECH_MODEL, text
+
 DEFAULT_MODEL = text(SPEECH_MODEL, "base")
 SAMPLE_RATE = 16000
-MAX_SECONDS = 120  # safety cap: never record longer than this
 
 
 def transcribe(source, model_factory=None, model_name=DEFAULT_MODEL, cpu_threads=0):
@@ -32,42 +36,67 @@ def transcribe(source, model_factory=None, model_name=DEFAULT_MODEL, cpu_threads
     return " ".join(segment.text.strip() for segment in segments if segment.text.strip())
 
 
-def record_until_stop():
-    """Record mono 16 kHz audio until SIGTERM/SIGINT, returning a float32 array."""
-    import signal
-    import threading
+def warm_factory():
+    """A ``model_factory`` that builds the Whisper model once and reuses it."""
+    cache: dict = {}
 
-    import sounddevice as sd
-    import numpy as np
+    def factory(name, **kwargs):
+        if "model" not in cache:
+            from faster_whisper import WhisperModel
+            cache["model"] = WhisperModel(name, **kwargs)
+        return cache["model"]
 
-    frames: list = []
-    stop = threading.Event()
-
-    def on_frame(indata, _frames, _time, _status):
-        frames.append(indata.copy())
-
-    for signum in (signal.SIGTERM, signal.SIGINT):
-        signal.signal(signum, lambda *_: stop.set())
-
-    with sd.InputStream(samplerate=SAMPLE_RATE, channels=1, dtype="float32", callback=on_frame):
-        stop.wait(timeout=MAX_SECONDS)
-
-    if not frames:
-        return np.zeros(0, dtype="float32")
-    audio = np.concatenate(frames).reshape(-1)
-    if not np.isfinite(audio).all():
-        raise ValueError("O microfone retornou áudio inválido.")
-    return audio
+    return factory
 
 
-def main():
+def serve(model_name=DEFAULT_MODEL, stdin=None, stdout=None) -> int:
+    """Read ``record``/``stop`` lines; keep the model warm across dictations."""
+    stdin = stdin if stdin is not None else sys.stdin
+    stdout = stdout if stdout is not None else sys.stdout
+    try:
+        import sounddevice as sd
+        import numpy as np
+    except ImportError:
+        stdout.write(json.dumps({"error": "missing-deps"}) + "\n")
+        stdout.flush()
+        return 1
+    factory = warm_factory()
+    frames: list | None = None
+    stream = None
+    for line in stdin:
+        command = line.strip()
+        if command == "record":
+            frames = []
+            stream = sd.InputStream(samplerate=SAMPLE_RATE, channels=1, dtype="float32",
+                                    callback=lambda indata, *_: frames.append(indata.copy()))
+            stream.start()
+        elif command == "stop":
+            if stream is not None:
+                stream.stop()
+                stream.close()
+                stream = None
+            try:
+                audio = np.concatenate(frames).reshape(-1) if frames else np.zeros(0, dtype="float32")
+                if audio.size and not np.isfinite(audio).all():
+                    raise ValueError("O microfone retornou áudio inválido.")
+                result = transcribe(audio, model_factory=factory, model_name=model_name)
+                stdout.write(json.dumps({"text": result}, ensure_ascii=False) + "\n")
+            except Exception as error:  # noqa: BLE001 - reported to the user as text
+                stdout.write(json.dumps({"error": str(error)}) + "\n")
+            stdout.flush()
+            frames = None
+    return 0
+
+
+def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--file")
     parser.add_argument("--model", default=DEFAULT_MODEL)
     args = parser.parse_args()
+    if not args.file:
+        return serve(args.model)
     try:
-        source = args.file if args.file else record_until_stop()
-        result = transcribe(source, model_name=args.model)
+        result = transcribe(args.file, model_name=args.model)
         print(json.dumps({"text": result}, ensure_ascii=False))
         return 0
     except ImportError:

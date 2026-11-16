@@ -11,61 +11,72 @@ def fake_window():
     return SimpleNamespace(status=Gtk.Label(), get_active_terminal=lambda: pane), pane
 
 
-def drop_timers(controller):
-    for attribute in ("poll_timer", "count_timer"):
-        source = getattr(controller, attribute)
-        if source:
-            GLib.source_remove(source)
-            setattr(controller, attribute, 0)
+def make_worker():
+    worker = Mock()
+    worker.poll.return_value = None  # alive
+    worker.stdin = Mock()
+    worker.wait.return_value = 0
+    return worker
+
+
+def drop_timer(controller):
+    if controller.count_timer:
+        GLib.source_remove(controller.count_timer)
+        controller.count_timer = 0
 
 
 class SpeechControllerTests(unittest.TestCase):
-    def test_toggle_records_then_types_into_terminal(self):
+    @patch.object(SpeechController, "_read_results", lambda self, process: None)
+    def test_record_stop_types_and_keeps_worker_warm(self):
         window, pane = fake_window()
         controller = SpeechController(window)
-        controller.ready = True  # skip the background dependency check
-        worker = Mock()
-        worker.poll.return_value = None  # still recording
-        with patch("littleshell.dialogs.speech.subprocess.Popen", return_value=worker):
-            controller.toggle()
-        self.assertEqual(controller.state, "recording")
-        drop_timers(controller)
+        controller.ready = True
+        worker = make_worker()
+        with patch("littleshell.dialogs.speech.subprocess.Popen", return_value=worker) as popen:
+            controller.toggle()  # record
+            self.assertEqual(controller.state, "recording")
+            worker.stdin.write.assert_any_call("record\n")
+            drop_timer(controller)
 
-        controller.output.seek(0)
-        controller.output.write(b'{"text": "ls -la"}')
-        worker.poll.return_value = 0  # finished transcribing
-        controller.toggle()  # second press: stop early
-        self.assertEqual(controller.state, "busy")
-        self.assertFalse(controller.poll())
-        pane.terminal.feed_child.assert_called_once_with(b"ls -la")
-        self.assertEqual(controller.state, "idle")
+            controller.toggle()  # stop
+            self.assertEqual(controller.state, "busy")
+            worker.stdin.write.assert_any_call("stop\n")
 
+            controller._on_result('{"text": "ls -la"}')
+            pane.terminal.feed_child.assert_called_once_with(b"ls -la")
+            self.assertEqual(controller.state, "idle")
+
+            controller.toggle()  # a second dictation reuses the warm worker
+            drop_timer(controller)
+            self.assertEqual(popen.call_count, 1)  # no new process spawned
+        controller.state = "idle"
+
+    @patch.object(SpeechController, "_read_results", lambda self, process: None)
     def test_auto_stop_when_countdown_ends(self):
         window, _pane = fake_window()
         controller = SpeechController(window)
         controller.ready = True
-        worker = Mock()
-        worker.poll.return_value = None
+        worker = make_worker()
         with patch("littleshell.dialogs.speech.subprocess.Popen", return_value=worker):
             controller.toggle()
-        drop_timers(controller)
-        controller.remaining = 1
-        self.assertFalse(controller._tick())  # last tick stops recording
-        self.assertEqual(controller.state, "busy")
-        worker.send_signal.assert_called_once()
+            drop_timer(controller)
+            controller.remaining = 1
+            self.assertFalse(controller._tick())  # last tick stops
+            self.assertEqual(controller.state, "busy")
+            worker.stdin.write.assert_any_call("stop\n")
 
-    def test_cleanup_kills_worker(self):
+    @patch.object(SpeechController, "_read_results", lambda self, process: None)
+    def test_cleanup_closes_stdin_and_terminates(self):
         window, _pane = fake_window()
         controller = SpeechController(window)
         controller.ready = True
-        worker = Mock()
-        worker.poll.return_value = None
+        worker = make_worker()
         with patch("littleshell.dialogs.speech.subprocess.Popen", return_value=worker):
             controller.toggle()
         controller.cleanup()
-        worker.kill.assert_called_once()
-        worker.wait.assert_called_once()
-        self.assertIsNone(controller.output)
+        worker.stdin.close.assert_called_once()
+        worker.terminate.assert_called_once()
+        self.assertIsNone(controller.process)
         self.assertEqual(controller.state, "idle")
 
 

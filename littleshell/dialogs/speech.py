@@ -3,26 +3,25 @@
 One shortcut (or the microphone button) starts it: it records a few seconds
 from the microphone — a countdown shows in the status bar — then stops on its
 own (or earlier if you press the shortcut again), transcribes with a local
-Whisper model in an isolated subprocess, and feeds the text into the active
-pane (no Enter, so you can review it). There is no dialog. The first time it
-runs, the optional dependencies are checked and, if missing, installed in the
-background — nothing to install by hand, and the interface never freezes.
+Whisper model, and feeds the text into the active pane (no Enter, so you can
+review it). There is no dialog. A single worker process stays alive and keeps
+the model warm between dictations, so only the first one pays the load cost.
+The first time it runs, the optional dependencies are checked and, if missing,
+installed in the background — nothing to install by hand, no frozen interface.
 """
 from __future__ import annotations
 
 import json
-import signal
 import subprocess
 import sys
-import tempfile
 import threading
 from pathlib import Path
 
+from ..env import SPEECH_SECONDS, number
 from ..runtime import GLib
 
 PACKAGES = ["faster-whisper>=1.1,<2", "sounddevice>=0.5,<1", "numpy>=1.24,<3"]
 ROOT = str(Path(__file__).resolve().parents[2])
-from ..env import SPEECH_SECONDS, number
 MAX_SECONDS = number(SPEECH_SECONDS, 8, minimum=2)
 
 
@@ -33,9 +32,8 @@ class SpeechController:
         self.window = window
         self.state = "idle"
         self.ready = False
-        self.process = None
-        self.output = None
-        self.poll_timer = 0
+        self.process = None     # persistent worker, kept warm between dictations
+        self.reader = None
         self.count_timer = 0
         self.remaining = 0
 
@@ -111,25 +109,54 @@ class SpeechController:
         except (OSError, subprocess.SubprocessError):
             return False
 
-    # --------------------------------------------------------------- recording
-    def start_recording(self) -> None:
+    # --------------------------------------------------------- the warm worker
+    def _worker_alive(self) -> bool:
+        return self.process is not None and self.process.poll() is None
+
+    def _ensure_worker(self) -> bool:
+        if self._worker_alive():
+            return True
         try:
-            self.output = tempfile.TemporaryFile(mode="w+b")
             self.process = subprocess.Popen(
                 [sys.executable, "-m", "littleshell.speech"], cwd=ROOT,
-                stdout=self.output, stderr=subprocess.DEVNULL,
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                text=True, bufsize=1,
             )
         except OSError as error:
-            if self.output is not None:
-                self.output.close()
-                self.output = None
-            self.say(f"Não foi possível gravar: {error}", transient=True)
+            self.process = None
+            self.say(f"Não foi possível iniciar o ditado: {error}", transient=True)
+            return False
+        self.reader = threading.Thread(target=self._read_results, args=(self.process,), daemon=True)
+        self.reader.start()
+        return True
+
+    def _read_results(self, process) -> None:
+        for line in process.stdout:
+            line = line.strip()
+            if line:
+                GLib.idle_add(self._on_result, line)
+        GLib.idle_add(self._on_worker_gone, process)
+
+    def _send(self, command: str) -> bool:
+        try:
+            self.process.stdin.write(command + "\n")
+            self.process.stdin.flush()
+            return True
+        except (OSError, ValueError, AttributeError):
+            self.process = None
+            self.state = "idle"
+            self.say("O ditado caiu; tente de novo.", transient=True)
+            return False
+
+    # --------------------------------------------------------------- recording
+    def start_recording(self) -> None:
+        if not self._ensure_worker() or not self._send("record"):
+            self.state = "idle"
             return
         self.state = "recording"
         self._mark_button(True)
         self.remaining = MAX_SECONDS
         self.say(f"🎤 Gravando… {self.remaining}s · Ctrl+Shift+M para parar")
-        self.poll_timer = GLib.timeout_add(150, self.poll)
         self.count_timer = GLib.timeout_add(1000, self._tick)
 
     def _tick(self) -> bool:
@@ -145,7 +172,7 @@ class SpeechController:
         return True
 
     def stop(self) -> None:
-        if self.process is None:
+        if self.state != "recording":
             return
         self.state = "busy"
         self._mark_button(False)
@@ -153,28 +180,12 @@ class SpeechController:
             GLib.source_remove(self.count_timer)
             self.count_timer = 0
         self.say("Transcrevendo…")
-        if self.process.poll() is None:
-            try:
-                self.process.send_signal(signal.SIGTERM)
-            except (ProcessLookupError, OSError):
-                pass
+        self._send("stop")
 
-    def poll(self) -> bool:
-        if self.process is None:
-            self.poll_timer = 0
-            return False
-        if self.process.poll() is None:
-            return True  # still recording or transcribing
-        self.poll_timer = 0
-        self._finish()
-        return False
-
-    def _finish(self) -> None:
-        text = ""
-        message = ""
+    def _on_result(self, line: str) -> bool:
+        text, message = "", ""
         try:
-            self.output.seek(0)
-            result = json.loads(self.output.read().decode("utf-8") or "{}")
+            result = json.loads(line or "{}")
             if result.get("error") == "missing-deps":
                 self.ready = False
                 message = "Faltam dependências de fala; serão instaladas no próximo uso."
@@ -183,18 +194,23 @@ class SpeechController:
             else:
                 text = (result.get("text") or "").strip()
                 message = "" if text else "Nenhuma fala detectada — fale mais perto do microfone."
-        except (ValueError, OSError):
-            message = "Falha ao transcrever. Verifique o microfone e a memória."
-        finally:
-            if self.output is not None:
-                self.output.close()
-            self.output = None
-            self.process = None
+        except ValueError:
+            message = "Falha ao transcrever."
+        if self.state == "busy":
             self.state = "idle"
         if text:
             self.type_into_terminal(text)
         if message:
             self.say(message, transient=True)
+        return False
+
+    def _on_worker_gone(self, process) -> bool:
+        if process is self.process:
+            self.process = None
+            if self.state in ("recording", "busy"):
+                self.state = "idle"
+                self.say("O ditado parou inesperadamente.", transient=True)
+        return False
 
     def type_into_terminal(self, text: str) -> None:
         getter = getattr(self.window, "get_active_terminal", None)
@@ -205,19 +221,27 @@ class SpeechController:
 
     # ------------------------------------------------------------------ cleanup
     def cleanup(self, *_) -> None:
-        for attribute in ("poll_timer", "count_timer"):
-            source = getattr(self, attribute, 0)
-            if source:
-                GLib.source_remove(source)
-                setattr(self, attribute, 0)
+        if self.count_timer:
+            GLib.source_remove(self.count_timer)
+            self.count_timer = 0
         if self.process is not None:
+            try:
+                self.process.stdin.close()  # closing stdin tells the worker to exit
+            except (OSError, ValueError):
+                pass
             if self.process.poll() is None:
-                self.process.kill()
-            self.process.wait()
+                try:
+                    self.process.terminate()
+                except (OSError, ProcessLookupError):
+                    pass
+            try:
+                self.process.wait(timeout=2)
+            except (subprocess.SubprocessError, OSError):
+                try:
+                    self.process.kill()
+                except (OSError, ProcessLookupError):
+                    pass
             self.process = None
-        if self.output is not None:
-            self.output.close()
-            self.output = None
         self.state = "idle"
 
 
