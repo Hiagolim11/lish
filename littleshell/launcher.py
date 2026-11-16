@@ -12,6 +12,7 @@ from __future__ import annotations
 import os
 import sys
 
+from . import env
 from .constants import APP_ID
 
 # These change the look of a window, so it needs its own process.
@@ -27,7 +28,7 @@ LOCAL_OPTIONS = {
 
 
 def separate_requested() -> bool:
-    return os.environ.get("LISH_SEPARATE", "").strip().lower() in ("1", "true", "yes", "on")
+    return env.flag(env.SEPARATE)
 
 
 def wants_running_instance(argv: list[str]) -> bool:
@@ -64,6 +65,6 @@ def forward(argv: list[str]) -> int | None:
         # The open instance quit in between and this light process took its
         # name. Start over as a separate full instance; exec drops the
         # D-Bus connection, which frees the name for the next launch.
-        os.environ["LISH_SEPARATE"] = "1"
+        os.environ[env.SEPARATE] = "1"
         os.execv(sys.executable, [sys.executable, *sys.argv])
     return application.run([sys.argv[0], *argv])

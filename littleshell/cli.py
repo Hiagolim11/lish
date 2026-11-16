@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 from pathlib import Path
 
+from . import env
 from .actions import ActionStore
 from .config import AppConfig, ConfigStore, Preferences, env_enabled, migrate_legacy_dirs
 from .constants import APP_NAME, VERSION
@@ -70,7 +70,7 @@ def diagnose(
     preferences: Preferences,
     requested_font: str | None = None,
 ) -> int:
-    requested = requested_font or os.environ.get("LISH_FONT") or preferences.font
+    requested = requested_font or env.text(env.FONT) or preferences.font
     choice = choose_font(requested)
     print(f"Little Shell {VERSION}")
     print(f"GTK: {Gtk.get_major_version()}.{Gtk.get_minor_version()}.{Gtk.get_micro_version()}")

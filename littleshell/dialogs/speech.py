@@ -11,7 +11,6 @@ background — nothing to install by hand, and the interface never freezes.
 from __future__ import annotations
 
 import json
-import os
 import signal
 import subprocess
 import sys
@@ -23,7 +22,8 @@ from ..runtime import GLib
 
 PACKAGES = ["faster-whisper>=1.1,<2", "sounddevice>=0.5,<1", "numpy>=1.24,<3"]
 ROOT = str(Path(__file__).resolve().parents[2])
-MAX_SECONDS = max(2, int(os.environ.get("HT_SPEECH_SECONDS", "8") or 8))
+from ..env import SPEECH_SECONDS, number
+MAX_SECONDS = number(SPEECH_SECONDS, 8, minimum=2)
 
 
 class SpeechController:

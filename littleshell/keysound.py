@@ -559,7 +559,8 @@ def key_size(keyval: int) -> str:
 
 def _make_sink() -> object | None:
     Gst = load_gst()
-    preferred = os.environ.get("LISH_AUDIO_SINK")
+    from . import env
+    preferred = env.text(env.AUDIO_SINK)
     for name in ([preferred] if preferred else []) + ["pulsesink", "pipewiresink", "autoaudiosink"]:
         sink = Gst.ElementFactory.make(name, None)
         if sink is None:

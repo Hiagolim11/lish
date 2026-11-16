@@ -5,7 +5,7 @@ audio file; otherwise it records from the microphone until it receives
 SIGTERM/SIGINT (the app sends it when you press the shortcut again) and then
 transcribes. The result is printed as one JSON line: ``{"text": ...}`` or
 ``{"error": ...}``. A small Whisper model is the default so dictation on a CPU
-stays fast; override with ``--model`` or the ``HT_SPEECH_MODEL`` env var.
+stays fast; override with ``--model`` or the ``LISH_SPEECH_MODEL`` env var.
 """
 from __future__ import annotations
 
@@ -13,7 +13,8 @@ import argparse
 import json
 import os
 
-DEFAULT_MODEL = os.environ.get("HT_SPEECH_MODEL", "base")
+from .env import SPEECH_MODEL, text
+DEFAULT_MODEL = text(SPEECH_MODEL, "base")
 SAMPLE_RATE = 16000
 MAX_SECONDS = 120  # safety cap: never record longer than this
 

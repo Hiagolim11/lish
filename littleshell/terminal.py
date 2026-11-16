@@ -27,6 +27,7 @@ from .runtime import Atk, Gdk, Gio, GLib, Gtk, Pango, Vte
 from .background import BackgroundPainter, load as load_background
 from .session import clean_name
 from .sandbox import IN_FLATPAK, export_to_host, host_command, host_shell
+from .env import SHELL_INTEGRATION
 from .themes import Theme, effective_opacity
 
 LOGGER = logging.getLogger(__name__)
@@ -115,7 +116,7 @@ def integration_launch(argv: list[str], custom_shell: str) -> tuple[list[str], d
     """Adapt the shell command line to load the integration hooks."""
     if not HAS_TERMPROPS:
         return argv, {}
-    if os.environ.get("LISH_SHELL_INTEGRATION", "1").strip().lower() in ("0", "false", "no", "off"):
+    if os.environ.get(SHELL_INTEGRATION, "1").strip().lower() in ("0", "false", "no", "off"):
         return argv, {}
     name = Path(argv[0]).name
     plain = len(argv) == 1 or argv[1:] == ["-l"]
