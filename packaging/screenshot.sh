@@ -2,7 +2,7 @@
 # Capture a clean Little Shell screenshot on a real X display.
 #
 # It runs the app from source against a throwaway HOME so the prompt is the
-# neutral "hacker@lab" and no real history, theme or settings leak into the
+# neutral "user@lab" and no real history, theme or settings leak into the
 # image. Headless Xvfb does not render VTE faithfully, so run this on your
 # actual desktop (X11; a compositor is fine).
 #
@@ -21,7 +21,7 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 
 home="$(mktemp -d)"
 trap 'rm -rf "$home"' EXIT
-printf 'export PS1="\\[\\e[38;5;75m\\]hacker@lab\\[\\e[0m\\]:~\\$ "\nclear\n' > "$home/.bashrc"
+printf 'export PS1="\\[\\e[38;5;75m\\]user@lab\\[\\e[0m\\]:~\\$ "\nclear\n' > "$home/.bashrc"
 work="$home/lab"
 mkdir -p "$work/bin" "$work/docs"
 echo "scope: 10.10.13.0/24 (autorizado)" > "$work/scope.txt"

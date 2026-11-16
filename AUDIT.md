@@ -17,7 +17,7 @@ Esta revisão cobre o aplicativo GTK/VTE, scripts, metadados e empacotamento. Os
 - **Compatibilidade limitada como terminal:** foram adicionados `-e/--execute` e `--working-directory`; sessões de comando fecham junto com o processo e ocultam ações exclusivas do shell.
 - **Comandos relativos com `-e` falhavam:** o spawn agora pesquisa executáveis no `PATH`, permitindo usos como `lish -e htop`.
 - **Permissão incorreta no pacote:** o changelog compactado agora é normalizado para modo `0644`.
-- **Ícone incompleto:** o ícone agora é vetorial, possui identidade hacker e é usado pela janela, menu, instalação local e pacote Debian.
+- **Ícone incompleto:** o ícone agora é vetorial, possui identidade prÃ³pria e é usado pela janela, menu, instalação local e pacote Debian.
 - **Distribuição sem metadados:** foram adicionados AppStream, dependências Debian, scripts de atualização dos caches e validação do conteúdo do pacote.
 - **Identidade inconsistente no desktop:** GTK, AppStream e o arquivo `.desktop` agora usam `org.littleshell.LittleShell`, evitando agrupamento incorreto ou ícone duplicado no dock.
 - **Aplicativo monolítico:** a interface, configuração, áudio, efeitos, fontes e terminal foram separados em módulos com responsabilidades claras e testes próprios.
@@ -27,7 +27,7 @@ Esta revisão cobre o aplicativo GTK/VTE, scripts, metadados e empacotamento. Os
 - **Painel sempre ocupando espaço:** o painel lateral pode ser ocultado pelo cabeçalho e sua escolha é restaurada na próxima execução.
 - **Visual fixo no código:** as cores foram movidas para temas INI validados, com cinco opções internas, importação, exportação, aplicação imediata e fallback seguro.
 - **Ações desapareciam em janelas baixas:** o painel lateral agora possui rolagem independente e modo compacto acionado pela área disponível.
-- **Padrão visual distrativo:** novas configurações usam Minimal Dark sem animação, efeitos ou áudio; o modo hacker completo permanece no perfil Retro Hacker.
+- **Padrão visual distrativo:** novas configurações usam Minimal Dark sem animação, efeitos ou áudio; o modo retrÃ´ completo permanece no perfil RetrÃ´ Matrix.
 - **Fluxos repetitivos:** perfis, ações editáveis e paleta de comandos reduzem navegação e permitem adaptar o terminal ao projeto.
 - **Abas perdiam contexto:** novas abas herdam o diretório atual e sessões restauram apenas diretórios locais ainda existentes.
 - **Uma tarefa por aba:** cada aba agora pode conter dois painéis, horizontais ou verticais, com foco, fechamento e restauração independentes.

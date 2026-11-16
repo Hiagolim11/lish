@@ -63,7 +63,7 @@ O **Little Shell** é um emulador de terminal **de verdade** — não uma simula
 Por cima desse motor maduro, ele adiciona uma camada pensada para quem passa o dia no terminal: abas e painéis divididos, paleta de comandos, temas editáveis, perfis, atalhos remapeáveis, ações rápidas, som de teclado mecânico de baixa latência e, se você quiser, a estética retrô completa, com chuva digital, scanlines e temas de tubo CRT.
 
 > [!NOTE]
-> O padrão é **sóbrio** (tema Minimal Dark, sem animações nem som). Toda a parte "hacker" é opcional e fica a um clique no perfil **Retro Hacker**.
+> O padrão é **sóbrio** (tema Minimal Dark, sem animações nem som). Toda a parte retrÃ´/neon é opcional e fica a um clique no perfil **RetrÃ´ Matrix**.
 
 ---
 
@@ -259,7 +259,7 @@ Shell: /usr/bin/zsh
 ## 🚀 Primeiros passos
 
 1. **Abra** pelo menu de aplicativos ou com `lish`.
-2. **Escolha um perfil** em `Ctrl+,` → *Geral*: *Desenvolvimento* (sóbrio), *Foco* (sem painel) ou *Retro Hacker* (chuva digital e scanlines).
+2. **Escolha um perfil** em `Ctrl+,` → *Geral*: *Desenvolvimento* (sóbrio), *Foco* (sem painel) ou *RetrÃ´ Matrix* (chuva digital e scanlines).
 3. **Experimente a paleta** com `Ctrl+Shift+P` e digite `tema`, `perfil` ou `dividir`.
 4. **Divida a tela** com `Ctrl+Shift+D` e alterne entre os painéis com `Ctrl+Shift+O`.
 5. **Ligue o som do teclado** em `Ctrl+,` → *Som do teclado* e teste no campo “Digite aqui para ouvir…”.
@@ -358,7 +358,7 @@ rain = false
 
 | Tema | Estilo |
 | --- | --- |
-| **Zero Day** | Hacker moderno: preto profundo, verde tóxico e chuva digital discreta |
+| **Zero Day** | Moderno sombrio: preto profundo, verde tóxico e chuva digital discreta |
 | **Neon Noir** | Noite cyberpunk em magenta e ciano, com brilho leve |
 | **Pôr do Sol Synth** | Synthwave: roxo profundo com laranja e rosa |
 | **Aurora** | Azul-marinho com verde-água e violeta |
@@ -450,7 +450,7 @@ Um perfil guarda um conjunto completo de preferências e pode ser trocado em um 
 | --- | --- | --- |
 | **Desenvolvimento** | Minimal Dark | Sóbrio, painel de ações visível, sem efeitos |
 | **Foco** | Ice Blue | Fonte maior, sem painel lateral |
-| **Retro Hacker** | Matrix Green | Chuva digital, scanlines e painel de ações visível |
+| **RetrÃ´ Matrix** | Matrix Green | Chuva digital, scanlines e painel de ações visível |
 | **Retrô CRT** | Fósforo Âmbar | Monitor de fósforo com brilho, curvatura e ruído, sem painel lateral |
 | *Seus perfis* | qualquer um | Tema, fonte, tamanho, shell, cursor, opacidade, efeitos, painel, **diretório inicial** e **ações rápidas próprias** |
 

@@ -17,8 +17,8 @@
   const PACKS = new Map(DATA.soundpacks.map((pack) => [pack.id, pack]));
   const VERSION = DATA.version;
   const REDUCED_MOTION = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const HOME = "/home/hacker";
-  const USER = "hacker";
+  const HOME = "/home/user";
+  const USER = "user";
   const HOST = "lab";
 
   const FONTS = [
@@ -245,15 +245,15 @@
     "Oct 18 03:01:07 lab sshd[1337]: Failed password for root from 45.9.2.11 port 51022 ssh2",
     "Oct 18 03:01:09 lab sshd[1337]: Failed password for root from 45.9.2.11 port 51022 ssh2",
     "Oct 18 03:01:12 lab sshd[1337]: Failed password for invalid user admin from 45.9.2.11 port 51022 ssh2",
-    "Oct 18 03:02:55 lab sshd[1340]: Accepted publickey for hacker from 10.10.13.5 port 40122 ssh2",
-    "Oct 18 03:02:55 lab sshd[1340]: pam_unix(sshd:session): session opened for user hacker(uid=1000)",
-    "Oct 18 03:07:18 lab sudo:   hacker : TTY=pts/0 ; PWD=/home/hacker ; USER=root ; COMMAND=/usr/bin/tcpdump",
+    "Oct 18 03:02:55 lab sshd[1340]: Accepted publickey for user from 10.10.13.5 port 40122 ssh2",
+    "Oct 18 03:02:55 lab sshd[1340]: pam_unix(sshd:session): session opened for user user(uid=1000)",
+    "Oct 18 03:07:18 lab sudo:   user : TTY=pts/0 ; PWD=/home/user ; USER=root ; COMMAND=/usr/bin/tcpdump",
     "Oct 18 03:09:02 lab sshd[1402]: Failed password for invalid user oracle from 185.3.4.5 port 33110 ssh2",
     "Oct 18 03:11:44 lab CRON[1450]: pam_unix(cron:session): session opened for user root(uid=0)",
     "Oct 18 03:14:22 lab agent[1511]: session token issued for svc-backup: HT{logs_sempre_contam_tudo}",
     "Oct 18 03:15:01 lab sshd[1402]: Failed password for invalid user test from 185.3.4.5 port 33110 ssh2",
     "Oct 18 03:18:37 lab sshd[1560]: Connection closed by 185.3.4.5 port 33110 [preauth]",
-    "Oct 18 03:21:10 lab systemd-logind[900]: New session 7 of user hacker.",
+    "Oct 18 03:21:10 lab systemd-logind[900]: New session 7 of user user.",
     "Oct 18 03:25:59 lab sshd[1601]: Received disconnect from 10.10.13.5 port 40122:11: disconnected by user",
   ].join("\n") + "\n";
   const FLAGS = [
@@ -266,7 +266,7 @@
 
   const fs = dir({
     home: dir({
-      hacker: dir({
+      user: dir({
         "MISSION.txt": file(MISSION),
         "scope.txt": file("# Escopo AUTORIZADO desta operacao (ficticio, simulado no navegador)\n10.10.13.37    lab.ctf\n# Fora deste escopo: nao tocar.\n"),
         recon: dir({
@@ -279,7 +279,7 @@
           "credenciais.txt": file("# coletado do alvo, ainda sem uso\nadmin:$2y$10$Ro0t...(hash nao quebrado)\n"),
         }),
         ".segredo": file("# anotacao pessoal — NAO COMMITAR\nHT{nada_fica_escondido}\n"),
-        ".ssh": dir({ config: file("Host lab.ctf\n  HostName 10.10.13.37\n  User hacker\n"), "id_ed25519.pub": file("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI… hacker@lab\n"), known_hosts: file("") }),
+        ".ssh": dir({ config: file("Host lab.ctf\n  HostName 10.10.13.37\n  User user\n"), "id_ed25519.pub": file("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI… user@lab\n"), known_hosts: file("") }),
         ".config": dir({
           "lish": dir({
             "config.ini": file(configIni),
@@ -739,7 +739,7 @@
   def("clear reset", (ctx) => { if (ctx.pane) ctx.pane.clear(); return 0; });
   def("whoami", (ctx) => { out(ctx, USER); return 0; });
   def("hostname", (ctx) => { out(ctx, HOST); return 0; });
-  def("id", (ctx) => { out(ctx, "uid=1000(hacker) gid=1000(hacker) grupos=1000(hacker),27(sudo),1001(wireshark)"); return 0; });
+  def("id", (ctx) => { out(ctx, "uid=1000(user) gid=1000(user) grupos=1000(user),27(sudo),1001(wireshark)"); return 0; });
   def("uname", (ctx) => {
     const opts = flags(ctx.args);
     if (opts.includes("a")) out(ctx, `Linux ${HOST} 6.12.25-amd64 #1 SMP PREEMPT_DYNAMIC Kali 6.12.25-1kali1 (2025-04-30) x86_64 GNU/Linux`);
@@ -819,16 +819,16 @@
   def("ps", (ctx) => {
     out(ctx, "USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND");
     const rows = [
-      ["hacker", 1873, "3.1", "1.9", 1104332, 152340, "?", "Sl", "/usr/bin/python3 /usr/bin/lish"],
-      ["hacker", 1412, "1.2", "2.7", 3982120, 221844, "?", "Ssl", "/usr/bin/pipewire"],
+      ["user", 1873, "3.1", "1.9", 1104332, 152340, "?", "Sl", "/usr/bin/python3 /usr/bin/lish"],
+      ["user", 1412, "1.2", "2.7", 3982120, 221844, "?", "Ssl", "/usr/bin/pipewire"],
       ["root", 902, "0.8", "1.3", 1290044, 105380, "tty7", "Ssl+", "/usr/lib/xorg/Xorg :0"],
-      ["hacker", 1655, "0.4", "1.0", 734512, 82220, "?", "Sl", "xfwm4 --replace"],
-      ["hacker", 4210, "0.3", "0.3", 31092, 24400, "pts/1", "S", "python3 -m http.server 8000"],
-      ["hacker", 1901, "0.1", "0.1", 13872, 8044, "pts/0", "Ss", "/usr/bin/zsh"],
+      ["user", 1655, "0.4", "1.0", 734512, 82220, "?", "Sl", "xfwm4 --replace"],
+      ["user", 4210, "0.3", "0.3", 31092, 24400, "pts/1", "S", "python3 -m http.server 8000"],
+      ["user", 1901, "0.1", "0.1", 13872, 8044, "pts/0", "Ss", "/usr/bin/zsh"],
       ["root", 1, "0.0", "0.1", 22540, 13360, "?", "Ss", "/sbin/init splash"],
       ["root", 611, "0.0", "0.1", 50140, 10224, "?", "Ss", "/usr/lib/systemd/systemd-journald"],
       ["root", 745, "0.0", "0.0", 15464, 7380, "?", "Ss", "sshd: /usr/sbin/sshd -D"],
-      ["hacker", 4321, "0.0", "0.0", 11204, 4300, "pts/0", "R+", "ps aux --sort=-%cpu"],
+      ["user", 4321, "0.0", "0.0", 11204, 4300, "pts/0", "R+", "ps aux --sort=-%cpu"],
     ];
     for (const [user, pid, cpu, mem, vsz, rss, tty, stat, cmd] of rows) {
       out(ctx, `${pad(user, 8)} ${padStart(pid, 7)} ${padStart(cpu, 4)} ${padStart(mem, 4)} ${padStart(vsz, 7)} ${padStart(rss, 6)} ${pad(tty, 8)} ${pad(stat, 4)} 14:12   0:${String(pid % 60).padStart(2, "0")} ${cmd}`);
@@ -1081,7 +1081,7 @@
       "  ┌──────────────────┐ ",
       "  │ ▶_               │ ",
       "  │                  │ ",
-      "  │   hacker         │ ",
+      "  │   user         │ ",
       "  │      terminal    │ ",
       "  │                  │ ",
       "  └──────────────────┘ ",

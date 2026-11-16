@@ -80,7 +80,7 @@ PROFILES = (
     ),
     Profile(
         "retro",
-        "Retro Hacker",
+        "Retrô Matrix",
         "Identidade visual completa, com chuva digital e efeitos.",
         "matrix-green",
         11,

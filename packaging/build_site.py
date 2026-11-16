@@ -149,7 +149,7 @@ def main() -> int:
         swatches.append(
             '<div class="theme-tile reveal" data-ui>'
             f'<div class="face" style="background:{theme.terminal_background};color:{theme.terminal_foreground}">'
-            f'<span class="l1"><i style="color:{theme.accent}">hacker@lab</i> ~ $ ls</span>'
+            f'<span class="l1"><i style="color:{theme.accent}">user@lab</i> ~ $ ls</span>'
             f'<span class="l2">bin   docs   scan.sh</span>'
             f'<span class="pal" aria-hidden="true">{dots}</span></div>'
             f'<div class="strip"><b>{html.escape(theme.name)}</b><span>{html.escape(theme.identifier)}</span></div>'

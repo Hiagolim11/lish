@@ -81,8 +81,8 @@ class ConfigurationTests(unittest.TestCase):
     def test_clamp_and_environment_flags(self) -> None:
         self.assertEqual(clamp(2, 6, 32), 6)
         self.assertEqual(clamp(40, 6, 32), 32)
-        with patch.dict(os.environ, {"HACKER_TEST_FLAG": "off"}):
-            self.assertFalse(env_enabled("HACKER_TEST_FLAG"))
+        with patch.dict(os.environ, {"LISH_TEST_FLAG": "off"}):
+            self.assertFalse(env_enabled("LISH_TEST_FLAG"))
 
 
 class RuntimeTests(unittest.TestCase):
