@@ -29,6 +29,7 @@ python3 little_shell.py --help >/dev/null
 python3 little_shell.py --version | grep -F "0.22.0" >/dev/null
 test "$(python3 little_shell.py --list-themes | grep -c "	interno$")" -eq 26
 test "$(python3 little_shell.py --list-profiles | wc -l)" -eq 4
+python3 tests/bench_startup.py
 python3 -m unittest -v tests.test_core tests.test_regressions tests.test_speech
 
 desktop_file="$test_dir/org.littleshell.LittleShell.desktop"
